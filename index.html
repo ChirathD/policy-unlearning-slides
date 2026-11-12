@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Policy Unlearning, 12 November</title>
+<style>
+:root{
+  --paper:#FBFAF7; --ink:#1E2430; --muted:#5B6475; --rule:#D9DDE3; --panel:#F1F3F6;
+  --navy:#1D3557; --teal:#2A8C82; --orange:#E0663F;
+  --pub:#4A72B8; --ours:#16A08F; --loss:#E0663F; --proc:#8E7CC3; --grey:#9AA3AE; --ghost:#C9CED6;
+  --good:#1E7F55; --bad:#C2412B;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#2B2F36;}
+body{font-family:Calibri,Carlito,"Segoe UI",Arial,sans-serif;color:var(--ink);overflow:hidden}
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#deck{position:relative;width:1600px;height:900px;transform-origin:center center;flex:none}
+.slide{position:absolute;inset:0;width:1600px;height:900px;padding:46px 80px 56px;background:var(--paper);display:none;overflow:hidden}
+.slide.current{display:block}
+.slide.dark{background:var(--navy);color:#EEF2F7}
+h1,h2,h3{font-family:Cambria,Caladea,Georgia,serif;font-weight:700;margin:0;color:var(--navy)}
+.dark h1{color:#fff}
+h1{font-size:62px;line-height:1.12}
+h2{font-size:42px;line-height:1.15;margin:6px 0 10px}
+h3{font-size:26px;margin:0 0 8px}
+p,li{font-size:25px;line-height:1.38;margin:0 0 12px}
+ul{margin:0;padding-left:26px}
+.kicker{font-size:16px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:700;margin:0}
+.dark .kicker{color:#7FC4BC}
+.lead{font-size:26px;color:var(--muted);margin:0 0 18px}
+.dark .lead{color:#C9D6E6}
+.small{font-size:19px;color:var(--muted);line-height:1.35}
+.tiny{font-size:16px;color:var(--muted)}
+.foot{position:absolute;left:80px;right:80px;bottom:18px;display:flex;justify-content:space-between;font-size:15px;color:var(--muted)}
+.dark .foot{color:#9FB0C8}
+.strip{display:flex;gap:8px;margin-bottom:8px}
+.strip span{font-size:14px;padding:3px 12px;border-radius:12px;background:var(--panel);color:var(--muted);font-weight:700;letter-spacing:.04em}
+.strip span.here{background:var(--navy);color:#fff}
+.cols{display:grid;gap:44px;align-items:start}
+.c2{grid-template-columns:1fr 1fr}
+.box{background:#fff;border:1px solid var(--rule);border-left:5px solid var(--teal);border-radius:6px;padding:16px 20px;margin:10px 0}
+.box.orange{border-left-color:var(--orange)}.box.navy{border-left-color:var(--navy)}
+.box p{margin:0 0 6px}.box p:last-child{margin:0}
+.quote{font-family:Cambria,Caladea,Georgia,serif;font-style:italic;font-size:27px;color:var(--navy)}
+.card{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:20px 22px;position:relative}
+.card h3{font-size:25px}.card p{font-size:20px;line-height:1.32}
+.card .num{display:inline-flex;width:40px;height:40px;border-radius:50%;align-items:center;justify-content:center;background:var(--teal);color:#fff;font-weight:700;font-size:21px;margin-bottom:10px}
+.card.navy .num{background:var(--navy)}.card.orange .num{background:var(--orange)}
+.tag{display:inline-block;font-size:15px;font-weight:700;padding:2px 10px;border-radius:10px;background:#FBE3DA;color:#9A3412;letter-spacing:.03em}
+.tag.t{background:#D7EFEC;color:#14655C}
+.tag.g{background:#E8EBEF;color:#5B6475}
+.formula{font-family:Cambria,Caladea,Georgia,serif;font-size:28px;color:var(--navy);margin:8px 0 12px}
+.fl{display:flex;align-items:baseline;gap:18px}
+.fl .formula{min-width:330px;margin:0}
+.fl .small{margin:0}
+svg text{font-family:Calibri,Carlito,"Segoe UI",Arial,sans-serif}
+svg .lbl{font-size:19px;fill:var(--ink)}
+svg .lbls{font-size:16px;fill:var(--muted)}
+svg .lblb{font-size:20px;font-weight:700;fill:var(--navy)}
+svg .math{font-family:Cambria,Caladea,Georgia,serif;font-size:24px;fill:var(--navy)}
+svg .blk{fill:#fff;stroke:var(--navy);stroke-width:2}
+svg .blk.t{stroke:var(--teal)}svg .blk.o{stroke:var(--orange)}svg .blk.d{stroke-dasharray:7 6;stroke:var(--grey)}
+svg .arrow{stroke:var(--navy);stroke-width:2.5;fill:none;marker-end:url(#ah)}
+svg .arrow.o{stroke:var(--orange);marker-end:url(#aho)}
+/* builds */
+[data-step]{opacity:0;transition:opacity .5s ease,transform .5s ease}
+[data-step]:not(g):not(rect):not(circle):not(path):not(line):not(text){transform:translateY(10px)}
+[data-step].on{opacity:1;transform:none}
+[data-dim].dim{opacity:.18!important;transition:opacity .5s}
+.draw{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.2s ease}
+.on .draw,.draw.on{stroke-dashoffset:0}
+.draw.slow{transition-duration:2.4s}
+.grow{transform:scaleX(0);transform-box:fill-box;transform-origin:left center;transition:transform 1s ease}
+.on .grow,.grow.on{transform:scaleX(1)}
+.growr{transform:scaleX(0);transform-box:fill-box;transform-origin:right center;transition:transform 1s ease}
+.on .growr,.growr.on{transform:scaleX(1)}
+.growy{transform:scaleY(0);transform-box:fill-box;transform-origin:center bottom;transition:transform .9s ease}
+.growy.neg{transform-origin:center top}
+.on .growy{transform:scaleY(1)}
+.flow{opacity:0}.flow.go{opacity:1}
+/* sequenced parts inside one build: each child waits for its own delay */
+.seq{opacity:0;transition:opacity .45s ease}
+.on .seq{opacity:1}
+.on .fadeaway{animation:fadeaway 1s ease 1.4s forwards}
+.current .fadeauto{animation:fadeaway 1.4s ease 1.8s forwards}
+@keyframes fadeaway{to{opacity:.12}}
+.on .slidein{animation:slidein 1s ease .5s both}
+@keyframes slidein{from{transform:translateX(-190px)}to{transform:none}}
+.pulse{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.4}}
+/* notes, overview, controls */
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:34vh;overflow:auto;background:#11151B;color:#DDE3EA;font:16px/1.5 Calibri,Carlito,Arial,sans-serif;padding:14px 22px 18px;border-top:3px solid var(--teal);display:none;z-index:5}
+#notes.show{display:block}
+#notes b{color:#fff}
+#notes code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;color:#BFE6E1}
+#overview{position:fixed;inset:0;background:rgba(17,21,27,.96);z-index:6;display:none;overflow:auto;padding:32px}
+#overview.show{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;align-content:start}
+#overview button{all:unset;cursor:pointer;background:#1E2530;color:#E6EBF1;border-radius:8px;padding:12px 14px;font:16px/1.35 Calibri,Carlito,Arial,sans-serif;border:1px solid #2F3846}
+#overview button:hover,#overview button.cur{border-color:var(--teal);background:#223040}
+#controls{position:fixed;right:14px;bottom:12px;z-index:4;opacity:.28;transition:opacity .2s;display:flex;gap:6px;align-items:center;font:14px Calibri,Carlito,Arial,sans-serif;color:#C9D2DD}
+#controls:hover{opacity:1}
+#controls button{all:unset;cursor:pointer;background:#3A414C;color:#fff;border-radius:6px;padding:5px 11px}
+#bar{position:fixed;left:0;top:0;height:4px;background:var(--teal);z-index:4;transition:width .3s}
+aside.notes{display:none}
+a{color:var(--navy)}
+@media (prefers-reduced-motion: reduce){
+  [data-step],.draw,.grow,.growr,.growy,.seq{transition:none!important}
+  .fadeaway,.fadeauto,.slidein,.pulse{animation:none!important}
+}
+@media print{
+  html,body{background:#fff;overflow:visible;height:auto}
+  #stage{position:static;display:block}
+  #deck{transform:none!important;width:auto;height:auto}
+  .slide{display:block!important;position:relative;page-break-after:always;break-after:page}
+  [data-step],.seq{opacity:1!important;transform:none!important}
+  [data-dim].dim{opacity:1!important}
+  .draw{stroke-dashoffset:0!important}.grow,.growr,.growy{transform:none!important}
+  #notes,#overview,#controls,#bar{display:none!important}
+  @page{size:1600px 900px;margin:0}
+}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="stage"><div id="deck">
+
+<!-- shared SVG defs -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1D3557"/></marker>
+    <marker id="aho" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#E0663F"/></marker>
+    <marker id="aht" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#16A08F"/></marker>
+  </defs>
+</svg>
+
+<!-- 1 -->
+<section class="slide dark" data-title="Title">
+  <svg id="titleGrid" width="520" height="520" viewBox="0 0 520 520" style="position:absolute;right:90px;top:170px" aria-hidden="true"></svg>
+  <div style="position:absolute;left:80px;top:200px;width:860px">
+    <p class="kicker">Weekly meeting · 12 November 2026</p>
+    <h1 style="margin:18px 0 26px">Policy unlearning in vector-symbolic RL</h1>
+    <p class="lead" style="font-size:30px">Making a trained hyperdimensional agent forget one skill while it keeps the others</p>
+    <p style="margin-top:60px;font-size:24px">Chirath Dasanayaka</p>
+  </div>
+  <div class="foot"><span>Press → or space to step through · N for notes · O for all slides</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p>Built from the draft deck <code>Policy Unlearning in Vector Symbolic RL.pptx</code> (7 slides). Its text and numbers are kept; the animations follow the style of <code>2026-11-12-weekly.html</code>.</p>
+    <p><b>The drawing.</b> Each square is one entry of a weight vector. The orange squares stand for the part of the weights that holds one skill; they fade, and the rest stays.</p>
+    <p><b>A toy example runs through the deck.</b> The draft's vectors have 5 entries. Slides 5 to 9 compute every number from one set of 5-entry vectors (written out in the notes of slide 6), which reproduces the draft's numbers exactly.</p>
+  </aside>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-title="The problem">
+  <div class="strip"><span class="here">Problem</span><span>Background</span><span>Method</span><span>Next</span></div>
+  <h2>A trained agent may later have to lose one of its skills</h2>
+  <p style="margin:6px 0 4px">AI agents learn behaviours that may later become</p>
+  <p style="margin:0 0 18px"><span class="tag" style="font-size:20px;padding:4px 14px">unsafe</span>&nbsp; <span class="tag" style="font-size:20px;padding:4px 14px">outdated</span>&nbsp; <span class="tag" style="font-size:20px;padding:4px 14px">unlicensed</span>&nbsp; <span class="tag" style="font-size:20px;padding:4px 14px">legally required to be removed</span></p>
+  <div class="cols" style="grid-template-columns:1fr 1fr 1fr;gap:26px">
+    <div class="card navy" data-step="1">
+      <span class="num">1</span><h3>Retrain from scratch</h3>
+      <svg viewBox="0 0 400 110" width="100%" height="110">
+        <rect x="0" y="30" width="400" height="30" rx="6" fill="#F1F3F6"/>
+        <rect x="0" y="30" width="400" height="30" rx="6" fill="#4A72B8" class="grow" style="transition-duration:4s"/>
+        <text x="0" y="20" class="lbls">training again on every other skill …</text>
+        <text x="0" y="92" class="lbls">days of compute, for every skill removed</text>
+      </svg>
+      <p>The skill is gone, but the whole training run is repeated.</p>
+      <span class="tag g">removes it</span> <span class="tag">slow and costly</span>
+    </div>
+    <div class="card navy" data-step="2">
+      <span class="num">2</span><h3>Filter at run time</h3>
+      <svg viewBox="0 0 400 110" width="100%" height="110">
+        <rect x="100" y="22" width="200" height="56" rx="8" fill="#FCE6DD" stroke="#E0663F" stroke-width="2.5"/>
+        <text x="200" y="56" text-anchor="middle" class="lblb" style="fill:#9A3412">door-key skill</text>
+        <g class="slidein"><rect x="92" y="14" width="216" height="72" rx="10" fill="#5B6475" opacity=".92"/><text x="200" y="56" text-anchor="middle" class="lblb" style="fill:#fff">blocked</text></g>
+        <text x="200" y="104" text-anchor="middle" class="lbls">the skill is still in the weights</text>
+      </svg>
+      <p>A rule blocks the behaviour, but the skill stays in the weights.</p>
+      <span class="tag g">fast</span> <span class="tag">only hides it</span>
+    </div>
+    <div class="card orange" data-step="3">
+      <span class="num">3</span><h3>Edit the weights directly</h3>
+      <svg viewBox="0 0 400 110" width="100%" height="110" id="editIcon"></svg>
+      <p>Remove the part of the weights that holds the skill, and leave the rest.</p>
+      <span class="tag t">removes it</span> <span class="tag t">keeps the rest</span> <span class="tag g">this work</span>
+    </div>
+  </div>
+  <div class="box navy" data-step="4" style="margin-top:20px">
+    <p class="small" style="margin:0 0 4px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#1D3557;font-size:16px">Research goal</p>
+    <p style="font-size:27px;margin:0"><b>Make a trained hyperdimensional RL agent forget one (or more) skills, verifiably, without affecting its other skills.</b></p>
+  </div>
+  <div class="foot"><span>Problem · why forget a skill</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Source.</b> Draft slide 1, "Research problem" and "Research goal". The three options are the draft's own sentence split into parts: "Retraining from scratch is slow and costly, and run-time filters only hide a behaviour."</p>
+    <p><b>Animations.</b> The slow bar in card 1 stands for a full training run; the grey block in card 2 slides over the skill but does not remove it; in card 3 the orange part of the weights fades and the rest stays.</p>
+  </aside>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-title="LavaDoorKey">
+  <div class="strip"><span class="here">Problem</span><span>Background</span><span>Method</span><span>Next</span></div>
+  <h2>Example: in LavaDoorKey, one agent learns two skills</h2>
+  <div class="cols" style="grid-template-columns:1fr 640px;gap:40px;margin-top:8px">
+    <div>
+      <p data-step="1"><span class="tag t" style="font-size:18px">skill 1</span>&nbsp; <b>Avoid lava.</b> The orange column is lava; stepping on it ends the episode.</p>
+      <p data-step="2"><span class="tag" style="font-size:18px">skill 2</span>&nbsp; <b>Pick up the key and unlock the door.</b> The only way past the lava is the locked door.</p>
+      <div class="box orange" data-step="3"><p><b>Goal:</b> forget the door-key skill and keep lava avoidance.</p></div>
+      <div class="box navy" data-step="4">
+        <p class="small" style="margin:0 0 4px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#1D3557;font-size:16px">Research question</p>
+        <p style="font-size:23px">Can we remove one skill by editing the policy's weights directly, using its vector-symbolic structure, instead of retraining, so that it then behaves like an agent that never learned that skill?</p>
+      </div>
+    </div>
+    <svg viewBox="0 0 640 640" width="640" height="640" id="ldk"></svg>
+  </div>
+  <div class="foot"><span>Problem · the example task</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Source.</b> Draft slide 2, text and grid image. The grid is redrawn from that image: a 7 × 7 room, a lava column with the locked door in it, the key at the bottom left, and the green goal at the bottom right. The agent (red triangle) starts at the top facing right.</p>
+    <p><b>The route</b> in step 2 is one route that uses both skills: down to the key, back up to the door, through it, then down to the goal without touching lava. It is drawn for explanation; it is not a recorded trajectory of the trained agent.</p>
+  </aside>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-title="Encoding a state">
+  <div class="strip"><span>Problem</span><span class="here">Background</span><span>Method</span><span>Next</span></div>
+  <h2>The agent writes what it sees as one long vector H</h2>
+  <div class="cols" style="grid-template-columns:520px 1fr;gap:30px;margin-top:4px">
+    <div>
+      <p class="formula" style="font-size:34px;margin:2px 0 4px">H = Σ<sub>k</sub> s(k) ⊙ p(k)</p>
+      <p class="small" style="margin:0 0 12px">s(k): the vector of the object at position k &nbsp;·&nbsp; p(k): the vector of position k</p>
+      <svg viewBox="0 0 520 220" width="520" height="220" id="egoView"></svg>
+      <p style="font-size:22px;margin:8px 0 8px">Every object and every position has its own random vector of +1s and −1s.</p>
+      <p data-step="1" style="font-size:22px;margin:0 0 8px"><b>Bind (⊙):</b> multiply two vectors entry by entry. “key ⊙ ahead” means “the key is ahead”.</p>
+      <p data-step="3" style="font-size:22px;margin:0 0 8px"><b>Bundle (Σ):</b> add the bound pairs. H holds the whole view in one vector.</p>
+      <p data-step="4" style="font-size:22px;margin:0"><b>Unbind:</b> a ±1 vector bound with itself gives all ones, so binding again with the same vector undoes a binding.</p>
+    </div>
+    <svg viewBox="0 0 900 640" width="900" height="640" id="bindSvg"></svg>
+  </div>
+  <div class="foot"><span>Background · encoding a state</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Source.</b> Draft slide 3: H = Σ<sub>k</sub> s(k) ⊙ p(k), where s(k) is the object encoding and p(k) its positional encoding (the speaker note reads s(object at k)).</p>
+    <p><b>The vectors here are schematic</b>: 8 entries, chosen at random. Real hypervectors have thousands of entries; there, two random vectors are nearly orthogonal, so the bound pairs in H barely interfere.</p>
+    <p><b>The view</b> (left) uses the three positions of draft slide 5: ahead, left and right of the agent.</p>
+    <p><b>Step 4</b> is the fact the method relies on: for entries of ±1, x · x = 1, therefore s(key) ⊙ s(key) ⊙ p = p.</p>
+  </aside>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-title="Choosing an action">
+  <div class="strip"><span>Problem</span><span class="here">Background</span><span>Method</span><span>Next</span></div>
+  <h2>The agent takes the action whose weights best match H</h2>
+  <div class="cols" style="grid-template-columns:500px 1fr;gap:20px;margin-top:6px">
+    <div>
+      <p class="formula" style="font-size:30px;margin:6px 0 2px">𝒜 = {A<sub>1</sub>, A<sub>2</sub>, …, A<sub>n</sub>}</p>
+      <p class="small" style="margin:0 0 18px">one learned weight vector for each of the n actions</p>
+      <div data-step="1">
+        <p class="formula" style="font-size:30px;margin:0 0 2px">sim(A<sub>i</sub>, H) = A<sub>i</sub> · H / √D</p>
+        <p class="small" style="margin:0 0 18px">dot product: multiply entry by entry, then add up; D is the vector length</p>
+      </div>
+      <div data-step="3">
+        <p class="formula" style="font-size:30px;margin:0 0 2px">a* = argmax<sub>i</sub> sim(A<sub>i</sub>, H)</p>
+        <p class="small" style="margin:0 0 18px">the best action is the one with the largest similarity</p>
+      </div>
+      <div class="box" data-step="1" style="margin-top:6px"><p style="font-size:20px">The example has D = 5. The weights are the draft's W<sub>pickup</sub>; H is a view with only the key, straight ahead.</p></div>
+    </div>
+    <svg viewBox="0 0 900 650" width="900" height="650" id="dotSvg"></svg>
+  </div>
+  <div class="foot"><span>Background · choosing an action</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Source.</b> Draft slides 3 and 4: 𝒜 = {A<sub>1</sub>, …, A<sub>n</sub>}, sim(A<sub>i</sub>, H) = A<sub>i</sub> · H / √D, a* = argmax<sub>i</sub> sim. Draft slide 4 asked for an animation of the dot product; this is it.</p>
+    <p><b>The numbers.</b> A<sub>pickup</sub> = W<sub>pickup</sub> = [+0.10, −0.10, +0.10, +0.10, +0.10] is from draft slide 6. H = s(key) ⊙ p(ahead) = [+1, −1, −1, +1, +1] uses the toy vectors of slide 6's notes. Products [+0.10, +0.10, −0.10, +0.10, +0.10] add to 0.30; 0.30 / √5 = 0.134.</p>
+    <p><b>The bar chart in step 3 is schematic</b>: the draft gives no weights for the other actions, so their bars only show the argmax.</p>
+  </aside>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-title="Step 1: unbind">
+  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span></div>
+  <h2>Step 1, unbind: cancel the key out of W<sub>pickup</sub></h2>
+  <div class="cols" style="grid-template-columns:500px 1fr;gap:20px;margin-top:6px">
+    <div>
+      <p class="formula" style="font-size:34px;margin:4px 0 6px">U = W<sub>pickup</sub> ⊙ key</p>
+      <p style="font-size:22px">W<sub>pickup</sub> learned to answer “key at some position”. Binding it with the key cancels the key (key ⊙ key = 1) and leaves the positions.</p>
+      <p data-step="2" style="font-size:22px">Compare U with each known position vector. Dividing by D gives how much of each position U contains.</p>
+      <div class="box orange" data-step="3"><p style="font-size:21px"><b>Read:</b> pickup fires mostly when the key is <b>ahead</b> (+0.06), a little when it is left, and is pushed down when it is right.</p></div>
+    </div>
+    <svg viewBox="0 0 900 640" width="900" height="640" id="unbindSvg"></svg>
+  </div>
+  <div class="foot"><span>Method · step 1, unbind</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Source.</b> Draft slide 5: U = W<sub>pickup</sub> ⊙ key and the table p1 (ahead) +0.06, p2 (left) +0.02, p3 (right) −0.06.</p>
+    <p><b>The toy vectors</b> (5 entries, chosen so that every number of draft slides 5 and 6 comes out exactly): key = [+1, −1, +1, −1, +1]; p1 = [+1, +1, −1, −1, +1]; p2 = [−1, +1, +1, −1, −1]; p3 = [−1, −1, +1, +1, −1]. Then U = [+0.10, +0.10, +0.10, −0.10, +0.10], and U · p<sub>j</sub> / 5 gives +0.06, +0.02, −0.06.</p>
+    <p><b>Which similarity?</b> The draft's table matches U · p / D, not the U · p / √D of slide 3 (that would give 0.13, 0.04, −0.13). Dividing by D = p · p makes each number the coefficient of p<sub>j</sub> in U, which is what step 2 needs.</p>
+  </aside>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-title="Step 2: clean up">
+  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span></div>
+  <h2>Step 2, clean up: rebuild U from the known positions</h2>
+  <div class="cols" style="grid-template-columns:500px 1fr;gap:20px;margin-top:6px">
+    <div>
+      <p class="formula" style="font-size:32px;margin:4px 0 6px">M = 0.06 p<sub>1</sub> + 0.02 p<sub>2</sub> − 0.06 p<sub>3</sub></p>
+      <p style="font-size:22px">Each position vector is weighted by its similarity from step 1, and the weighted vectors are added.</p>
+      <div class="box" data-step="3"><p style="font-size:21px"><b>Why not keep U?</b> U also carries everything else pickup learned, now scrambled by the unbinding, which is noise. M keeps only the part that lies along known positions.</p></div>
+      <p class="small" data-step="3">Intuition from the draft: we reconstruct the key's positional information from the known position vectors, rather than keeping the noisy unbound vector directly.</p>
+    </div>
+    <svg viewBox="0 0 900 640" width="900" height="640" id="cleanSvg"></svg>
+  </div>
+  <div class="foot"><span>Method · step 2, clean up</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Source.</b> Draft slide 5, M = 0.06 p<sub>1</sub> + 0.02 p<sub>2</sub> − 0.06 p<sub>3</sub>, and its speaker note (the intuition, quoted on the slide).</p>
+    <p><b>The numbers</b> use the toy vectors of slide 6's notes: M = [+0.10, +0.14, −0.10, −0.14, +0.10].</p>
+    <p><b>A caveat of the toy.</b> With only 5 entries the toy's p3 is exactly −p1, so the positions are far from orthogonal. With thousands of entries random position vectors are nearly orthogonal, and M is close to the true projection of U onto the positions.</p>
+  </aside>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-title="Step 3: subtract">
+  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span></div>
+  <h2>Step 3, rebind and subtract the key's part</h2>
+  <div class="cols" style="grid-template-columns:470px 1fr;gap:20px;margin-top:6px">
+    <div>
+      <p class="formula" style="font-size:30px;margin:4px 0 4px">key ⊙ M</p>
+      <p style="font-size:22px">Binding M with the key again puts “key at those positions” back: this is the key's contribution to W<sub>pickup</sub>.</p>
+      <div data-step="2">
+        <p class="formula" style="font-size:30px;margin:14px 0 4px">W′<sub>pickup</sub> = W<sub>pickup</sub> − key ⊙ M</p>
+        <p style="font-size:22px">Subtract it, entry by entry.</p>
+      </div>
+      <div class="box orange" data-step="3"><p style="font-size:21px">W′<sub>pickup</sub> keeps what pickup learned about everything else. Only the part that answered “key at a position” is gone.</p></div>
+    </div>
+    <svg viewBox="0 0 930 640" width="930" height="640" id="subSvg"></svg>
+  </div>
+  <div class="foot"><span>Method · step 3, rebind and subtract</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Source.</b> Draft slide 6: Original W<sub>pickup</sub> = [+0.10, −0.10, +0.10, +0.10, +0.10]; key contribution key ⊙ M = [+0.10, −0.14, −0.10, +0.14, +0.10]; after subtraction W′<sub>pickup</sub> = [0.00, +0.04, +0.20, −0.04, 0.00]. Each entry checks: for example 0.10 − (−0.10) = 0.20.</p>
+    <p><b>The rebinding</b> uses the toy key of slide 6's notes: key ⊙ M = [+1, −1, +1, −1, +1] ⊙ [+0.10, +0.14, −0.10, −0.14, +0.10].</p>
+  </aside>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-title="After the edit">
+  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span></div>
+  <h2>After the edit, the key ahead no longer pulls toward pickup</h2>
+  <div class="cols c2" style="gap:50px;margin-top:6px">
+    <div>
+      <p style="font-size:22px;margin:0 0 4px">Pickup's similarity with H = key ahead (slide 5), before and after the edit</p>
+      <svg viewBox="0 0 680 400" width="680" height="400" id="beforeAfter"></svg>
+      <p class="small" data-step="2" style="margin:0">Ideal: about 0, no pull either way, as in an agent that never learned the key. The 5-entry toy overshoots below 0 because its position vectors are not orthogonal (p<sub>3</sub> = −p<sub>1</sub>).</p>
+    </div>
+    <div data-step="3">
+      <p style="font-size:22px;margin:0 0 4px">The draft's edited weights for two actions, on one observation</p>
+      <svg viewBox="0 0 680 470" width="680" height="470" id="draftLogits"></svg>
+    </div>
+  </div>
+  <div class="foot"><span>Method · the result in the toy</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Left</b>, computed from the draft's vectors and the toy H of slide 5: before, W<sub>pickup</sub> · H = 0.30, so 0.30 / √5 = +0.13; after, W′<sub>pickup</sub> · H = −0.28, so −0.28 / √5 = −0.13.</p>
+    <p><b>Why the toy overshoots.</b> Because p3 = −p1 in the toy, M counts the "ahead" part twice (0.06 p1 − 0.06 p3 = 0.12 p1). With nearly orthogonal positions, W′ · (key ⊙ p) would be close to 0 for every position.</p>
+    <p><b>Right</b>, from draft slide 7: W′<sub>pickup</sub> = [0.00, 0.04, 0.20, −0.04, 0.00], W′<sub>turn</sub> = [0.00, −0.04, −0.20, 0.04, 0.00], pickup logit +0.05, and a second logit −0.05. <b>To check:</b> the draft does not say which observation gives these logits. H = [+1, −1, +1, +1, −1] reproduces them (0.12 / √5 = 0.054), so it is used here; any H with entries 2 to 4 equal to −1, +1, +1 gives the same. The draft labels the second logit "Forward" but its weights W′<sub>turn</sub>; the slide says "turn".</p>
+  </aside>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-title="The recipe">
+  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span></div>
+  <h2>The edit is three vector operations on the trained weights</h2>
+  <svg viewBox="0 0 1440 300" width="1440" height="300" style="margin-top:14px" id="recipe">
+    <text x="0" y="22" class="lbls">INPUT</text><text x="1250" y="22" class="lbls">OUTPUT</text>
+    <rect class="blk d" x="0" y="60" width="200" height="190" rx="12"/>
+    <text x="100" y="112" text-anchor="middle" class="lblb">trained W<tspan baseline-shift="sub" font-size="14">a</tspan></text>
+    <text x="100" y="148" text-anchor="middle" class="lbls">object vector s</text>
+    <text x="100" y="176" text-anchor="middle" class="lbls">position vectors p<tspan baseline-shift="sub" font-size="12">j</tspan></text>
+    <path class="arrow" d="M205,155 L245,155"/>
+    <g>
+      <rect class="blk t" x="250" y="40" width="300" height="230" rx="12"/>
+      <text x="272" y="80" class="lblb">1 Unbind</text>
+      <text x="272" y="126" class="math">U = W<tspan baseline-shift="sub" font-size="15">a</tspan> ⊙ s</text>
+      <foreignObject x="268" y="150" width="270" height="110"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:18px;line-height:1.28">The object cancels; what the action learned about its positions is left.</div></foreignObject>
+    </g>
+    <path class="arrow" d="M555,155 L595,155"/>
+    <g>
+      <rect class="blk t" x="600" y="40" width="300" height="230" rx="12"/>
+      <text x="622" y="80" class="lblb">2 Clean up</text>
+      <text x="622" y="126" class="math">M = Σ<tspan baseline-shift="sub" font-size="15">j</tspan> (U·p<tspan baseline-shift="sub" font-size="15">j</tspan> / D) p<tspan baseline-shift="sub" font-size="15">j</tspan></text>
+      <foreignObject x="618" y="150" width="270" height="110"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:18px;line-height:1.28">Rebuild those positions from the known position vectors; the noise is dropped.</div></foreignObject>
+    </g>
+    <path class="arrow" d="M905,155 L945,155"/>
+    <g>
+      <rect class="blk o" x="950" y="40" width="270" height="230" rx="12"/>
+      <text x="972" y="80" class="lblb">3 Rebind, subtract</text>
+      <text x="972" y="126" class="math">W′<tspan baseline-shift="sub" font-size="15">a</tspan> = W<tspan baseline-shift="sub" font-size="15">a</tspan> − s ⊙ M</text>
+      <foreignObject x="968" y="150" width="240" height="110"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:18px;line-height:1.28">Put the object back and remove its part from the weights.</div></foreignObject>
+    </g>
+    <path class="arrow" d="M1225,155 L1245,155"/>
+    <rect class="blk" x="1250" y="80" width="190" height="150" rx="12"/>
+    <text x="1345" y="142" text-anchor="middle" class="lblb">edited W′<tspan baseline-shift="sub" font-size="14">a</tspan></text>
+    <text x="1345" y="172" text-anchor="middle" class="lbls">same shape as W<tspan baseline-shift="sub" font-size="12">a</tspan></text>
+    <g data-step="1"><circle class="flow" r="12" fill="#E0663F"><animateMotion dur="3s" begin="indefinite" fill="freeze" path="M210,155 L1232,155"/></circle></g>
+  </svg>
+  <div class="cols c2" style="gap:30px;margin-top:16px">
+    <div class="box" data-step="2"><p style="font-size:22px"><b>No retraining.</b> The edit needs no environment steps and no gradient updates, only products and sums of vectors of length D.</p></div>
+    <div class="box orange" data-step="3"><p style="font-size:22px"><b>It uses the structure.</b> It works because the policy's weights are built from bound object–position pairs: the skill can be found by its object, here the key.</p></div>
+  </div>
+  <div class="foot"><span>Method · the recipe</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Summary of slides 6 to 8</b>, written for any action a and any object vector s. For the example, a = pickup and s = key.</p>
+    <p><b>The clean-up formula</b> writes the draft's M = 0.06 p1 + 0.02 p2 − 0.06 p3 in general form: each coefficient is U · p<sub>j</sub> / D, the similarity of step 1.</p>
+  </aside>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-title="What to check next">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span class="here">Next</span></div>
+  <h2>Next: test that it acts as if it never learned door-key</h2>
+  <div class="cols" style="grid-template-columns:1fr 560px;gap:40px;margin-top:8px">
+    <div>
+      <div class="card" data-step="1" style="padding:14px 20px;margin-bottom:12px"><p style="margin:0"><span class="tag">forgotten</span>&nbsp; The door-key success rate falls to that of an agent never trained on door-key.</p></div>
+      <div class="card" data-step="2" style="padding:14px 20px;margin-bottom:12px"><p style="margin:0"><span class="tag t">kept</span>&nbsp; Lava avoidance is unchanged: the agent still never steps on lava.</p></div>
+      <div class="card" data-step="3" style="padding:14px 20px;margin-bottom:12px"><p style="margin:0"><span class="tag g">reference</span>&nbsp; Compare with an agent retrained from scratch without the door-key skill, the behaviour of “never learned it”.</p></div>
+      <div class="card" data-step="4" style="padding:14px 20px"><p style="margin:0"><span class="tag g">open</span>&nbsp; Unlocking also uses the toggle action and the door object: do they need the same edit? Can two or more skills be removed in turn?</p></div>
+    </div>
+    <div>
+      <svg viewBox="0 0 560 520" width="560" height="520" id="ldk2"></svg>
+      <p class="small" style="margin:0">Target behaviour, drawn by hand: the agent passes the key, and turns away from the lava. Not yet measured.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Next · how to verify the forgetting</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>These are tests to run, not results.</b> They spell out the draft's research question, "behaves like an agent that never learned that skill", and its goal, "keep lava avoidance".</p>
+    <p><b>The open questions</b> are mine: in MiniGrid a locked door is opened with the toggle action while the agent carries the key, so the door-key skill may also live in W<sub>toggle</sub> and in the door's vector.</p>
+  </aside>
+</section>
+
+</div></div>
+
+<div id="notes"></div>
+<div id="overview"></div>
+<div id="controls"><button id="prev" aria-label="Previous">‹</button><span id="count"></span><button id="next" aria-label="Next">›</button><button id="nbtn">Notes</button><button id="obtn">Slides</button></div>
+
+<script>
+(function(){
+"use strict";
+const NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!==undefined)e.textContent=text;if(parent)parent.appendChild(e);return e;}
+const NAVY="#1D3557",OR="#E0663F",TEAL="#16A08F",GREY="#9AA3AE",BAD="#C2412B",BLUE="#4A72B8";
+
+/* ---------- toy vectors (D = 5), all numbers of the draft come out of these ---------- */
+const W   =[0.10,-0.10,0.10,0.10,0.10];          // draft slide 6
+const KEY =[1,-1,1,-1,1];
+const P1  =[1,1,-1,-1,1], P2=[-1,1,1,-1,-1], P3=[-1,-1,1,1,-1];
+const mul=(a,b)=>a.map((x,i)=>x*b[i]), add=(a,b)=>a.map((x,i)=>x+b[i]), sc=(k,a)=>a.map(x=>k*x), dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);
+const r2=v=>Math.round(v*100)/100;
+const U=mul(W,KEY).map(r2);
+const SIM=[P1,P2,P3].map(p=>r2(dot(U,p)/5));
+const M=add(add(sc(SIM[0],P1),sc(SIM[1],P2)),sc(SIM[2],P3)).map(r2);
+const KM=mul(KEY,M).map(r2);
+const WP=W.map((x,i)=>r2(x-KM[i]));
+const HKEY=mul(KEY,P1);
+
+function fmt(v,dec){ if(Math.abs(v)<1e-9) return (0).toFixed(dec); return (v>0?"+":"−")+Math.abs(v).toFixed(dec); }
+/* one vector as a row of cells: teal for positive, orange for negative, grey for zero */
+function row(parent,x,y,vals,o){
+  o=Object.assign({w:100,h:54,gap:12,dec:2,label:"",sub:"",seq:false,d0:.2,dt:.35,fs:21,lx:null},o||{});
+  const g=el("g",{},parent);
+  if(o.label){const t=el("text",{x:(o.lx!==null?o.lx:x-18),y:y+o.h/2+(o.sub?-2:7),"text-anchor":"end",class:"lblb"},g); t.innerHTML=o.label;}
+  if(o.sub){const t=el("text",{x:(o.lx!==null?o.lx:x-18),y:y+o.h/2+20,"text-anchor":"end",class:"lbls"},g); t.innerHTML=o.sub;}
+  vals.forEach((v,i)=>{
+    const c=el("g",o.seq?{class:"seq",style:"transition-delay:"+(o.d0+i*o.dt)+"s"}:{},g);
+    const pos=v>1e-9, neg=v<-1e-9;
+    el("rect",{x:x+i*(o.w+o.gap),y:y,width:o.w,height:o.h,rx:7,fill:pos?"#DDF2EE":neg?"#FCE6DD":"#F1F3F6",stroke:pos?TEAL:neg?OR:GREY,"stroke-width":2.5},c);
+    el("text",{x:x+i*(o.w+o.gap)+o.w/2,y:y+o.h/2+o.fs*0.36,"text-anchor":"middle",class:"lblb",style:"font-size:"+o.fs+"px;fill:"+(pos?"#14655C":neg?"#9A3412":"#5B6475")},c,fmt(v,o.dec));
+  });
+  return g;
+}
+function cx(x,i,o){o=Object.assign({w:100,gap:12},o||{}); return x+i*(o.w+o.gap)+o.w/2;}
+
+/* ---------- 1: title grid ---------- */
+(function(){
+  const s=document.getElementById("titleGrid"); if(!s) return;
+  let sd=11; const rnd=()=>{sd=(sd*16807)%2147483647;return sd/2147483647;};
+  const skill=new Set(["1,2","1,3","2,3","2,4","3,4","3,5","4,5","4,6","5,6","5,7","6,7"]);
+  for(let r=0;r<10;r++)for(let c=0;c<10;c++){
+    const k=r+","+c, on=skill.has(k);
+    el("rect",{x:c*52,y:r*52,width:44,height:44,rx:6,fill:on?OR:(rnd()<.5?"#2A8C82":"#7FC4BC"),opacity:on?1:(.35+rnd()*.5),class:on?"fadeauto":""},s);
+  }
+})();
+
+/* ---------- 2: edit icon ---------- */
+(function(){
+  const s=document.getElementById("editIcon"); if(!s) return;
+  for(let i=0;i<10;i++){const hot=(i===3||i===4||i===7);
+    el("rect",{x:i*40,y:28,width:34,height:44,rx:5,fill:hot?OR:TEAL,opacity:hot?1:.75,class:hot?"fadeaway":""},s);}
+  el("text",{x:0,y:18,class:"lbls"},s,"the weights; orange: the door-key part");
+  el("text",{x:0,y:100,class:"lbls"},s,"only the orange entries change");
+})();
+
+/* ---------- LavaDoorKey grid ---------- */
+function lavaGrid(s,x0,y0,cs){
+  const C=(r,c)=>[x0+c*cs+cs/2,y0+r*cs+cs/2];
+  el("rect",{x:x0-26,y:y0-26,width:7*cs+52,height:7*cs+52,rx:12,fill:"#6B7280"},s);
+  const lavaRows=[0,1,3,4,5,6];
+  const lava=el("g",{},s);
+  for(let r=0;r<7;r++)for(let c=0;c<7;c++){
+    const isLava=(c===4&&r!==2);
+    el("rect",{x:x0+c*cs,y:y0+r*cs,width:cs,height:cs,fill:isLava?"#F28C4E":"#fff",stroke:"#D9DDE3","stroke-width":1.5},isLava?lava:s);
+    if(isLava){const [x,y]=C(r,c); for(let k=0;k<3;k++){const yy=y-12+k*12; el("path",{d:`M${x-16},${yy} l8,-5 l8,5 l8,-5 l8,5`,stroke:"#8A3410","stroke-width":2,fill:"none"},lava);}}
+  }
+  // door (locked) in the lava column
+  const [dx,dy]=C(2,4);
+  const door=el("g",{},s);
+  el("rect",{x:dx-cs/2+3,y:dy-cs/2+3,width:cs-6,height:cs-6,rx:4,fill:"#F2D46B",stroke:"#B8920F","stroke-width":3},door);
+  el("rect",{x:dx+6,y:dy-2,width:12,height:5,fill:"#7A5C00"},door);
+  // key
+  const [kx,ky]=C(4,1);
+  const key=el("g",{},s);
+  el("circle",{cx:kx,cy:ky-11,r:9,fill:"none",stroke:"#D4A100","stroke-width":5},key);
+  el("path",{d:`M${kx},${ky-2} L${kx},${ky+20} M${kx},${ky+12} L${kx+8},${ky+12} M${kx},${ky+19} L${kx+6},${ky+19}`,stroke:"#D4A100","stroke-width":5,fill:"none"},key);
+  // goal
+  const [gx,gy]=C(6,6);
+  el("rect",{x:gx-cs/2+2,y:gy-cs/2+2,width:cs-4,height:cs-4,rx:3,fill:"#3BB273"},s);
+  // agent, facing right
+  const [ax,ay]=C(0,2);
+  el("path",{d:`M${ax-16},${ay-14} L${ax+18},${ay} L${ax-16},${ay+14} z`,fill:"#E04848"},s);
+  return {C,lava,door,key};
+}
+
+/* ---------- 3: LavaDoorKey, two skills ---------- */
+(function(){
+  const s=document.getElementById("ldk"); if(!s) return;
+  const cs=66,x0=60,y0=50; const G=lavaGrid(s,x0,y0,cs), C=G.C;
+  el("text",{x:C(0,2)[0],y:y0-34,"text-anchor":"middle",class:"lbls"},s,"agent ▾");
+  // step 1: lava highlighted
+  const g1=el("g",{"data-step":"1"},s);
+  el("rect",{x:x0+4*cs-5,y:y0-5,width:cs+10,height:7*cs+10,rx:8,fill:"none",stroke:TEAL,"stroke-width":5,class:"pulse"},g1);
+  el("text",{x:x0-26,y:y0+7*cs+62,class:"lblb",style:"fill:#14655C"},g1,"skill 1: never step on lava");
+  // step 2: route with key and door
+  const g2=el("g",{"data-step":"2"},s);
+  const o=8, a=C(0,2),b=C(4,2),c=C(2,2),d=C(2,3),e=C(2,5),f=C(6,5),h=C(6,6);
+  const route=`M${a[0]-o},${a[1]+20} L${b[0]-o},${b[1]} L${b[0]+o},${b[1]} L${c[0]+o},${c[1]+o} L${e[0]},${e[1]+o} L${f[0]},${f[1]} L${h[0]-20},${h[1]}`;
+  el("path",{d:route,class:"draw slow",pathLength:1,stroke:NAVY,"stroke-width":5,fill:"none","stroke-linejoin":"round",opacity:.75},g2);
+  const dotA=el("circle",{class:"flow",r:11,fill:OR},g2); el("animateMotion",{dur:"5s",begin:"indefinite",fill:"freeze",path:route},dotA);
+  [[C(4,1),"1  pick up key",-1],[C(2,4),"2  unlock door",1]].forEach(([p,t,side])=>{
+    el("circle",{cx:p[0],cy:p[1],r:cs/2+2,fill:"none",stroke:OR,"stroke-width":4},g2);
+  });
+  el("text",{x:C(4,1)[0]-40,y:C(4,1)[1]+64,class:"lblb",style:"fill:#B4461F"},g2,"① pick up key");
+  el("rect",{x:C(2,5)[0]-24,y:C(2,4)[1]-cs-6,width:150,height:30,rx:6,fill:"#fff",opacity:.92},g2);
+  el("text",{x:C(2,5)[0]-18,y:C(2,4)[1]-cs+15,class:"lblb",style:"fill:#B4461F"},g2,"② unlock door");
+  el("text",{x:x0-26,y:y0+7*cs+92,class:"lblb",style:"fill:#B4461F"},g2,"skill 2: key, then door, then goal");
+  // step 3: forget door-key, keep lava
+  const g3=el("g",{"data-step":"3"},s);
+  [C(4,1),C(2,4)].forEach(p=>el("path",{d:`M${p[0]-22},${p[1]-22} L${p[0]+22},${p[1]+22} M${p[0]+22},${p[1]-22} L${p[0]-22},${p[1]+22}`,stroke:BAD,"stroke-width":6},g3));
+  el("rect",{x:x0-30,y:y0+7*cs+40,width:600,height:62,fill:"#FBFAF7"},g3);
+  el("text",{x:x0-26,y:y0+7*cs+62,class:"lblb",style:"fill:#14655C"},g3,"keep: skill 1, never step on lava");
+  el("text",{x:x0-26,y:y0+7*cs+92,class:"lblb",style:"fill:#C2412B"},g3,"forget: skill 2, key and door");
+})();
+
+/* ---------- 4: the agent's view and binding ---------- */
+(function(){
+  const s=document.getElementById("egoView"); if(!s) return;
+  const cs=70,x0=150,y0=10;
+  const cells=[[0,1,"key","ahead"],[1,0,"lava","left"],[1,2,"wall","right"]];
+  [[0,0],[0,2]].forEach(([r,c])=>el("rect",{x:x0+c*cs,y:y0+r*cs,width:cs,height:cs,fill:"#F1F3F6",stroke:"#D9DDE3"},s));
+  cells.forEach(([r,c,obj,pos])=>{
+    const fill=obj==="lava"?"#F28C4E":obj==="wall"?"#6B7280":"#fff";
+    el("rect",{x:x0+c*cs,y:y0+r*cs,width:cs,height:cs,fill:fill,stroke:"#9AA3AE","stroke-width":2},s);
+    if(obj==="key"){const kx=x0+c*cs+cs/2,ky=y0+r*cs+cs/2;
+      el("circle",{cx:kx,cy:ky-10,r:8,fill:"none",stroke:"#D4A100","stroke-width":5},s);
+      el("path",{d:`M${kx},${ky-2} L${kx},${ky+18} M${kx},${ky+10} L${kx+7},${ky+10} M${kx},${ky+17} L${kx+5},${ky+17}`,stroke:"#D4A100","stroke-width":5,fill:"none"},s);}
+  });
+  el("rect",{x:x0+cs,y:y0+cs,width:cs,height:cs,fill:"#fff",stroke:"#9AA3AE","stroke-width":2},s);
+  const ax=x0+cs*1.5, ay=y0+cs*1.5;
+  el("path",{d:`M${ax-14},${ay+16} L${ax},${ay-18} L${ax+14},${ay+16} z`,fill:"#E04848"},s);
+  el("text",{x:x0+cs*1.5,y:y0+2*cs+24,"text-anchor":"middle",class:"lbls"},s,"agent, facing up");
+  el("text",{x:x0+cs*2+14,y:y0+cs/2+6,class:"lbl"},s,"key ahead");
+  el("text",{x:x0-14,y:y0+cs*1.5+6,"text-anchor":"end",class:"lbl"},s,"lava left");
+  el("text",{x:x0+cs*3+14,y:y0+cs*1.5+6,class:"lbl"},s,"wall right");
+})();
+(function(){
+  const s=document.getElementById("bindSvg"); if(!s) return;
+  const sKey=[1,-1,1,1,-1,1,-1,-1], pAhead=[1,1,-1,1,-1,-1,1,-1];
+  const kA=mul(sKey,pAhead), lL=[-1,-1,1,1,-1,1,-1,1], wR=[1,-1,1,-1,-1,1,1,1];
+  const H=add(add(kA,lL),wR);
+  const o={w:66,h:46,gap:6,dec:0,fs:19}, X=300;
+  row(s,X,20,sKey,Object.assign({label:"s(key)"},o));
+  row(s,X,80,pAhead,Object.assign({label:"p(ahead)"},o));
+  const g1=el("g",{"data-step":"1"},s);
+  row(g1,X,150,kA,Object.assign({label:"key ⊙ ahead",seq:true,d0:.3,dt:.18},o));
+  for(let i=0;i<8;i++){const x=cx(X,i,o); el("path",{d:`M${x},${130} L${x},${146}`,class:"arrow",style:"stroke-width:1.6"},g1);}
+  const g2=el("g",{"data-step":"2"},s);
+  row(g2,X,226,lL,Object.assign({label:"lava ⊙ left"},o));
+  row(g2,X,282,wR,Object.assign({label:"wall ⊙ right"},o));
+  const g3=el("g",{"data-step":"3"},s);
+  el("line",{x1:X-10,y1:350,x2:X+8*72,y2:350,stroke:NAVY,"stroke-width":2.5},g3);
+  for(let i=0;i<8;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:5,fill:OR},g3); el("animateMotion",{dur:"0.9s",begin:"indefinite",fill:"freeze",path:`M${x},${176} L${x},${393}`},d);}
+  row(g3,X,370,H,Object.assign({label:"H",sub:"add each column",seq:true,d0:.7,dt:.12},o));
+  el("text",{x:X,y:446,class:"lbls"},g3,"entries of H are −3, −1, +1 or +3: three pairs in one vector");
+  const g4=el("g",{"data-step":"4"},s);
+  row(g4,X,490,sKey.map(v=>v*v),Object.assign({label:"s(key) ⊙ s(key)"},o));
+  el("text",{x:X,y:572,class:"lbl"},g4,"all ones: (+1)(+1) = (−1)(−1) = +1.");
+  el("text",{x:X,y:598,class:"lbl"},g4,"So key ⊙ (key ⊙ ahead) = ahead: binding again with the key undoes it.");
+})();
+
+/* ---------- 5: dot product, animated ---------- */
+(function(){
+  const s=document.getElementById("dotSvg"); if(!s) return;
+  const o={w:104,h:56,gap:14}, X=230, step=o.w+o.gap;
+  row(s,X,30,W,Object.assign({label:"A<tspan dy='6' font-size='15'>pickup</tspan>",sub:"the draft's W_pickup"},o));
+  row(s,X,110,HKEY,Object.assign({label:"H",sub:"key ahead",dec:0},o));
+  const g1=el("g",{"data-step":"1"},s);
+  const prods=mul(W,HKEY).map(r2);
+  el("text",{x:X-18,y:233,"text-anchor":"end",class:"lblb"},g1,"products");
+  for(let i=0;i<5;i++) el("text",{x:cx(X,i,o),y:194,"text-anchor":"middle",class:"math",style:"font-size:22px"},el("g",{class:"seq",style:"transition-delay:"+(0.15+i*0.8)+"s"},g1),"×");
+  row(g1,X,206,prods,Object.assign({seq:true,d0:.35,dt:.8},o));
+  const fr=el("rect",{x:X-7,y:22,width:o.w+14,height:248,rx:10,fill:"none",stroke:OR,"stroke-width":4},g1);
+  el("animate",{attributeName:"x",values:[0,1,2,3,4].map(i=>X-7+i*step).join(";"),dur:"4s",calcMode:"discrete",fill:"freeze",begin:"indefinite"},fr);
+  el("text",{x:X-18,y:330,"text-anchor":"end",class:"lblb"},g1,"running sum");
+  const sums=[];prods.reduce((a,v)=>{const t=r2(a+v);sums.push(fmt(t,2));return t;},0);
+  el("text",{x:X,y:334,class:"lblb",style:"font-size:36px;fill:#B4461F","data-seq":sums.join("|"),"data-t0":"0.4","data-dt":"0.8"},g1,"");
+  const g2=el("g",{"data-step":"2"},s);
+  el("text",{x:X+170,y:334,class:"math",style:"font-size:30px"},g2,"÷ √5  =");
+  el("text",{x:X+300,y:336,class:"lblb",style:"font-size:40px;fill:#14655C"},g2,fmt(dot(W,HKEY)/Math.sqrt(5),2));
+  el("text",{x:X+170,y:366,class:"lbls"},g2,"√5 ≈ 2.236, so 0.30 / 2.236 = 0.134");
+  // step 3: repeat for every action; schematic bars
+  const g3=el("g",{"data-step":"3"},s);
+  const bars=[["A₁",0.04],["A₂",-0.03],["A_pickup",0.134],["…",0.06],["Aₙ",-0.05]], y0=590, k=520;
+  el("text",{x:X-18,y:430,"text-anchor":"end",class:"lblb"},g3,"every action");
+  el("text",{x:X,y:430,class:"lbls"},g3,"the same computation for each Aᵢ; the other bars are schematic");
+  el("line",{x1:X-10,y1:y0,x2:X+5*step,y2:y0,stroke:"#5B6475","stroke-width":2},g3);
+  bars.forEach(([n,v],i)=>{const x=X+i*step+22, h=Math.abs(v)*k, top=v>0?y0-h:y0, hot=n==="A_pickup";
+    el("rect",{x:x,y:top,width:60,height:h,rx:4,fill:hot?TEAL:"#C9CED6",class:"growy"+(v<0?" neg":"")},g3);
+    const t=el("text",{x:x+30,y:y0+(v>0?28:-10)+ (v<0?0:0),"text-anchor":"middle",class:"lbl"},g3);
+    if(n==="A_pickup"){t.innerHTML="A<tspan dy='5' font-size='14'>pickup</tspan>";} else t.textContent=n;
+    if(v<0) t.setAttribute("y",y0-12);
+  });
+  const px=X+2*step+52;
+  el("text",{x:px,y:y0-0.134*k-14,"text-anchor":"middle",class:"lblb",style:"fill:#B4461F;font-size:24px"},el("g",{class:"seq",style:"transition-delay:1.1s"},g3),"a* = pickup");
+})();
+
+/* ---------- 6: unbind and similarities ---------- */
+(function(){
+  const s=document.getElementById("unbindSvg"); if(!s) return;
+  const o={w:104,h:56,gap:14}, X=250;
+  row(s,X,20,W,Object.assign({label:"W<tspan dy='6' font-size='15'>pickup</tspan>"},o));
+  row(s,X,96,KEY,Object.assign({label:"key",dec:0},o));
+  const g1=el("g",{"data-step":"1"},s);
+  for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g1); el("animateMotion",{dur:(0.5+0.25*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${48} L${x},${208}`},d);}
+  row(g1,X,180,U,Object.assign({label:"U",seq:true,d0:.5,dt:.25},o));
+  el("text",{x:X,y:262,class:"lbls"},g1,"each entry: weight × key entry, e.g. (−0.10) × (−1) = +0.10");
+  const g2=el("g",{"data-step":"2"},s);
+  el("text",{x:X,y:318,class:"lblb"},g2,"similarity of U with each position:  U · p / D");
+  const zero=X+390, k=2000, names=[["p₁","ahead"],["p₂","left"],["p₃","right"]];
+  el("line",{x1:zero,y1:336,x2:zero,y2:530,stroke:"#5B6475","stroke-width":2},g2);
+  SIM.forEach((v,i)=>{const y=346+i*62, w=Math.abs(v)*k;
+    el("text",{x:X-18,y:y+30,"text-anchor":"end",class:"lblb"},g2,names[i][0]+" "+names[i][1]);
+    row(g2,X-6,y+4,[P1,P2,P3][i],{w:26,h:36,gap:3,dec:0,fs:0.01});
+    el("rect",{x:v>0?zero:zero-w,y:y+2,width:w,height:40,rx:4,fill:v>0?TEAL:OR,class:v>0?"grow":"growr"},g2);
+    el("text",{x:v>0?zero+w+12:zero-w-12,y:y+30,"text-anchor":v>0?"start":"end",class:"lblb",style:"fill:"+(v>0?"#14655C":"#9A3412")},g2,fmt(v,2));
+  });
+  el("text",{x:X-6,y:580,class:"lbls"},g2,"small squares: the position vector (teal +1, orange −1)");
+  el("text",{x:zero,y:552,"text-anchor":"middle",class:"lbls"},g2,"0");
+  const g3=el("g",{"data-step":"3"},s);
+  el("rect",{x:zero-6,y:340,width:230,height:56,rx:8,fill:"none",stroke:OR,"stroke-width":3.5},g3);
+})();
+
+/* ---------- 7: clean up ---------- */
+(function(){
+  const s=document.getElementById("cleanSvg"); if(!s) return;
+  const o={w:104,h:56,gap:14}, X=260, step=o.w+o.gap;
+  const rows=[[P1,SIM[0],"p₁ ahead"],[P2,SIM[1],"p₂ left"],[P3,SIM[2],"p₃ right"]];
+  const g1=el("g",{"data-step":"1"},s);
+  rows.forEach(([p,c,n],i)=>{const y=20+i*76;
+    row(s,X,y,p,Object.assign({label:n,dec:0},o));
+    const chip=el("g",{},g1);
+    el("rect",{x:20,y:y+10,width:86,height:36,rx:18,fill:c>0?"#DDF2EE":"#FCE6DD",stroke:c>0?TEAL:OR,"stroke-width":2},chip);
+    el("text",{x:63,y:y+35,"text-anchor":"middle",class:"lblb",style:"font-size:19px;fill:"+(c>0?"#14655C":"#9A3412")},chip,"× "+fmt(c,2));
+  });
+  el("text",{x:20,y:262,class:"lbls"},g1,"weight from step 1");
+  const g2=el("g",{"data-step":"2"},s);
+  el("line",{x1:X-10,y1:262,x2:X+5*step,y2:262,stroke:NAVY,"stroke-width":2.5},g2);
+  for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g2); el("animateMotion",{dur:(0.6+0.25*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${48} L${x},${308}`},d);}
+  row(g2,X,280,M,Object.assign({label:"M",seq:true,d0:.6,dt:.25},o));
+  el("text",{x:X,y:366,class:"lbls"},g2,"first entry: 0.06 × (+1) + 0.02 × (−1) − 0.06 × (−1) = +0.10");
+  const g3=el("g",{"data-step":"3"},s);
+  row(g3,X,420,U,Object.assign({label:"U",sub:"from step 1"},o));
+  el("text",{x:X,y:500,class:"lbl"},g3,"In the toy U and M differ only a little; with thousands of entries,");
+  el("text",{x:X,y:526,class:"lbl"},g3,"U carries noise from every other object, and M filters it out.");
+})();
+
+/* ---------- 8: rebind and subtract ---------- */
+(function(){
+  const s=document.getElementById("subSvg"); if(!s) return;
+  const o={w:110,h:58,gap:16}, X=300, step=o.w+o.gap;
+  row(s,X,20,W,Object.assign({label:"Original",sub:"W_pickup"},o));
+  // key ⊙ M, built on screen
+  row(s,X,100,M,Object.assign({},o,{label:"M",sub:"from step 2",h:44,fs:18}));
+  row(s,X,152,KEY,Object.assign({},o,{label:"key",h:44,fs:18,dec:0}));
+  const g1=el("g",{"data-step":"1"},s);
+  for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g1); el("animateMotion",{dur:(0.4+0.25*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${122} L${x},${245}`},d);}
+  row(g1,X,216,KM,Object.assign({label:"Key contribution",sub:"key ⊙ M",seq:true,d0:.2,dt:.25},o));
+  const g2=el("g",{"data-step":"2"},s);
+  el("line",{x1:X-10,y1:290,x2:X+5*step,y2:290,stroke:NAVY,"stroke-width":2.5},g2);
+  el("text",{x:X+5*step+8,y:256,class:"math",style:"font-size:34px"},g2,"−");
+  row(g2,X,306,WP,Object.assign({label:"After subtraction",sub:"W′_pickup",seq:true,d0:.3,dt:.6},o));
+  for(let i=0;i<5;i++){const t=el("text",{x:cx(X,i,o),y:392,"text-anchor":"middle",class:"lbls",style:"font-size:15px"},el("g",{class:"seq",style:"transition-delay:"+(.3+i*.6)+"s"},g2));
+    t.textContent=fmt(W[i],2)+" − ("+fmt(KM[i],2)+")";}
+  const g3=el("g",{"data-step":"3"},s);
+  // compare original and edited, entry by entry, as bars
+  const y0=550, k=420;
+  el("text",{x:X,y:450,class:"lblb"},g3,"entry by entry: original (blue) and edited (teal)");
+  el("line",{x1:X-10,y1:y0,x2:X+5*step,y2:y0,stroke:"#5B6475","stroke-width":2},g3);
+  for(let i=0;i<5;i++){const x=X+i*step+18;
+    [[W[i],BLUE,0],[WP[i],TEAL,40]].forEach(([v,col,dx])=>{const h=Math.max(Math.abs(v)*k,2);
+      el("rect",{x:x+dx,y:v>=0?y0-h:y0,width:34,height:h,rx:3,fill:col,class:"growy"+(v<0?" neg":"")},g3);});}
+})();
+
+/* ---------- 9: before / after ---------- */
+(function(){
+  const s=document.getElementById("beforeAfter"); if(!s) return;
+  const before=dot(W,HKEY)/Math.sqrt(5), after=dot(WP,HKEY)/Math.sqrt(5);
+  const zero=380, k=1100;
+  el("line",{x1:zero,y1:20,x2:zero,y2:300,stroke:"#5B6475","stroke-width":2},s);
+  el("text",{x:zero,y:326,"text-anchor":"middle",class:"lbls"},s,"0");
+  el("text",{x:zero-160,y:350,"text-anchor":"middle",class:"lbls"},s,"← pushes away from pickup");
+  el("text",{x:zero+170,y:350,"text-anchor":"middle",class:"lbls"},s,"pulls toward pickup →");
+  const g1=el("g",{"data-step":"1"},s);
+  el("text",{x:20,y:84,class:"lblb"},g1,"before");
+  el("text",{x:20,y:108,class:"lbls"},g1,"W · H = +0.30");
+  el("rect",{x:zero,y:56,width:before*k,height:58,rx:5,fill:BLUE,class:"grow"},g1);
+  el("text",{x:zero+before*k+12,y:94,class:"lblb",style:"font-size:28px"},g1,fmt(before,2));
+  const g2=el("g",{"data-step":"2"},s);
+  el("text",{x:20,y:214,class:"lblb"},g2,"after");
+  el("text",{x:20,y:238,class:"lbls"},g2,"W′ · H = −0.28");
+  el("rect",{x:zero+after*k,y:186,width:-after*k,height:58,rx:5,fill:TEAL,class:"growr"},g2);
+  el("text",{x:zero+after*k-12,y:224,"text-anchor":"end",class:"lblb",style:"font-size:28px;fill:#14655C"},g2,fmt(after,2));
+  el("rect",{x:zero-40,y:270,width:80,height:24,rx:12,fill:"none",stroke:TEAL,"stroke-width":2.5,"stroke-dasharray":"5 4"},g2);
+  el("text",{x:zero+48,y:288,class:"lbls",style:"fill:#14655C"},g2,"ideal: about 0");
+})();
+(function(){
+  const s=document.getElementById("draftLogits"); if(!s) return;
+  const o={w:82,h:48,gap:10,fs:19}, X=170;
+  const WT=WP.map(v=>r2(-v)), H2=[1,-1,1,1,-1];
+  row(s,X,10,WP,Object.assign({label:"W′<tspan dy='6' font-size='14'>pickup</tspan>"},o));
+  row(s,X,70,WT,Object.assign({label:"W′<tspan dy='6' font-size='14'>turn</tspan>"},o));
+  row(s,X,150,H2,Object.assign({label:"H",sub:"one observation",dec:0},o));
+  const zero=X+230, k=2200;
+  el("line",{x1:zero,y1:240,x2:zero,y2:400,stroke:"#5B6475","stroke-width":2},s);
+  [["pickup",dot(WP,H2)/Math.sqrt(5)],["turn",dot(WT,H2)/Math.sqrt(5)]].forEach(([n,v],i)=>{const y=256+i*70, w=Math.abs(v)*k;
+    el("text",{x:X-18,y:y+30,"text-anchor":"end",class:"lblb"},s,n+" logit");
+    el("rect",{x:v>0?zero:zero-w,y:y,width:w,height:44,rx:4,fill:v>0?TEAL:OR,class:v>0?"grow":"growr"},s);
+    el("text",{x:v>0?zero+w+12:zero-w-12,y:y+30,"text-anchor":v>0?"start":"end",class:"lblb",style:"font-size:24px"},s,fmt(v,2));});
+  el("text",{x:X,y:440,class:"lbls"},s,"W′ · H = ±0.12, divided by √5: ±0.05, as in the draft");
+})();
+
+/* ---------- 11: target behaviour ---------- */
+(function(){
+  const s=document.getElementById("ldk2"); if(!s) return;
+  const cs=62,x0=40,y0=40; const G=lavaGrid(s,x0,y0,cs), C=G.C;
+  el("rect",{x:G.C(4,1)[0]-cs/2,y:G.C(4,1)[1]-cs/2,width:cs,height:cs,fill:"#fff",opacity:0},s);
+  const g=el("g",{"data-step":"1"},s);
+  const pts=[C(0,2),C(1,2),C(2,2),C(3,2),C(4,2),C(5,2),C(5,3),C(4,3),C(3,3),C(2,3),C(1,3),C(1,2)];
+  const path="M"+pts.map(p=>p[0]+","+p[1]).join(" L");
+  el("path",{d:path,class:"draw slow",pathLength:1,stroke:NAVY,"stroke-width":4,fill:"none","stroke-dasharray":"1","stroke-linejoin":"round",opacity:.6},g);
+  const d=el("circle",{class:"flow",r:10,fill:OR},g); el("animateMotion",{dur:"6s",begin:"indefinite",fill:"freeze",path:path},d);
+  el("text",{x:C(4,1)[0],y:C(4,1)[1]+52,"text-anchor":"middle",class:"lbls",style:"fill:#5B6475"},g,"passes the key");
+  const g2=el("g",{"data-step":"2"},s);
+  el("rect",{x:x0+4*cs-5,y:y0-5,width:cs+10,height:7*cs+10,rx:8,fill:"none",stroke:TEAL,"stroke-width":5,class:"pulse"},g2);
+})();
+
+/* ---------- engine ---------- */
+const deck=document.getElementById("deck");
+const slides=[...deck.querySelectorAll("section.slide")];
+let cur=0, step=0;
+function maxStep(i){let m=0; slides[i].querySelectorAll("[data-step]").forEach(e=>m=Math.max(m,+e.dataset.step)); return m;}
+function fit(){const s=Math.min(innerWidth/1600,innerHeight/900); deck.style.transform=`scale(${s})`;}
+function runSeq(t){ (t._tm||[]).forEach(clearTimeout); const v=t.dataset.seq.split("|"), t0=+(t.dataset.t0||0), dt=+(t.dataset.dt||.8);
+  t.textContent=""; t._tm=v.map((x,i)=>setTimeout(()=>{t.textContent=x;},(t0+i*dt)*1000)); }
+function resetSeq(node){ node.querySelectorAll("[data-seq]").forEach(t=>{(t._tm||[]).forEach(clearTimeout); t.textContent="";}); }
+function play(node){
+  node.querySelectorAll("animateMotion,animate").forEach(a=>{ if(a.getAttribute("begin")!=="indefinite") return;
+    if(a.tagName==="animateMotion") a.parentNode.classList.add("go"); try{a.beginElement();}catch(err){} });
+  node.querySelectorAll("[data-seq]").forEach(runSeq);
+}
+function apply(){
+  slides.forEach((s,i)=>s.classList.toggle("current",i===cur));
+  const s=slides[cur];
+  s.querySelectorAll("[data-step]").forEach(e=>{const on=+e.dataset.step<=step; const was=e.classList.contains("on"); e.classList.toggle("on",on); if(on&&!was) play(e); if(!on){ e.querySelectorAll(".flow").forEach(f=>f.classList.remove("go")); resetSeq(e);} });
+  slides.forEach((o,i)=>{ if(i!==cur) o.querySelectorAll(".grow.on,.draw.on").forEach(e=>{ if(!e.closest("[data-step]")) e.classList.remove("on"); }); });
+  requestAnimationFrame(()=>requestAnimationFrame(()=>s.querySelectorAll(".grow,.growr,.draw").forEach(e=>{ if(!e.closest("[data-step]")) e.classList.add("on"); })));
+  s.querySelectorAll("[data-dim]").forEach(e=>e.classList.toggle("dim",+e.dataset.dim<=step));
+  s.querySelectorAll(".pg").forEach(p=>p.textContent=(cur+1)+" / "+slides.length);
+  document.getElementById("count").textContent=(cur+1)+" / "+slides.length;
+  document.getElementById("bar").style.width=((cur+1)/slides.length*100)+"%";
+  const n=s.querySelector("aside.notes"); document.getElementById("notes").innerHTML="<b>Slide "+(cur+1)+": "+(s.dataset.title||"")+"</b>"+(n?n.innerHTML:"");
+  history.replaceState(null,"","#"+(cur+1)+(step?"."+step:""));
+  document.querySelectorAll("#overview button").forEach((b,i)=>b.classList.toggle("cur",i===cur));
+}
+function go(i,st){cur=Math.max(0,Math.min(slides.length-1,i)); step=Math.max(0,Math.min(maxStep(cur),st)); apply();}
+function next(){ if(step<maxStep(cur)){step++;apply();} else if(cur<slides.length-1){go(cur+1,0);} }
+function prev(){ if(step>0){step--;apply();} else if(cur>0){go(cur-1,maxStep(cur-1));} }
+addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight"||e.key==="PageDown"||e.key===" "){e.preventDefault();next();}
+  else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();prev();}
+  else if(e.key==="Home"){go(0,0);} else if(e.key==="End"){go(slides.length-1,0);}
+  else if(e.key==="n"||e.key==="N"){document.getElementById("notes").classList.toggle("show");}
+  else if(e.key==="o"||e.key==="O"){document.getElementById("overview").classList.toggle("show");}
+  else if(e.key==="Escape"){document.getElementById("overview").classList.remove("show");}
+});
+document.getElementById("next").onclick=next; document.getElementById("prev").onclick=prev;
+document.getElementById("nbtn").onclick=()=>document.getElementById("notes").classList.toggle("show");
+document.getElementById("obtn").onclick=()=>document.getElementById("overview").classList.toggle("show");
+const ov=document.getElementById("overview");
+slides.forEach((s,i)=>{const b=document.createElement("button"); b.textContent=(i+1)+". "+(s.dataset.title||""); b.onclick=()=>{go(i,0); ov.classList.remove("show");}; ov.appendChild(b);});
+addEventListener("resize",fit); fit();
+const m=location.hash.match(/^#(\d+)(?:\.(\d+))?$/);
+if(m) go(+m[1]-1,+(m[2]||0)); else go(0,0);
+addEventListener("beforeprint",()=>slides.forEach(s=>{s.querySelectorAll("[data-step]").forEach(e=>e.classList.add("on")); s.querySelectorAll("[data-seq]").forEach(t=>{const v=t.dataset.seq.split("|"); t.textContent=v[v.length-1];});}));
+addEventListener("afterprint",()=>apply());
+})();
+</script>
+</body>
+</html>
