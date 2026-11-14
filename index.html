@@ -538,7 +538,8 @@ function lavaGrid(s,x0,y0,cs){
   // step 2: route with key and door
   const g2=el("g",{"data-step":"2"},s);
   const o=8, a=C(0,2),b=C(4,2),c=C(2,2),d=C(2,3),e=C(2,5),f=C(6,5),h=C(6,6);
-  const route=`M${a[0]-o},${a[1]+20} L${b[0]-o},${b[1]} L${b[0]+o},${b[1]} L${c[0]+o},${c[1]+o} L${e[0]},${e[1]+o} L${f[0]},${f[1]} L${h[0]-20},${h[1]}`;
+  const k=C(4,1);   // the route reaches into the key's cell, then turns back up
+  const route=`M${a[0]-o},${a[1]+20} L${b[0]-o},${b[1]-o} L${k[0]+22},${b[1]-o} L${k[0]+22},${b[1]+o} L${b[0]+o},${b[1]+o} L${c[0]+o},${c[1]+o} L${e[0]},${e[1]+o} L${f[0]},${f[1]} L${h[0]-20},${h[1]}`;
   el("path",{d:route,class:"draw slow",pathLength:1,stroke:NAVY,"stroke-width":5,fill:"none","stroke-linejoin":"round",opacity:.75},g2);
   const dotA=el("circle",{class:"flow",r:11,fill:OR},g2); el("animateMotion",{dur:"5s",begin:"indefinite",fill:"freeze",path:route},dotA);
   [[C(4,1),"1  pick up key",-1],[C(2,4),"2  unlock door",1]].forEach(([p,t,side])=>{
