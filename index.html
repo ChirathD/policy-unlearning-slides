@@ -158,7 +158,7 @@ a{color:var(--navy)}
   <aside class="notes">
     <p>Built from the draft deck <code>Policy Unlearning in Vector Symbolic RL.pptx</code> (7 slides). Its text and numbers are kept; the animations follow the style of <code>2026-11-12-weekly.html</code>.</p>
     <p><b>The drawing.</b> Each square is one entry of a weight vector. The orange squares stand for the part of the weights that holds one skill; they fade, and the rest stays.</p>
-    <p><b>A toy example runs through the deck.</b> Slides 7 to 11 compute every number from one set of 5-entry complex FHRR vectors, as in the paper (written out in the notes of slide 8). They reproduce the draft's similarity table (+0.06, +0.02, −0.06), M = 0.06 p1 + 0.02 p2 − 0.06 p3 and the score 0.134 exactly; the weights are complex, so each entry is shown as length and angle. Earlier versions: <code>versions/v1-bipolar.html</code> (±1 vectors) and <code>versions/v2-real-fhrr.html</code> (real-valued FHRR).</p>
+    <p><b>A toy example runs through the deck.</b> Slides 7 to 11 compute every number from one set of 5-entry complex FHRR vectors, as in the paper (written out in the notes of slide 8). They reproduce the draft's similarity table (+0.06, +0.02, −0.06), M = 0.06 p1 + 0.02 p2 − 0.06 p3 and the score 0.134 exactly; the weights are complex, so each entry is shown as a + bj with its arrow. Earlier versions: <code>versions/v1-bipolar.html</code> (±1 vectors) and <code>versions/v2-real-fhrr.html</code> (real-valued FHRR).</p>
   </aside>
 </section>
 
@@ -395,7 +395,7 @@ a{color:var(--navy)}
   </div>
   <div class="foot"><span>Method · step 3, rebind and subtract</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Source.</b> Draft slide 6: original \(W_{\text{pickup}}\), the key contribution key ⊙ M, and the weights after subtraction. The formulas are the draft's; the entries are complex, so each cell shows length and angle.</p>
+    <p><b>Source.</b> Draft slide 6: original \(W_{\text{pickup}}\), the key contribution key ⊙ M, and the weights after subtraction. The formulas are the draft's; the entries are complex, so each cell shows the number a + bj and its arrow.</p>
     <p><b>Why it works.</b> \(W' = \text{key} \odot (U - M)\), and U − M is orthogonal to every known \(p_j\). Multiplying by a unit-phasor key keeps dot products, so W′ is orthogonal to key ⊙ \(p_j\) for every known position.</p>
   </aside>
 </section>
@@ -535,7 +535,10 @@ const HKEY=vm(KEY,P1);                                                        //
 const PRODS=W.map((w,i)=>r3(cm(w,cj(HKEY[i]))[0])), TOT=r3(PRODS.reduce((a,b)=>a+b,0));
 window.__toy={SIM,TOT,PRODS,after:hdot(WP,HKEY)[0],W:W.map(z=>[r2(mod(z)),ang(z)]),U:U.map(z=>[r2(mod(z)),ang(z)]),M:M.map(z=>[r2(mod(z)),ang(z)]),KM:KM.map(z=>[r2(mod(z)),ang(z)]),WP:WP.map(z=>[r2(mod(z)),ang(z)]),H:HKEY.map(ang),P2:P2.map(ang),P3:P3.map(ang)};
 
-/* one complex vector as a row of cells: an arrow (the phasor) above its value r∠θ (unit phasors: just θ) */
+/* a complex number as a+bj, e.g. 0.02+0.03j */
+function cfmt(z,dec){ const e=0.5*Math.pow(10,-dec), re=Math.abs(z[0])<e?0:z[0], im=Math.abs(z[1])<e?0:z[1];
+  return (re<0?"−":"")+Math.abs(re).toFixed(dec)+(im<0?"−":"+")+Math.abs(im).toFixed(dec)+"j"; }
+/* one complex vector as a row of cells: an arrow (the phasor) above its value a+bj (unit phasors: just the angle θ) */
 function crow(parent,x,y,vals,o){
   o=Object.assign({w:100,h:66,gap:12,label:"",sub:"",seq:false,d0:.2,dt:.35,fs:16,lx:null,unit:false,tone:"n",scale:null,text:true,dec:2},o||{});
   const g=el("g",{},parent), LX=(o.lx!==null?o.lx:x-18);
@@ -557,7 +560,7 @@ function crow(parent,x,y,vals,o){
     else el("circle",{cx:ccx,cy:ccy,r:2.6,fill:T[2]},c);
     if(o.text){ const t=ang(z), deg=(t<0?"−":"")+Math.abs(t)+"°";
       el("text",{x:ccx,y:y+o.h-8,"text-anchor":"middle",class:"lblb",style:"font-size:"+o.fs+"px;fill:"+T[2]},c,
-        o.unit?deg:(mod(z)<0.005?"0":mod(z).toFixed(o.dec)+"∠"+deg)); }
+        o.unit?deg:cfmt(z,o.dec)); }
   });
   return g;
 }
@@ -857,7 +860,7 @@ function lavaGrid(s,x0,y0,cs){
   for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g1); el("animateMotion",{dur:(0.5+0.25*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${46} L${x},${206}`},d);}
   crow(g1,X,180,U,Object.assign({label:"$U",seq:true,d0:.5,dt:.25,fs:15},o));
   const e0=x=>{const t=ang(x);return (t<0?"-":"")+Math.abs(t)+"^\\circ";};
-  tex(g1,X,264,"each entry: same length as W, angle minus the key's: \\("+e0(W[0])+" - "+e0(KEY[0])+" = "+e0(U[0])+"\\)",{mix:true,size:16,color:"#5B6475",w:620,h:28});
+  tex(g1,X,264,"each entry: W's arrow turned back by the key's angle, e.g. \\("+cfmt(W[0],2).replace(/−/g,"-")+" \\xrightarrow{-"+e0(KEY[0])+"} "+cfmt(U[0],2).replace(/−/g,"-")+"\\)",{mix:true,size:16,color:"#5B6475",w:660,h:34});
   const g2=el("g",{"data-step":"2"},s);
   tex(g2,X,312,"<b>similarity of \\(U\\) with each position:</b>&nbsp; \\(U \\cdot \\overline{p_j} \\,/\\, D\\)",{mix:true,size:20,w:640,h:32});
   const zero=X+390, k=2000, names=[["p_1","ahead"],["p_2","left"],["p_3","right"]];
