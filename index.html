@@ -508,7 +508,7 @@ a{color:var(--navy)}
     </div>
     <div>
       <svg viewBox="0 0 560 520" width="560" height="520" id="ldk2"></svg>
-      <p class="small" style="margin:0">The agent ignores the key, turns at (5,2), passes the door and reaches the goal without stepping on lava.</p>
+      <p class="small" style="margin:0">The agent ignores the key, turns at (5,2), crosses the gap in the lava and reaches the goal without stepping on lava.</p>
     </div>
   </div>
   <div class="foot"><span>Next · how to verify the forgetting</span><span class="pg"></span></div>
@@ -1023,9 +1023,10 @@ function lavaGrid(s,x0,y0,cs){
 (function(){
   const s=document.getElementById("ldk2"); if(!s) return;
   const cs=62,x0=40,y0=40; const G=lavaGrid(s,x0,y0,cs), C=G.C;
+  G.door.remove();   // no door on this slide: the gap in the lava column is open
   el("rect",{x:G.C(4,1)[0]-cs/2,y:G.C(4,1)[1]-cs/2,width:cs,height:cs,fill:"#fff",opacity:0},s);
   const g=el("g",{"data-step":"1"},s);
-  const pts=[C(0,1),C(2,1),C(2,5),C(6,5),C(6,6)];   // (7,2) -> turn at (5,2) -> through the door (5,5) -> goal (1,7), never on lava
+  const pts=[C(0,1),C(2,1),C(2,5),C(6,5),C(6,6)];   // (7,2) -> turn at (5,2) -> through the gap (5,5) -> goal (1,7), never on lava
   const path="M"+pts.map(p=>p[0]+","+p[1]).join(" L");
   el("path",{d:path,class:"draw slow",pathLength:1,stroke:NAVY,"stroke-width":4,fill:"none","stroke-dasharray":"1","stroke-linejoin":"round",opacity:.6},g);
   const d=el("circle",{class:"flow",r:10,fill:OR},g); el("animateMotion",{dur:"6s",begin:"indefinite",fill:"freeze",path:path},d);
