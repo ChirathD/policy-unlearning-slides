@@ -547,6 +547,24 @@ a{color:var(--navy)}
   </aside>
 </section>
 
+<!-- 17 -->
+<section class="slide" data-title="Appendix: reading U">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span></div>
+  <h2>Appendix: how the dot product reads the numbers out of U</h2>
+  <p class="formula" style="font-size:34px;margin:18px 0 18px">\(\displaystyle U = 0.06\,p(\text{ahead}) + 0.02\,p(\text{left}) - 0.06\,p(\text{right}) + \text{noise}\)</p>
+  <p style="font-size:24px;margin:0 0 18px;max-width:1300px">We don’t know these three numbers yet; they’re what we want to find. The dot product finds them, because position vectors are (nearly) orthogonal:</p>
+  <ul style="font-size:24px;line-height:1.5;margin:0 0 22px;padding-left:34px">
+    <li data-step="1">A position with itself: \(p(\text{ahead}) \cdot \overline{p(\text{ahead})} = D\).</li>
+    <li data-step="2">A position with a different one: \(p(\text{ahead}) \cdot \overline{p(\text{left})} \approx 0\).</li>
+    <li data-step="3">A position with noise: about 0.</li>
+  </ul>
+  <div class="box" data-step="4" style="max-width:1300px"><p style="font-size:24px">So \(\displaystyle \frac{U \cdot \overline{p(\text{ahead})}}{D} \approx \frac{0.06\,D + 0.02 \cdot 0 - 0.06 \cdot 0 + 0}{D} = 0.06\), and the same for left and right.</p></div>
+  <div class="foot"><span>Appendix · reading U</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Supports slide 10</b> (step 1, unbind): the similarities +0.06, +0.02, −0.06 are \(U \cdot \overline{p_j} / D\). In the D = 5 toy the positions are exactly orthogonal, so the result is exact; with random high-dimensional vectors the cross terms are close to 0, of order \(1/\sqrt{D}\) after dividing by D.</p>
+  </aside>
+</section>
+
 </div></div>
 
 <div id="notes"></div>
