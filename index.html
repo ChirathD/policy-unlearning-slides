@@ -34,6 +34,8 @@ ul{margin:0;padding-left:26px}
 .lead{font-size:26px;color:var(--muted);margin:0 0 18px}
 .dark .lead{color:#C9D6E6}
 .small{font-size:19px;color:var(--muted);line-height:1.35}
+.ref{color:var(--muted);font-weight:400;font-size:.8em;vertical-align:.25em}
+.cite{font-size:15px;color:var(--muted);line-height:1.4;margin:12px 0 0}
 .tiny{font-size:16px;color:var(--muted)}
 .foot{position:absolute;left:80px;right:80px;bottom:18px;display:flex;justify-content:space-between;font-size:15px;color:var(--muted)}
 .dark .foot{color:#9FB0C8}
@@ -218,20 +220,22 @@ a{color:var(--navy)}
       <svg viewBox="0 0 600 150" width="600" height="150" id="gaData"></svg>
       <div data-step="1">
         <p class="formula" style="font-size:26px;margin:6px 0 2px">\(\theta \leftarrow \theta + \eta\, \nabla_{\theta}\, \mathcal{L}(\theta; D_f)\)</p>
-        <p style="font-size:21px;margin:0 0 10px"><b>Gradient ascent on the forget set:</b> step <i>up</i> the loss on the dog images, so the model stops answering “dog” for them.</p>
+        <p style="font-size:21px;margin:0 0 10px"><b>Gradient ascent on the forget set</b><span class="ref">[1]</span><b>:</b> step <i>up</i> the loss on the dog images, so the model stops answering “dog” for them.</p>
       </div>
       <div data-step="2">
         <p class="formula" style="font-size:26px;margin:4px 0 2px">\(\theta \leftarrow \theta - \eta\, \nabla_{\theta}\, \mathcal{L}(\theta; D_r)\)</p>
         <p style="font-size:21px;margin:0 0 10px"><b>Gradient descent on the retain set:</b> keep the loss low on everything else, so cat, bird and plane stay correct.</p>
       </div>
-      <div class="box" data-step="3" style="padding:10px 18px"><p style="font-size:21px">Together, for a few epochs: \(\displaystyle \min_{\theta}\; \mathcal{L}(\theta; D_r) - \lambda\, \mathcal{L}(\theta; D_f)\)</p></div>
+      <div class="box" data-step="3" style="padding:10px 18px"><p style="font-size:21px">Together, for a few epochs: \(\displaystyle \min_{\theta}\; \mathcal{L}(\theta; D_r) - \lambda\, \mathcal{L}(\theta; D_f)\) <span class="ref">[2]</span></p></div>
       <div class="box orange" data-step="4" style="padding:10px 18px"><p style="font-size:20px">It needs the forget data, its labels and many gradient steps. Ascent alone has no bound, so it is stopped early or balanced by the retain term.</p></div>
+      <p class="cite">[1] Jang et al., <i>Knowledge Unlearning for Mitigating Privacy Risks in Language Models</i>, ACL 2023 (gradient ascent).<br>[2] Kurmanji et al., <i>Towards Unbounded Machine Unlearning</i>, NeurIPS 2023 (NegGrad+, ascent on \(D_f\) with descent on \(D_r\)).</p>
     </div>
     <svg viewBox="0 0 800 640" width="800" height="640" id="gaSvg"></svg>
   </div>
   <div class="foot"><span>Problem · how supervised models unlearn</span><span class="pg"></span></div>
   <aside class="notes">
     <p><b>The common baseline.</b> Split the training data into the forget set \(D_f\) and the retain set \(D_r\). Gradient ascent on \(D_f\) alone is often called NegGrad; adding gradient descent on \(D_r\) is NegGrad+ (both are baselines in, e.g., Kurmanji et al., NeurIPS 2023, which also proposes SCRUB). Other methods (fine-tuning on \(D_r\) only, random relabelling of \(D_f\), influence-based updates) follow the same pattern: a few gradient epochs instead of retraining from scratch.</p>
+    <p><b>References.</b> [1] J. Jang, D. Yoon, S. Yang, S. Cha, M. Lee, L. Logeswaran, M. Seo. Knowledge Unlearning for Mitigating Privacy Risks in Language Models. ACL 2023, pp. 14389–14408 (arXiv:2210.01504): gradient ascent on the sequences to forget. [2] M. Kurmanji, P. Triantafillou, J. Hayes, E. Triantafillou. Towards Unbounded Machine Unlearning. NeurIPS 2023 (arXiv:2302.09880): SCRUB, with NegGrad and NegGrad+ (ascent on the forget set combined with descent on the retain set) as baselines.</p>
     <p><b>The gold standard</b> is a model retrained from scratch on \(D_r\); unlearning tries to match it at a fraction of the cost.</p>
     <p><b>Schematic.</b> The loss curves and the probabilities are made up to show the shape of the effect, not measured. The probabilities are the earlier bar-chart scores divided by their total, so each chart sums to 1.</p>
   </aside>
