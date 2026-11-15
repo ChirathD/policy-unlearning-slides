@@ -443,21 +443,16 @@ a{color:var(--navy)}
 <section class="slide" data-title="After the edit">
   <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span></div>
   <h2>After the edit, the key ahead no longer pulls toward pickup</h2>
-  <div class="cols c2" style="gap:50px;margin-top:6px">
+  <div class="cols" style="grid-template-columns:1fr;margin-top:6px">
     <div>
       <p style="font-size:22px;margin:0 0 4px">Pickup's similarity with H = key ahead (slide 8), before and after the edit</p>
       <svg viewBox="0 0 680 400" width="680" height="400" id="beforeAfter"></svg>
-      <p class="small" data-step="2" style="margin:0">Exactly 0: the positions are orthogonal, so M is the exact projection of U onto them, and nothing of “key at a position” is left. No pull either way, as in an agent that never learned the key.</p>
-    </div>
-    <div data-step="3">
-      <p style="font-size:22px;margin:0 0 4px">The same for the key at each known position</p>
-      <svg viewBox="0 0 680 430" width="680" height="430" id="perPos"></svg>
+      <p class="small" data-step="2" style="margin:0;max-width:900px">Exactly 0: the positions are orthogonal, so M is the exact projection of U onto them, and nothing of “key at a position” is left. No pull either way, as in an agent that never learned the key.</p>
     </div>
   </div>
   <div class="foot"><span>Method · the result in the toy</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Left</b>, from the toy vectors and the H of slide 8: before, \(\operatorname{Re}(W_{\text{pickup}} \cdot \overline{H})\) = 0.300, so 0.300 / √5 = +0.13 (the draft's 0.134); after, \(\operatorname{Re}(W'_{\text{pickup}} \cdot \overline{H})\) = 0.</p>
-    <p><b>Right</b>: \(\operatorname{Re}(W \cdot \overline{\text{key} \odot p_j}) / \sqrt{5}\) for the three positions: before it is \(\sqrt{5}\) times the similarity of step 1 (+0.13, +0.04, −0.13), after it is 0. In exact arithmetic \(W' \cdot \overline{\text{key} \odot p_j} = (U - M) \cdot \overline{p_j} = 0\) for every j.</p>
+    <p>From the toy vectors and the H of slide 8: before, \(\operatorname{Re}(W_{\text{pickup}} \cdot \overline{H})\) = 0.300, so 0.300 / √5 = +0.13 (the draft's 0.134); after, \(\operatorname{Re}(W'_{\text{pickup}} \cdot \overline{H})\) = 0.</p>
     <p><b>Changed from the draft.</b> Draft slide 7 showed two edited actions (pickup +0.05, "Forward" −0.05) computed with ±1 vectors, where the toy overshoots. With orthogonal FHRR positions the leftover is exactly 0, so this panel shows that instead. The earlier panels are in <code>versions/v1-bipolar.html</code>.</p>
   </aside>
 </section>
@@ -974,7 +969,6 @@ function lavaGrid(s,x0,y0,cs){
   const g3=el("g",{"data-step":"3"},s);
   crow(g3,X,410,U,Object.assign({label:"$U",sub:"from step 1"},o));
   tex(g3,X,506,"\\(U - M\\) lies along no known position: other things pickup learned.",{mix:true,size:19,color:"#1E2430",w:620,h:30});
-  tex(g3,X,534,"M leaves it out, so step 3 leaves it in the weights.",{mix:true,size:19,color:"#1E2430",w:620,h:30});
 })();
 
 /* ---------- 10: rebind and subtract ---------- */
@@ -1014,23 +1008,6 @@ function lavaGrid(s,x0,y0,cs){
   el("circle",{cx:zero,cy:215,r:10,fill:TEAL},g2);
   el("text",{x:zero+22,y:225,class:"lblb",style:"font-size:28px;fill:#14655C"},g2,fmt(after,2));
   el("text",{x:zero+92,y:224,class:"lbls",style:"fill:#14655C"},g2,"no pull either way");
-})();
-(function(){
-  const s=document.getElementById("perPos"); if(!s) return;
-  const Hs=[P1,P2,P3].map(p=>vm(KEY,p)), names=["ahead","left","right"];
-  const zero=330, k=1100;
-  el("rect",{x:420,y:4,width:18,height:18,rx:3,fill:BLUE},s); el("text",{x:446,y:19,class:"lbls"},s,"before");
-  el("rect",{x:530,y:4,width:18,height:18,rx:3,fill:TEAL},s); el("text",{x:556,y:19,class:"lbls"},s,"after");
-  el("line",{x1:zero,y1:36,x2:zero,y2:400,stroke:"#5B6475","stroke-width":2},s);
-  el("text",{x:zero,y:420,"text-anchor":"middle",class:"lbls"},s,"0");
-  Hs.forEach((h,j)=>{const y=40+j*122, b=hdot(W,h)[0]/Math.sqrt(5), a=hdot(WP,h)[0]/Math.sqrt(5), w=Math.abs(b)*k;
-    tex(s,20,y+12,"key "+names[j]+" \\((H = \\text{key} \\odot p_"+(j+1)+")\\)",{mix:true,size:18,w:300,h:28});
-    el("rect",{x:b>0?zero:zero-w,y:y+30,width:w,height:34,rx:4,fill:BLUE,class:b>0?"grow":"growr"},s);
-    el("text",{x:b>0?zero+w+10:zero-w-10,y:y+55,"text-anchor":b>0?"start":"end",class:"lblb"},s,fmt(b,2));
-    const ag=el("g",{class:"seq",style:"transition-delay:"+(0.8+0.4*j)+"s"},s);
-    el("circle",{cx:zero,cy:y+88,r:9,fill:TEAL},ag);
-    el("text",{x:zero+20,y:y+95,class:"lblb",style:"fill:#14655C"},ag,fmt(a,2));
-  });
 })();
 
 /* ---------- 13: target behaviour ---------- */
