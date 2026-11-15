@@ -160,7 +160,7 @@ a{color:var(--navy)}
   <aside class="notes">
     <p>Built from the draft deck <code>Policy Unlearning in Vector Symbolic RL.pptx</code> (7 slides). Its text and numbers are kept; the animations follow the style of <code>2026-11-12-weekly.html</code>.</p>
     <p><b>The drawing.</b> Each square is one entry of a weight vector. The orange squares stand for the part of the weights that holds one skill; they fade, and the rest stays.</p>
-    <p><b>A toy example runs through the deck.</b> Slides 7 and 9 to 12 compute every number from one set of 5-entry complex FHRR vectors, as in the paper (written out in the notes of slide 9). They reproduce the draft's similarity table (+0.06, +0.02, −0.06), M = 0.06 p1 + 0.02 p2 − 0.06 p3 and the score 0.134 exactly; the weights are complex, so each entry is shown as a + bj. Earlier versions: <code>versions/v1-bipolar.html</code> (±1 vectors) and <code>versions/v2-real-fhrr.html</code> (real-valued FHRR).</p>
+    <p><b>A toy example runs through the deck.</b> Slides 7, 8 and 10 to 13 compute every number from one set of 5-entry complex FHRR vectors, as in the paper (written out in the notes of slide 10). They reproduce the draft's similarity table (+0.06, +0.02, −0.06), M = 0.06 p1 + 0.02 p2 − 0.06 p3 and the score 0.134 exactly; the weights are complex, so each entry is shown as a + bj. Earlier versions: <code>versions/v1-bipolar.html</code> (±1 vectors) and <code>versions/v2-real-fhrr.html</code> (real-valued FHRR).</p>
   </aside>
 </section>
 
@@ -311,7 +311,34 @@ a{color:var(--navy)}
   </aside>
 </section>
 
-<!-- 7 -->
+<!-- 7 (training) -->
+<section class="slide" data-title="Training">
+  <div class="strip"><span>Problem</span><span class="here">Background</span><span>Method</span><span>Next</span></div>
+  <h2>Training adds a scaled copy of H to the chosen action's weights</h2>
+  <div class="cols" style="grid-template-columns:520px 1fr;gap:30px;margin-top:4px">
+    <div>
+      <p class="formula" style="font-size:36px;margin:4px 0 4px">\(W_a \leftarrow W_a + \alpha\, H\)</p>
+      <p class="small" style="margin:0 0 16px">a: the action the agent took &nbsp;·&nbsp; H: the state it was in</p>
+      <div data-step="1">
+        <p class="formula" style="font-size:28px;margin:0 0 4px">\(\alpha = \dfrac{\eta\, \hat{A}\, (1 - \pi_a)}{\sqrt{D}}\)</p>
+        <p class="small" style="margin:0 0 12px">\(\eta\): learning rate &nbsp;·&nbsp; \(\hat{A}\): advantage, how much better the outcome was than expected &nbsp;·&nbsp; \(\pi_a\): the probability the policy gave a</p>
+        <p style="font-size:20px;margin:0 0 12px">A good outcome (\(\hat{A} > 0\)) moves \(W_a\) toward H, so a becomes more likely in that state. A bad one (\(\hat{A} < 0\)) moves it away.</p>
+      </div>
+      <p data-step="2" style="font-size:20px;margin:0 0 12px">The weights start at zero, and every PPO update adds one more scaled H.</p>
+      <div class="box" data-step="3"><p style="font-size:20px">So \(W_{\text{pickup}}\) is a weighted sum of the bound pairs it was trained on. Unbinding (slide 9) reads those weights back out.</p></div>
+    </div>
+    <svg viewBox="0 0 900 640" width="900" height="640" id="trainSvg"></svg>
+  </div>
+  <div class="foot"><span>Background · training</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>From the HD-PPO code</b> (<code>src/hdppo/policies.py</code>, <code>SoftmaxLinearPolicy</code>): the logits are \(z_k = H \cdot W_k / (\sqrt{D}\,\tau)\), and the gradient of the clipped PPO surrogate with respect to \(W_k\) is \(r\,\hat{A}\,(\mathbb{1}[a = k] - \pi_k)\, H / (\sqrt{D}\,\tau)\), set to zero where the clip is active. Every gradient is therefore a multiple of H. The slide shows the chosen action with ratio \(r \approx 1\) and \(\tau = 1\); every other action k gets \(-\eta\,\hat{A}\,\pi_k\, H / \sqrt{D}\), a small push the other way. The entropy bonus is also a multiple of H.</p>
+    <p><b>Complex FHRR.</b> With \(\operatorname{sim} = \operatorname{Re}(W \cdot \overline{H}) / \sqrt{D}\), the gradient with respect to W is again \(H / \sqrt{D}\), so the update has the same form.</p>
+    <p><b>Caveats.</b> The code uses Adam, which rescales each entry, so the step is H with per-entry scaling rather than an exact multiple (exact with plain SGD). The v2 code uses real cos-RFF hypervectors; the slides use complex FHRR as in the paper.</p>
+    <p><b>The toy.</b> The α values are chosen so the sum is exactly the toy \(W_{\text{pickup}}\) of the next slides: +0.06, +0.02, −0.06 on key ⊙ ahead, left, right, and +0.03, −0.02 on key ⊙ p4, p5 (other learned information). Each H here is a view with only the key in it. Real views hold many objects, so each update also adds pairs such as wall ⊙ ahead: the part that unbinding turns into noise (slide 9).</p>
+  </aside>
+</section>
+
+<!-- 8 -->
 <section class="slide" data-title="Choosing an action">
   <div class="strip"><span>Problem</span><span class="here">Background</span><span>Method</span><span>Next</span></div>
   <h2>The agent takes the action whose weights best match H</h2>
@@ -334,7 +361,7 @@ a{color:var(--navy)}
   <div class="foot"><span>Background · choosing an action</span><span class="pg"></span></div>
   <aside class="notes">
     <p><b>Source.</b> Draft slides 3 and 4: \(\mathcal{A} = \{A_1, \ldots, A_n\}\), \(\operatorname{sim}(A_i, H) = A_i \cdot H / \sqrt{D}\), \(a^* = \arg\max_i \operatorname{sim}\). With complex vectors the dot product takes the conjugate of H and keeps the real part. Draft slide 4 asked for an animation of the dot product; this is it.</p>
-    <p><b>The numbers</b> use the toy vectors in the notes of slide 9. The real parts of the products add to 0.300, and 0.300 / √5 = 0.134, the same value as the draft's example.</p>
+    <p><b>The numbers</b> use the toy vectors in the notes of slide 10. The real parts of the products add to 0.300, and 0.300 / √5 = 0.134, the same value as the draft's example.</p>
     <p><b>The bar chart in step 3 is schematic</b>: there are no weights for the other actions, so their bars only show the argmax.</p>
   </aside>
 </section>
@@ -371,7 +398,7 @@ a{color:var(--navy)}
   <div class="cols" style="grid-template-columns:500px 1fr;gap:20px;margin-top:6px">
     <div>
       <p class="formula" style="font-size:34px;margin:4px 0 6px">\(U = W_{\text{pickup}} \odot \overline{\text{key}}\)</p>
-      <p style="font-size:22px">\(W_{\text{pickup}}\) learned to answer “key at some position”. Multiplying by the conjugate key cancels the key and leaves the positions (slide 8).</p>
+      <p style="font-size:22px">\(W_{\text{pickup}}\) learned to answer “key at some position”. Multiplying by the conjugate key cancels the key and leaves the positions (slide 9).</p>
       <p data-step="2" style="font-size:22px">Compare U with each known position vector. The positions are orthogonal with \(p \cdot \overline{p} = D\), so dividing by D gives exactly how much of each position U contains.</p>
       <div class="box orange" data-step="3"><p style="font-size:21px"><b>Read:</b> pickup fires mostly when the key is <b>ahead</b> (+0.06), a little when it is left (+0.02), and is pushed down when it is right (−0.06).</p></div>
     </div>
@@ -434,7 +461,7 @@ a{color:var(--navy)}
   <h2>After the edit, the key ahead no longer pulls toward pickup</h2>
   <div class="cols c2" style="gap:50px;margin-top:6px">
     <div>
-      <p style="font-size:22px;margin:0 0 4px">Pickup's similarity with H = key ahead (slide 7), before and after the edit</p>
+      <p style="font-size:22px;margin:0 0 4px">Pickup's similarity with H = key ahead (slide 8), before and after the edit</p>
       <svg viewBox="0 0 680 400" width="680" height="400" id="beforeAfter"></svg>
       <p class="small" data-step="2" style="margin:0">Exactly 0: the positions are orthogonal, so M is the exact projection of U onto them, and nothing of “key at a position” is left. No pull either way, as in an agent that never learned the key.</p>
     </div>
@@ -445,7 +472,7 @@ a{color:var(--navy)}
   </div>
   <div class="foot"><span>Method · the result in the toy</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Left</b>, from the toy vectors and the H of slide 7: before, \(\operatorname{Re}(W_{\text{pickup}} \cdot \overline{H})\) = 0.300, so 0.300 / √5 = +0.13 (the draft's 0.134); after, \(\operatorname{Re}(W'_{\text{pickup}} \cdot \overline{H})\) = 0.</p>
+    <p><b>Left</b>, from the toy vectors and the H of slide 8: before, \(\operatorname{Re}(W_{\text{pickup}} \cdot \overline{H})\) = 0.300, so 0.300 / √5 = +0.13 (the draft's 0.134); after, \(\operatorname{Re}(W'_{\text{pickup}} \cdot \overline{H})\) = 0.</p>
     <p><b>Right</b>: \(\operatorname{Re}(W \cdot \overline{\text{key} \odot p_j}) / \sqrt{5}\) for the three positions: before it is \(\sqrt{5}\) times the similarity of step 1 (+0.13, +0.04, −0.13), after it is 0. In exact arithmetic \(W' \cdot \overline{\text{key} \odot p_j} = (U - M) \cdot \overline{p_j} = 0\) for every j.</p>
     <p><b>Changed from the draft.</b> Draft slide 7 showed two edited actions (pickup +0.05, "Forward" −0.05) computed with ±1 vectors, where the toy overshoots. With orthogonal FHRR positions the leftover is exactly 0, so this panel shows that instead. The earlier panels are in <code>versions/v1-bipolar.html</code>.</p>
   </aside>
@@ -494,7 +521,7 @@ a{color:var(--navy)}
   </div>
   <div class="foot"><span>Method · the recipe</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Summary of slides 9 to 11</b>, written for any action a and any object vector s. For the example, a = pickup and s = key.</p>
+    <p><b>Summary of slides 10 to 12</b>, written for any action a and any object vector s. For the example, a = pickup and s = key.</p>
     <p><b>The clean-up formula</b> writes the draft's M in general form: the coefficient of \(p_j\) is \(U \cdot \overline{p_j} / (p_j \cdot \overline{p_j})\). For complex FHRR vectors \(p_j \cdot \overline{p_j} = D\), so it is \(U \cdot \overline{p_j} / D\), the draft's formula with the conjugate.</p>
   </aside>
 </section>
@@ -832,7 +859,32 @@ function lavaGrid(s,x0,y0,cs){
   el("text",{x:X,y:450,class:"lbls"},g3,"three bound pairs in one vector");
 })();
 
-/* ---------- 7: dot product, animated ---------- */
+/* ---------- 7: training adds scaled H ---------- */
+(function(){
+  const s=document.getElementById("trainSvg"); if(!s) return;
+  const o={w:104,h:66,gap:14}, X=250, Z=P1.map(()=>[0,0]), W1=vs(0.06,HKEY);
+  crow(s,X,14,Z,Object.assign({label:"$W_{\\text{pickup}}",sub:"at the start: zero"},o));
+  crow(s,X,94,HKEY,Object.assign({label:"$H",sub:"view: key ahead",unit:true},o));
+  const g1=el("g",{"data-step":"1"},s);
+  for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g1); el("animateMotion",{dur:(0.5+0.2*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${127} L${x},${222}`},d);}
+  tex(g1,X,176,"pickup taken, \\(\\hat{A} > 0\\), so \\(\\alpha = +0.06\\)",{mix:true,size:17,color:"#5B6475",w:600,h:28});
+  crow(g1,X,196,W1,Object.assign({label:"$W_{\\text{pickup}} + 0.06\\,H",seq:true,d0:.5,dt:.2,tone:"t"},o));
+  const g2=el("g",{"data-step":"2"},s);
+  el("text",{x:X-18,y:357,"text-anchor":"end",class:"lblb"},g2,"more updates");
+  [["view H",X],["advantage",X+330],["α",X+470]].forEach(([h,x])=>el("text",{x:x,y:316,class:"lbls"},g2,h));
+  el("line",{x1:X,y1:326,x2:X+590,y2:326,stroke:"#D5DAE1","stroke-width":1.5},g2);
+  [["\\text{key} \\odot \\text{ahead}","\\hat{A} > 0","+0.06",1],["\\text{key} \\odot \\text{left}","\\hat{A} > 0","+0.02",1],["\\text{key} \\odot \\text{right}","\\hat{A} < 0","-0.06",-1],["\\text{other learned information}","","+0.03,\\ -0.02",0]].forEach(([h,a,al,sg],i)=>{
+    const c=el("g",{class:"seq",style:"transition-delay:"+(0.2+0.35*i)+"s"},g2), y=346+i*34;
+    tex(c,X,y,h,{size:18,w:320,h:30});
+    if(a) tex(c,X+330,y,a,{size:18,w:130,h:30});
+    tex(c,X+470,y,al,{size:18,color:sg>0?"#14655C":sg<0?"#B4461F":"#5B6475",w:180,h:30});
+  });
+  const g3=el("g",{"data-step":"3"},s);
+  crow(g3,X,476,W,Object.assign({label:"$W_{\\text{pickup}}",sub:"sum of all the α H",seq:true,d0:.3,dt:.2,tone:"t"},o));
+  tex(g3,X,568,"the \\(W_{\\text{pickup}}\\) of the next slides: \\(\\sum \\alpha\\,(\\text{key} \\odot p)\\)",{mix:true,size:17,color:"#5B6475",w:600,h:28});
+})();
+
+/* ---------- 8: dot product, animated ---------- */
 (function(){
   const s=document.getElementById("dotSvg"); if(!s) return;
   const o={w:104,h:66,gap:14}, X=230, step=o.w+o.gap;
