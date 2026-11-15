@@ -223,7 +223,7 @@ a{color:var(--navy)}
     <p><b>Machine unlearning</b> usually means erasing the influence of specific training data, such as a user's private photos or copyrighted text, from a classifier or a language model. <b>Policy unlearning</b> targets an RL agent's policy π, its mapping from states to actions: the agent forgets a learned behaviour, trajectory, environment or habit, and keeps its overall competence.</p>
     <p><b>Where it is used.</b> Removing unsafe shortcuts or failure modes from robot and vision-language-action policies; erasing behaviour learned from sensitive trajectories or proprietary environments; and, for language models fine-tuned with RL (PPO, GRPO), on-policy unlearning that suppresses forbidden generation paths.</p>
     <p><b>Not covered here:</b> "policy unlearning" is sometimes also used for models that enforce access-control or governance policies and must forget a revoked rule. This deck uses only the RL meaning.</p>
-    <p><b>The drawings are schematic.</b> Left: removing the orange forget set moves the decision boundary as if those points were never seen. Right: forgetting "pick up" also changes every later state of the trajectory, while lava avoidance, which acts at every step, is kept.</p>
+    <p><b>The drawings are schematic.</b> Left: the classifier's scores for one dog image before and after the class "dog" is unlearned (dog 40 → 10; cat becomes the top answer), drawn on one shared axis so the drop is visible. Right: forgetting "pick up" also changes every later state of the trajectory, while lava avoidance, which acts at every step, is kept.</p>
   </aside>
 </section>
 
@@ -529,22 +529,25 @@ function cx(x,i,o){o=Object.assign({w:100,gap:12},o||{}); return x+i*(o.w+o.gap)
 (function(){
   const s=document.getElementById("mlUnlearn"); if(!s) return;
   el("text",{x:0,y:22,class:"lblb"},s,"Machine unlearning");
-  el("text",{x:200,y:22,class:"lbls"},s,"a classifier forgets data points");
-  el("rect",{x:0,y:36,width:440,height:250,rx:10,fill:"#fff",stroke:"#D9DDE3","stroke-width":1.5},s);
-  const A=[[70,230],[100,200],[60,160],[120,240],[140,180],[90,120],[150,130],[110,90],[150,235],[60,90]];
-  const B=[[330,230],[360,180],[300,140],[380,100],[340,70],[260,240],[390,240],[310,200],[370,140],[280,190]];
-  const F=[[215,150],[230,120],[200,185],[245,95]];
-  el("line",{x1:180,y1:270,x2:310,y2:50,stroke:GREY,"stroke-width":3,"stroke-dasharray":"7 6"},s);
-  A.forEach(p=>el("circle",{cx:p[0],cy:p[1],r:9,fill:BLUE},s));
-  B.forEach(p=>el("rect",{x:p[0]-8,y:p[1]-8,width:16,height:16,rx:2,fill:TEAL},s));
-  F.forEach(p=>el("circle",{cx:p[0],cy:p[1],r:10,fill:OR,class:"fadeaway",style:"animation-delay:.9s"},s));
-  el("path",{d:"M135,270 L255,50",class:"draw",pathLength:1,stroke:NAVY,"stroke-width":4,fill:"none",style:"transition-delay:1.9s"},s);
-  el("text",{x:462,y:80,class:"lbl"},s,"orange: the forget set");
-  el("text",{x:462,y:120,class:"lbl"},el("g",{class:"seq",style:"transition-delay:1s"},s),"remove its influence:");
-  el("text",{x:462,y:146,class:"lbl"},el("g",{class:"seq",style:"transition-delay:1s"},s),"the boundary moves");
-  el("text",{x:462,y:186,class:"lbls"},el("g",{class:"seq",style:"transition-delay:2s"},s),"grey dashed: before");
-  el("text",{x:462,y:210,class:"lbls"},el("g",{class:"seq",style:"transition-delay:2s"},s),"navy: as if trained");
-  el("text",{x:462,y:232,class:"lbls"},el("g",{class:"seq",style:"transition-delay:2s"},s),"without the orange points");
+  el("text",{x:200,y:22,class:"lbls"},s,"a classifier forgets the class “dog”");
+  el("rect",{x:0,y:36,width:700,height:250,rx:10,fill:"#fff",stroke:"#D9DDE3","stroke-width":1.5},s);
+  const cls=["cat","dog","bird","plane"], before=[10,40,5,10], after=[20,10,15,10];
+  const y0=222, k=3.6, slot=66, bw=44;
+  function chart(x0,vals,title,delay){
+    const g=el("g",delay?{class:"seq",style:"transition-delay:"+(delay-.1)+"s"}:{},s);
+    el("text",{x:x0,y:62,class:"lblb",style:"font-size:18px"},g,title);
+    [0,10,20,30,40].forEach(v=>{el("line",{x1:x0,y1:y0-v*k,x2:x0+4*slot,y2:y0-v*k,stroke:v?"#E3E6EB":"#5B6475","stroke-width":v?1:2},g);
+      el("text",{x:x0-8,y:y0-v*k+5,"text-anchor":"end",class:"lbls",style:"font-size:13px"},g,String(v));});
+    vals.forEach((v,i)=>{const x=x0+i*slot+(slot-bw)/2, dog=cls[i]==="dog";
+      el("rect",{x:x,y:y0-v*k,width:bw,height:v*k,fill:dog?OR:"#2AA7E8",class:"growy",style:"transition-delay:"+delay+"s"},g);
+      el("text",{x:x+bw/2,y:y0-v*k-6,"text-anchor":"middle",class:"lblb",style:"font-size:15px;fill:"+(dog?"#B4461F":"#1D3557")},el("g",{class:"seq",style:"transition-delay:"+(delay+.8)+"s"},g),String(v));
+      el("text",{x:x+bw/2,y:y0+20,"text-anchor":"middle",class:"lbls",style:"font-size:15px"},g,cls[i]);});
+  }
+  chart(60,before,"before",0);
+  el("text",{x:375,y:150,"text-anchor":"middle",class:"math",style:"font-size:34px"},el("g",{class:"seq",style:"transition-delay:1.4s"},s),"→");
+  chart(430,after,"after unlearning “dog”",1.6);
+  el("text",{x:350,y:272,"text-anchor":"middle",class:"lbls"},s,"the model's score for each class, on one dog image from the forget set");
+  el("text",{x:690,y:96,"text-anchor":"end",class:"lblb",style:"font-size:16px;fill:#B4461F"},el("g",{class:"seq",style:"transition-delay:2.8s"},s),"dog: 40 → 10; top answer now cat");
 })();
 (function(){
   const s=document.getElementById("rlUnlearn"); if(!s) return;
