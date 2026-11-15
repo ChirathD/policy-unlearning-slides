@@ -683,8 +683,8 @@ function mlBars(s){
   el("path",{d:curve(t=>0.35+1.25*(1-Math.exp(-3*t))),class:"draw slow",pathLength:1,stroke:OR,"stroke-width":4,fill:"none"},g1);
   tex(el("g",{class:"seq",style:"transition-delay:1.6s"},g1),x1,134,"gradient <b>ascent</b>: loss on \\(D_f\\) rises",{mix:true,anchor:"end",size:17,color:"#B4461F",w:400,h:28});
   const g2=el("g",{"data-step":"2"},s);
-  el("path",{d:curve(t=>0.28+0.05*Math.sin(9*t)*t),class:"draw slow",pathLength:1,stroke:TEAL,"stroke-width":4,fill:"none"},g2);
-  tex(el("g",{class:"seq",style:"transition-delay:1.6s"},g2),x1,192,"gradient <b>descent</b>: loss on \\(D_r\\) stays low",{mix:true,anchor:"end",size:17,color:"#14655C",w:420,h:28});
+  el("path",{d:curve(t=>0.15+0.75*Math.exp(-5*t)),class:"draw slow",pathLength:1,stroke:TEAL,"stroke-width":4,fill:"none"},g2);
+  tex(el("g",{class:"seq",style:"transition-delay:1.6s"},g2),x1,192,"gradient <b>descent</b>: loss on \\(D_r\\) falls and stays low",{mix:true,anchor:"end",size:17,color:"#14655C",w:420,h:28});
   mlBars(el("g",{transform:"translate(50,326)"},el("g",{"data-step":"3"},s)));
 })();
 (function(){
