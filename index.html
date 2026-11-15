@@ -158,7 +158,7 @@ a{color:var(--navy)}
   <aside class="notes">
     <p>Built from the draft deck <code>Policy Unlearning in Vector Symbolic RL.pptx</code> (7 slides). Its text and numbers are kept; the animations follow the style of <code>2026-11-12-weekly.html</code>.</p>
     <p><b>The drawing.</b> Each square is one entry of a weight vector. The orange squares stand for the part of the weights that holds one skill; they fade, and the rest stays.</p>
-    <p><b>A toy example runs through the deck.</b> Slides 7 to 11 compute every number from one set of 5-entry complex FHRR vectors, as in the paper (written out in the notes of slide 8). They reproduce the draft's similarity table (+0.06, +0.02, −0.06), M = 0.06 p1 + 0.02 p2 − 0.06 p3 and the score 0.134 exactly; the weights are complex, so each entry is shown as a + bj with its arrow. Earlier versions: <code>versions/v1-bipolar.html</code> (±1 vectors) and <code>versions/v2-real-fhrr.html</code> (real-valued FHRR).</p>
+    <p><b>A toy example runs through the deck.</b> Slides 7 to 11 compute every number from one set of 5-entry complex FHRR vectors, as in the paper (written out in the notes of slide 8). They reproduce the draft's similarity table (+0.06, +0.02, −0.06), M = 0.06 p1 + 0.02 p2 − 0.06 p3 and the score 0.134 exactly; the weights are complex, so each entry is shown as a + bj. Earlier versions: <code>versions/v1-bipolar.html</code> (±1 vectors) and <code>versions/v2-real-fhrr.html</code> (real-valued FHRR).</p>
   </aside>
 </section>
 
@@ -293,10 +293,10 @@ a{color:var(--navy)}
       <p class="formula" style="font-size:34px;margin:2px 0 4px">\(H = \sum_{k} s(k) \odot p(k)\)</p>
       <p class="small" style="margin:0 0 12px">s(k): the vector of the object at position k &nbsp;·&nbsp; p(k): the vector of position k</p>
       <svg viewBox="0 0 520 220" width="520" height="220" id="egoView"></svg>
-      <p style="font-size:20px;margin:8px 0 8px">Every object and position has a random <b>complex FHRR</b> vector: each entry is a unit phasor \(e^{i\psi}\), drawn as an arrow with its angle \(\psi\). Positions are DFT rows times one shared phase mask, so they are exactly orthogonal.</p>
-      <p data-step="1" style="font-size:20px;margin:0 0 8px"><b>Bind (\(\odot\)):</b> multiply entry by entry, so the angles add. \(\text{key} \odot \text{ahead}\) means “the key is ahead”.</p>
-      <p data-step="3" style="font-size:20px;margin:0 0 8px"><b>Bundle (\(\Sigma\)):</b> add the bound pairs; the arrows add head to tail. H holds the whole view in one vector.</p>
-      <p data-step="4" style="font-size:20px;margin:0"><b>Unbind:</b> multiply by the conjugate \(\overline{\text{key}}\), every angle negated. \(\overline{\text{key}} \odot \text{key} = \mathbf{1}\), so the binding is undone exactly.</p>
+      <p style="font-size:20px;margin:8px 0 8px">Every object and position has a random <b>complex FHRR</b> vector: each entry is a unit phasor \(e^{i\psi} = \cos\psi + j\sin\psi\), written as a+bj. Positions are DFT rows times one shared phase mask, so they are exactly orthogonal.</p>
+      <p data-step="1" style="font-size:20px;margin:0 0 8px"><b>Bind (\(\odot\)):</b> multiply entry by entry (the angles add). \(\text{key} \odot \text{ahead}\) means “the key is ahead”.</p>
+      <p data-step="3" style="font-size:20px;margin:0 0 8px"><b>Bundle (\(\Sigma\)):</b> add the bound pairs. H holds the whole view in one vector.</p>
+      <p data-step="4" style="font-size:20px;margin:0"><b>Unbind:</b> multiply by the conjugate \(\overline{\text{key}}\) (imaginary parts negated). \(\overline{\text{key}} \odot \text{key} = \mathbf{1}\), so the binding is undone exactly.</p>
     </div>
     <svg viewBox="0 0 900 640" width="900" height="640" id="bindSvg"></svg>
   </div>
@@ -304,7 +304,7 @@ a{color:var(--navy)}
   <aside class="notes">
     <p><b>Source.</b> Draft slide 3: \(H = \sum_k s(k) \odot p(k)\), where s(k) is the object encoding and p(k) its positional encoding.</p>
     <p><b>Complex FHRR, as in the paper.</b> Each object vector has entries \(e^{i\psi}\) with \(\psi\) drawn uniformly from \([-\pi, \pi)\). Binding multiplies entry by entry, so angles add; \(\overline{x} \odot x = \mathbf{1}\) because \(e^{-i\psi} e^{i\psi} = 1\). Position vectors are \([p_\ell]_j = e^{i(2\pi m_\ell j / D + \mu_j)}\): rows of the DFT times one shared random phase mask \(\mu\), so different positions are exactly orthogonal and \(p \cdot \overline{p} = D\).</p>
-    <p><b>The vectors here are schematic</b>: 8 entries, angles rounded to whole degrees; the positions use DFT rows 0, 1 and 2 (steps of 0°, 45° and 90°). Real hypervectors have about a thousand entries.</p>
+    <p><b>The vectors here are schematic</b>: 8 entries, with angles in whole degrees, shown rounded to two decimals; the positions use DFT rows 0, 1 and 2 (steps of 0°, 45° and 90°). Real hypervectors have about a thousand entries.</p>
   </aside>
 </section>
 
@@ -395,7 +395,7 @@ a{color:var(--navy)}
   </div>
   <div class="foot"><span>Method · step 3, rebind and subtract</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Source.</b> Draft slide 6: original \(W_{\text{pickup}}\), the key contribution key ⊙ M, and the weights after subtraction. The formulas are the draft's; the entries are complex, so each cell shows the number a + bj and its arrow.</p>
+    <p><b>Source.</b> Draft slide 6: original \(W_{\text{pickup}}\), the key contribution key ⊙ M, and the weights after subtraction. The formulas are the draft's; the entries are complex, so each cell shows the complex number a + bj.</p>
     <p><b>Why it works.</b> \(W' = \text{key} \odot (U - M)\), and U − M is orthogonal to every known \(p_j\). Multiplying by a unit-phasor key keeps dot products, so W′ is orthogonal to key ⊙ \(p_j\) for every known position.</p>
   </aside>
 </section>
@@ -538,7 +538,7 @@ window.__toy={SIM,TOT,PRODS,after:hdot(WP,HKEY)[0],W:W.map(z=>[r2(mod(z)),ang(z)
 /* a complex number as a+bj, e.g. 0.02+0.03j */
 function cfmt(z,dec){ const e=0.5*Math.pow(10,-dec), re=Math.abs(z[0])<e?0:z[0], im=Math.abs(z[1])<e?0:z[1];
   return (re<0?"−":"")+Math.abs(re).toFixed(dec)+(im<0?"−":"+")+Math.abs(im).toFixed(dec)+"j"; }
-/* one complex vector as a row of cells: an arrow (the phasor) above its value a+bj (unit phasors: just the angle θ) */
+/* one complex vector as a row of cells, each showing a+bj */
 function crow(parent,x,y,vals,o){
   o=Object.assign({w:100,h:66,gap:12,label:"",sub:"",seq:false,d0:.2,dt:.35,fs:16,lx:null,unit:false,tone:"n",scale:null,text:true,dec:2},o||{});
   const g=el("g",{},parent), LX=(o.lx!==null?o.lx:x-18);
@@ -547,20 +547,11 @@ function crow(parent,x,y,vals,o){
   if(o.sub){ if(o.sub[0]==="$"||o.sub[0]==="%") tex(g,LX,y+o.h/2+15,o.sub.slice(1),{mix:o.sub[0]==="%",anchor:"end",size:15,color:"#5B6475",w:260,h:26});
     else el("text",{x:LX,y:y+o.h/2+20,"text-anchor":"end",class:"lbls"},g,o.sub); }
   const T={n:["#F3F6FA","#9FB3C8",NAVY],t:["#DDF2EE",TEAL,"#14655C"],o:["#FCE6DD",OR,"#9A3412"]}[o.tone];
-  const sc_=o.scale||Math.max(...vals.map(mod),1e-9);
   vals.forEach((z,i)=>{
     const c=el("g",o.seq?{class:"seq",style:"transition-delay:"+(o.d0+i*o.dt)+"s"}:{},g);
     const x0=x+i*(o.w+o.gap);
     el("rect",{x:x0,y:y,width:o.w,height:o.h,rx:7,fill:T[0],stroke:T[1],"stroke-width":2.2},c);
-    const R=o.text?Math.min(o.w,o.h)*0.24:Math.min(o.w,o.h)*0.38, ccx=x0+o.w/2, ccy=o.text?y+R+6:y+o.h/2;
-    el("circle",{cx:ccx,cy:ccy,r:R,fill:"#fff",stroke:"#C9D2DC","stroke-width":1.2},c);
-    const L=R*Math.min(1,mod(z)/sc_), a=Math.atan2(z[1],z[0]);
-    if(L>0.5){ el("line",{x1:ccx,y1:ccy,x2:ccx+L*Math.cos(a),y2:ccy-L*Math.sin(a),stroke:T[2],"stroke-width":2.6,"stroke-linecap":"round"},c);
-      el("circle",{cx:ccx+L*Math.cos(a),cy:ccy-L*Math.sin(a),r:2.6,fill:T[2]},c); }
-    else el("circle",{cx:ccx,cy:ccy,r:2.6,fill:T[2]},c);
-    if(o.text){ const t=ang(z), deg=(t<0?"−":"")+Math.abs(t)+"°";
-      el("text",{x:ccx,y:y+o.h-8,"text-anchor":"middle",class:"lblb",style:"font-size:"+o.fs+"px;fill:"+T[2]},c,
-        o.unit?deg:cfmt(z,o.dec)); }
+    el("text",{x:x0+o.w/2,y:y+o.h/2+o.fs*0.36,"text-anchor":"middle",class:"lblb",style:"font-size:"+o.fs+"px;fill:"+T[2]},c,cfmt(z,o.dec));
   });
   return g;
 }
@@ -794,33 +785,34 @@ function lavaGrid(s,x0,y0,cs){
   const mu=[15,-70,130,-20,90,-145,50,170], pos=m=>mu.map((u,j)=>cp(45*m*j+u));
   const pA=pos(0), pL=pos(1), pR=pos(2);
   const kA=vm(sKey,pA), lL=vm(sLava,pL), wR=vm(sWall,pR), H=va(va(kA,lL),wR);
-  const o={w:66,h:56,gap:6,fs:14}, X=300, u=Object.assign({unit:true},o);
+  const o={w:72,h:56,gap:6,fs:11.5}, X=250, u=Object.assign({unit:true},o);
   crow(s,X,14,sKey,Object.assign({label:"$s(\\text{key})"},u));
   crow(s,X,76,pA,Object.assign({label:"$p(\\text{ahead})"},u));
   const g1=el("g",{"data-step":"1"},s);
   for(let i=0;i<8;i++){const x=cx(X,i,o); el("path",{d:`M${x},${134} L${x},${146}`,class:"arrow",style:"stroke-width:1.6"},g1);}
   crow(g1,X,150,kA,Object.assign({label:"$\\text{key} \\odot \\text{ahead}",seq:true,d0:.3,dt:.18},u));
   const e0=x=>{const t=ang(x);return (t<0?"-":"")+Math.abs(t)+"^\\circ";};
-  tex(g1,X,222,"entry by entry, the angles add: \\("+e0(sKey[0])+" + "+e0(pA[0])+" = "+e0(kA[0])+"\\)",{mix:true,size:15,color:"#5B6475",w:600,h:26});
+  const cf=z=>"("+cfmt(z,2).replace(/−/g,"-")+")";
+  tex(g1,X,222,"multiply entry by entry, e.g. \\("+cf(sKey[0])+cf(pA[0])+" = "+cfmt(kA[0],2).replace(/−/g,"-")+"\\)",{mix:true,size:15,color:"#5B6475",w:640,h:26});
   const g2=el("g",{"data-step":"2"},s);
   crow(g2,X,240,lL,Object.assign({label:"$\\text{lava} \\odot \\text{left}"},u));
   crow(g2,X,300,wR,Object.assign({label:"$\\text{wall} \\odot \\text{right}"},u));
   const g3=el("g",{"data-step":"3"},s);
-  el("line",{x1:X-10,y1:366,x2:X+8*72,y2:366,stroke:NAVY,"stroke-width":2.5},g3);
+  el("line",{x1:X-10,y1:366,x2:X+8*78,y2:366,stroke:NAVY,"stroke-width":2.5},g3);
   for(let i=0;i<8;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:5,fill:OR},g3); el("animateMotion",{dur:"0.9s",begin:"indefinite",fill:"freeze",path:`M${x},${178} L${x},${400}`},d);}
-  crow(g3,X,376,H,Object.assign({label:"$H",sub:"add each column",seq:true,d0:.7,dt:.12,tone:"t",fs:11,dec:1},o));
-  el("text",{x:X,y:450,class:"lbls"},g3,"arrows add head to tail: three bound pairs in one vector");
+  crow(g3,X,376,H,Object.assign({label:"$H",sub:"add each column",seq:true,d0:.7,dt:.12,tone:"t"},o));
+  el("text",{x:X,y:450,class:"lbls"},g3,"three bound pairs in one vector");
   const g4=el("g",{"data-step":"4"},s);
-  crow(g4,X,466,vj(sKey),Object.assign({label:"$\\overline{s(\\text{key})}",sub:"every angle negated"},u));
+  crow(g4,X,466,vj(sKey),Object.assign({label:"$\\overline{s(\\text{key})}",sub:"imaginary parts negated"},u));
   crow(g4,X,528,vm(vj(sKey),sKey),Object.assign({label:"$\\overline{\\text{key}} \\odot \\text{key}",seq:true,d0:.3,dt:.12,tone:"t"},u));
-  tex(g4,X,606,"all angles \\(0^\\circ\\), every entry is 1: so \\(\\overline{\\text{key}} \\odot (\\text{key} \\odot \\text{ahead}) = \\text{ahead}\\)",{mix:true,size:18,color:"#1E2430",w:640,h:30});
+  tex(g4,X,606,"every entry is \\(1+0j\\): so \\(\\overline{\\text{key}} \\odot (\\text{key} \\odot \\text{ahead}) = \\text{ahead}\\)",{mix:true,size:18,color:"#1E2430",w:640,h:30});
 })();
 
 /* ---------- 7: dot product, animated ---------- */
 (function(){
   const s=document.getElementById("dotSvg"); if(!s) return;
   const o={w:104,h:66,gap:14}, X=230, step=o.w+o.gap;
-  crow(s,X,24,W,Object.assign({label:"$A_{\\text{pickup}}",sub:"%toy \\(W_{\\text{pickup}}\\)",fs:15},o));
+  crow(s,X,24,W,Object.assign({label:"$A_{\\text{pickup}}",sub:"%toy \\(W_{\\text{pickup}}\\)"},o));
   crow(s,X,104,HKEY,Object.assign({label:"$H",sub:"key ahead",unit:true},o));
   const g1=el("g",{"data-step":"1"},s);
   el("text",{x:X-18,y:233,"text-anchor":"end",class:"lblb"},g1,"products");
@@ -829,7 +821,7 @@ function lavaGrid(s,x0,y0,cs){
   row(g1,X,204,PRODS,Object.assign({seq:true,d0:.35,dt:.8,dec:3},o,{h:56}));
   const fr=el("rect",{x:X-7,y:16,width:o.w+14,height:252,rx:10,fill:"none",stroke:OR,"stroke-width":4},g1);
   el("animate",{attributeName:"x",values:[0,1,2,3,4].map(i=>X-7+i*step).join(";"),dur:"4s",calcMode:"discrete",fill:"freeze",begin:"indefinite"},fr);
-  tex(g1,X,288,"each: \\(|A_k| \\cos(\\angle A_k - \\angle H_k)\\), the part of \\(A_k\\) that points along \\(H_k\\)",{mix:true,size:15,color:"#5B6475",w:640,h:26});
+  tex(g1,X,288,"each: \\(\\operatorname{Re}(A_k)\\operatorname{Re}(H_k) + \\operatorname{Im}(A_k)\\operatorname{Im}(H_k)\\)",{mix:true,size:15,color:"#5B6475",w:640,h:26});
   el("text",{x:X-18,y:340,"text-anchor":"end",class:"lblb"},g1,"running sum");
   const sums=[];PRODS.reduce((a,v)=>{const t=r3(a+v);sums.push(fmt(t,3));return t;},0);
   el("text",{x:X,y:344,class:"lblb",style:"font-size:36px;fill:#B4461F","data-seq":sums.join("|"),"data-t0":"0.4","data-dt":"0.8"},g1,"");
@@ -854,24 +846,24 @@ function lavaGrid(s,x0,y0,cs){
 (function(){
   const s=document.getElementById("unbindSvg"); if(!s) return;
   const o={w:104,h:66,gap:14}, X=250;
-  crow(s,X,14,W,Object.assign({label:"$W_{\\text{pickup}}",fs:15},o));
-  crow(s,X,94,KEYC,Object.assign({label:"$\\overline{\\text{key}}",sub:"key, angles negated",unit:true},o));
+  crow(s,X,14,W,Object.assign({label:"$W_{\\text{pickup}}"},o));
+  crow(s,X,94,KEYC,Object.assign({label:"$\\overline{\\text{key}}",sub:"key, imaginary parts negated",unit:true},o));
   const g1=el("g",{"data-step":"1"},s);
   for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g1); el("animateMotion",{dur:(0.5+0.25*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${46} L${x},${206}`},d);}
-  crow(g1,X,180,U,Object.assign({label:"$U",seq:true,d0:.5,dt:.25,fs:15},o));
+  crow(g1,X,180,U,Object.assign({label:"$U",seq:true,d0:.5,dt:.25},o));
   const e0=x=>{const t=ang(x);return (t<0?"-":"")+Math.abs(t)+"^\\circ";};
-  tex(g1,X,264,"each entry: W's arrow turned back by the key's angle, e.g. \\("+cfmt(W[0],2).replace(/−/g,"-")+" \\xrightarrow{-"+e0(KEY[0])+"} "+cfmt(U[0],2).replace(/−/g,"-")+"\\)",{mix:true,size:16,color:"#5B6475",w:660,h:34});
+  const cf=z=>"("+cfmt(z,2).replace(/−/g,"-")+")";
+  tex(g1,X,264,"each entry: \\(W_k\\,\\overline{\\text{key}_k}\\), e.g. \\("+cf(W[0])+cf(KEYC[0])+" = "+cfmt(U[0],2).replace(/−/g,"-")+"\\)",{mix:true,size:16,color:"#5B6475",w:640,h:28});
   const g2=el("g",{"data-step":"2"},s);
   tex(g2,X,312,"<b>similarity of \\(U\\) with each position:</b>&nbsp; \\(U \\cdot \\overline{p_j} \\,/\\, D\\)",{mix:true,size:20,w:640,h:32});
   const zero=X+390, k=2000, names=[["p_1","ahead"],["p_2","left"],["p_3","right"]];
   el("line",{x1:zero,y1:336,x2:zero,y2:530,stroke:"#5B6475","stroke-width":2},g2);
   SIM.forEach((v,i)=>{const y=346+i*62, w=Math.abs(v)*k;
     tex(g2,X-18,y+22,names[i][0]+"\\ \\text{"+names[i][1]+"}",{anchor:"end",size:20,w:200,h:32});
-    crow(g2,X-6,y+2,[P1,P2,P3][i],{w:36,h:40,gap:3,text:false,unit:true});
     el("rect",{x:v>0?zero:zero-w,y:y+2,width:w,height:40,rx:4,fill:v>0?TEAL:OR,class:v>0?"grow":"growr"},g2);
     el("text",{x:v>0?zero+w+12:zero-w-12,y:y+30,"text-anchor":v>0?"start":"end",class:"lblb",style:"fill:"+(v>0?"#14655C":"#9A3412")},g2,fmt(v,2));
   });
-  el("text",{x:X-6,y:580,class:"lbls"},g2,"small arrows: the position vector; positions are DFT rows times one phase mask");
+  el("text",{x:X-6,y:580,class:"lbls"},g2,"positions are DFT rows times one phase mask, so they are exactly orthogonal");
   el("text",{x:zero,y:552,"text-anchor":"middle",class:"lbls"},g2,"0");
   const g3=el("g",{"data-step":"3"},s);
   el("rect",{x:zero-6,y:340,width:230,height:56,rx:8,fill:"none",stroke:OR,"stroke-width":3.5},g3);
@@ -893,10 +885,10 @@ function lavaGrid(s,x0,y0,cs){
   const g2=el("g",{"data-step":"2"},s);
   el("line",{x1:X-10,y1:262,x2:X+5*step,y2:262,stroke:NAVY,"stroke-width":2.5},g2);
   for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g2); el("animateMotion",{dur:(0.6+0.25*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${48} L${x},${310}`},d);}
-  crow(g2,X,276,M,Object.assign({label:"$M",seq:true,d0:.6,dt:.25,tone:"t",fs:15},o));
-  el("text",{x:X,y:366,class:"lbls"},g2,"each entry: the three arrows above, scaled by the weights and added");
+  crow(g2,X,276,M,Object.assign({label:"$M",seq:true,d0:.6,dt:.25,tone:"t"},o));
+  el("text",{x:X,y:366,class:"lbls"},g2,"each entry: the three entries above, times their weights, added");
   const g3=el("g",{"data-step":"3"},s);
-  crow(g3,X,410,U,Object.assign({label:"$U",sub:"from step 1",fs:15},o));
+  crow(g3,X,410,U,Object.assign({label:"$U",sub:"from step 1"},o));
   tex(g3,X,506,"\\(U - M\\) lies along no known position: other things pickup learned.",{mix:true,size:19,color:"#1E2430",w:620,h:30});
   tex(g3,X,534,"M leaves it out, so step 3 leaves it in the weights.",{mix:true,size:19,color:"#1E2430",w:620,h:30});
 })();
@@ -904,18 +896,18 @@ function lavaGrid(s,x0,y0,cs){
 /* ---------- 10: rebind and subtract ---------- */
 (function(){
   const s=document.getElementById("subSvg"); if(!s) return;
-  const o={w:110,h:62,gap:16}, X=300, step=o.w+o.gap, sm=Object.assign({},o,{h:54,fs:14});
-  crow(s,X,10,W,Object.assign({label:"Original",sub:"$W_{\\text{pickup}}",fs:15},o));
+  const o={w:110,h:62,gap:16}, X=300, step=o.w+o.gap, sm=Object.assign({},o,{h:54,fs:15});
+  crow(s,X,10,W,Object.assign({label:"Original",sub:"$W_{\\text{pickup}}"},o));
   crow(s,X,88,M,Object.assign({label:"$M",sub:"from step 2"},sm));
   crow(s,X,148,KEY,Object.assign({label:"key",unit:true},sm));
   const g1=el("g",{"data-step":"1"},s);
   for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g1); el("animateMotion",{dur:(0.4+0.25*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${115} L${x},${245}`},d);}
-  crow(g1,X,214,KM,Object.assign({label:"Key contribution",sub:"$\\text{key} \\odot M",seq:true,d0:.2,dt:.25,tone:"o",fs:15},o));
+  crow(g1,X,214,KM,Object.assign({label:"Key contribution",sub:"$\\text{key} \\odot M",seq:true,d0:.2,dt:.25,tone:"o"},o));
   const g2=el("g",{"data-step":"2"},s);
   el("line",{x1:X-10,y1:290,x2:X+5*step,y2:290,stroke:NAVY,"stroke-width":2.5},g2);
   el("text",{x:X+5*step+8,y:258,class:"math",style:"font-size:34px"},g2,"−");
-  crow(g2,X,302,WP,Object.assign({label:"After subtraction",sub:"$W'_{\\text{pickup}}",seq:true,d0:.3,dt:.6,tone:"t",fs:15},o));
-  el("text",{x:X,y:390,class:"lbls"},g2,"subtract entry by entry: arrow minus arrow");
+  crow(g2,X,302,WP,Object.assign({label:"After subtraction",sub:"$W'_{\\text{pickup}}",seq:true,d0:.3,dt:.6,tone:"t"},o));
+  el("text",{x:X,y:390,class:"lbls"},g2,"subtract entry by entry");
   const g3=el("g",{"data-step":"3"},s);
   const y0=580, k=900;
   el("text",{x:X,y:440,class:"lblb"},g3,"entry size |·|: original (blue) and edited (teal)");
