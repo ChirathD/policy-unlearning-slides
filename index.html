@@ -36,6 +36,9 @@ ul{margin:0;padding-left:26px}
 .small{font-size:19px;color:var(--muted);line-height:1.35}
 .ref{color:var(--muted);font-weight:400;font-size:.8em;vertical-align:.25em}
 .cite{font-size:15px;color:var(--muted);line-height:1.4;margin:12px 0 0}
+.refs h3{font-size:23px;margin:20px 0 8px;color:var(--navy)}
+.refs p{font-size:20px;line-height:1.35;margin:0 0 9px;padding-left:46px;text-indent:-46px}
+.refs .rn{display:inline-block;width:46px;text-indent:0;color:var(--muted);font-weight:700}
 .tiny{font-size:16px;color:var(--muted)}
 .foot{position:absolute;left:80px;right:80px;bottom:18px;display:flex;justify-content:space-between;font-size:15px;color:var(--muted)}
 .dark .foot{color:#9FB0C8}
@@ -522,6 +525,29 @@ a{color:var(--navy)}
   <div class="foot"><span>Next · how to verify the forgetting</span><span class="pg"></span></div>
   <aside class="notes">
     <p><b>These are tests to run, not results.</b> They spell out the draft's research question, "behaves like an agent that never learned that skill", and its goal, "keep lava avoidance".</p>
+  </aside>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-title="References">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span></div>
+  <h2>References</h2>
+  <div class="refs">
+    <h3>Unlearning in supervised models</h3>
+    <p><span class="rn">[1]</span>J. Jang, D. Yoon, S. Yang, S. Cha, M. Lee, L. Logeswaran, M. Seo. <i>Knowledge Unlearning for Mitigating Privacy Risks in Language Models.</i> ACL 2023. arXiv:2210.01504.</p>
+    <p><span class="rn">[2]</span>M. Kurmanji, P. Triantafillou, J. Hayes, E. Triantafillou. <i>Towards Unbounded Machine Unlearning.</i> NeurIPS 2023. arXiv:2302.09880.</p>
+    <h3>Unlearning in reinforcement learning</h3>
+    <p><span class="rn">[3]</span>D. Ye, T. Zhu, et al. <i>Reinforcement Unlearning.</i> NDSS 2025. arXiv:2312.15910.</p>
+    <p><span class="rn">[4]</span>C. Gong, K. Li, J. Yao, T. Wang. <i>TrajDeleter: Enabling Trajectory Forgetting in Offline Reinforcement Learning Agents.</i> NDSS 2025. arXiv:2404.12530.</p>
+    <h3>Vector-symbolic representations, training and environment</h3>
+    <p><span class="rn">[5]</span>T. A. Plate. <i>Holographic Reduced Representation: Distributed Representation for Cognitive Structures.</i> CSLI Publications, 2003.</p>
+    <p><span class="rn">[6]</span>J. Schulman, F. Wolski, P. Dhariwal, A. Radford, O. Klimov. <i>Proximal Policy Optimization Algorithms.</i> arXiv:1707.06347, 2017.</p>
+    <p><span class="rn">[7]</span>M. Chevalier-Boisvert, B. Dai, M. Towers, et al. <i>Minigrid &amp; Miniworld: Modular &amp; Customizable Reinforcement Learning Environments for Goal-Oriented Tasks.</i> NeurIPS 2023 (Datasets and Benchmarks). arXiv:2306.13831.</p>
+  </div>
+  <div class="foot"><span>References</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Where each is used.</b> [1] and [2] are cited on slide 3 (gradient ascent; NegGrad+). [3] and [4] are the closest work on unlearning in RL: [3] forgets a whole environment by fine-tuning to lower its reward or by poisoning it, [4] forgets trajectories in offline RL. Both need further training; the edit in this deck does not. [5] is the source of FHRR (slides 6 to 13), [6] is PPO (slide 7), [7] is the MiniGrid library behind the LavaDoorKey task (slide 5).</p>
+    <p><b>Not listed:</b> the HD-PPO paper and the draft slides this deck is based on.</p>
   </aside>
 </section>
 
