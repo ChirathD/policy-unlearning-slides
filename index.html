@@ -158,7 +158,7 @@ a{color:var(--navy)}
   <aside class="notes">
     <p>Built from the draft deck <code>Policy Unlearning in Vector Symbolic RL.pptx</code> (7 slides). Its text and numbers are kept; the animations follow the style of <code>2026-11-12-weekly.html</code>.</p>
     <p><b>The drawing.</b> Each square is one entry of a weight vector. The orange squares stand for the part of the weights that holds one skill; they fade, and the rest stays.</p>
-    <p><b>A toy example runs through the deck.</b> Slides 7 to 11 compute every number from one set of 5-entry real-valued FHRR vectors (written out in the notes of slide 8). Because these are real decimals with exactly orthogonal positions, the numbers differ from the draft's ±1 example; the earlier version with the draft's numbers is saved as <code>versions/v1-bipolar.html</code>.</p>
+    <p><b>A toy example runs through the deck.</b> Slides 7 to 11 compute every number from one set of 5-entry complex FHRR vectors, as in the paper (written out in the notes of slide 8). They reproduce the draft's similarity table (+0.06, +0.02, −0.06), M = 0.06 p1 + 0.02 p2 − 0.06 p3 and the score 0.134 exactly; the weights are complex, so each entry is shown as length and angle. Earlier versions: <code>versions/v1-bipolar.html</code> (±1 vectors) and <code>versions/v2-real-fhrr.html</code> (real-valued FHRR).</p>
   </aside>
 </section>
 
@@ -290,22 +290,21 @@ a{color:var(--navy)}
   <h2>The agent writes what it sees as one long vector H</h2>
   <div class="cols" style="grid-template-columns:520px 1fr;gap:30px;margin-top:4px">
     <div>
-      <p class="formula" style="font-size:34px;margin:2px 0 4px">\(H = \sum_{k} s(k) \circledast p(k)\)</p>
+      <p class="formula" style="font-size:34px;margin:2px 0 4px">\(H = \sum_{k} s(k) \odot p(k)\)</p>
       <p class="small" style="margin:0 0 12px">s(k): the vector of the object at position k &nbsp;·&nbsp; p(k): the vector of position k</p>
       <svg viewBox="0 0 520 220" width="520" height="220" id="egoView"></svg>
-      <p style="font-size:20px;margin:8px 0 8px">Every object and position has a random <b>real-valued FHRR</b> vector: real decimals whose Fourier transform has magnitude 1 at every frequency. Positions are shifted copies of one vector, so they are exactly orthogonal.</p>
-      <p data-step="1" style="font-size:20px;margin:0 0 8px"><b>Bind (\(\circledast\)):</b> circular convolution, FHRR's entry-by-entry phasor product seen in real space. \(\text{key} \circledast \text{ahead}\) means “the key is ahead”.</p>
-      <p data-step="3" style="font-size:20px;margin:0 0 8px"><b>Bundle (\(\Sigma\)):</b> add the bound pairs. H holds the whole view in one vector.</p>
-      <p data-step="4" style="font-size:20px;margin:0"><b>Unbind:</b> convolve with \(\text{key}^{\dagger}\), the key with its entries reversed. \(\text{key}^{\dagger} \circledast \text{key} = \delta\), so the binding is undone exactly.</p>
+      <p style="font-size:20px;margin:8px 0 8px">Every object and position has a random <b>complex FHRR</b> vector: each entry is a unit phasor \(e^{i\psi}\), drawn as an arrow with its angle \(\psi\). Positions are DFT rows times one shared phase mask, so they are exactly orthogonal.</p>
+      <p data-step="1" style="font-size:20px;margin:0 0 8px"><b>Bind (\(\odot\)):</b> multiply entry by entry, so the angles add. \(\text{key} \odot \text{ahead}\) means “the key is ahead”.</p>
+      <p data-step="3" style="font-size:20px;margin:0 0 8px"><b>Bundle (\(\Sigma\)):</b> add the bound pairs; the arrows add head to tail. H holds the whole view in one vector.</p>
+      <p data-step="4" style="font-size:20px;margin:0"><b>Unbind:</b> multiply by the conjugate \(\overline{\text{key}}\), every angle negated. \(\overline{\text{key}} \odot \text{key} = \mathbf{1}\), so the binding is undone exactly.</p>
     </div>
     <svg viewBox="0 0 900 640" width="900" height="640" id="bindSvg"></svg>
   </div>
   <div class="foot"><span>Background · encoding a state</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Source.</b> Draft slide 3: \(H = \sum_k s(k) \odot p(k)\), where s(k) is the object encoding and p(k) its positional encoding. The binding is written \(\circledast\) here because the vectors are real-valued FHRR.</p>
-    <p><b>Real-valued FHRR.</b> A vector x gets a random phase \(\psi_k\) at each frequency, \(X_k = e^{i\psi_k}\) with \(X_{D-k} = \overline{X_k}\), so its inverse DFT is real. Circular convolution multiplies the spectra entry by entry, which is FHRR's phasor product. \(x^{\dagger}\) (first entry kept, the rest reversed) has the conjugate spectrum, so \(x^{\dagger} \circledast x = \delta = [1, 0, \ldots, 0]\). Every such vector has length 1, and convolving with it leaves dot products unchanged.</p>
-    <p><b>Positions.</b> p(ahead), p(left) and p(right) are one such vector shifted by 0, 1 and 2 places. A shift multiplies the spectrum by a DFT row, the real counterpart of the paper's DFT-row position vectors with a shared phase mask; their dot products are exactly 0.</p>
-    <p><b>The vectors here are schematic</b>: 8 entries, rounded to two decimals. Real hypervectors have about a thousand.</p>
+    <p><b>Source.</b> Draft slide 3: \(H = \sum_k s(k) \odot p(k)\), where s(k) is the object encoding and p(k) its positional encoding.</p>
+    <p><b>Complex FHRR, as in the paper.</b> Each object vector has entries \(e^{i\psi}\) with \(\psi\) drawn uniformly from \([-\pi, \pi)\). Binding multiplies entry by entry, so angles add; \(\overline{x} \odot x = \mathbf{1}\) because \(e^{-i\psi} e^{i\psi} = 1\). Position vectors are \([p_\ell]_j = e^{i(2\pi m_\ell j / D + \mu_j)}\): rows of the DFT times one shared random phase mask \(\mu\), so different positions are exactly orthogonal and \(p \cdot \overline{p} = D\).</p>
+    <p><b>The vectors here are schematic</b>: 8 entries, angles rounded to whole degrees; the positions use DFT rows 0, 1 and 2 (steps of 0°, 45° and 90°). Real hypervectors have about a thousand entries.</p>
   </aside>
 </section>
 
@@ -316,23 +315,23 @@ a{color:var(--navy)}
   <div class="cols" style="grid-template-columns:500px 1fr;gap:20px;margin-top:6px">
     <div>
       <p class="formula" style="font-size:30px;margin:6px 0 2px">\(\mathcal{A} = \{A_1, A_2, \ldots, A_n\}\)</p>
-      <p class="small" style="margin:0 0 18px">one learned weight vector for each of the n actions</p>
+      <p class="small" style="margin:0 0 18px">one learned complex weight vector for each of the n actions</p>
       <div data-step="1">
-        <p class="formula" style="font-size:30px;margin:0 0 2px">\(\operatorname{sim}(A_i, H) = \dfrac{A_i \cdot H}{\sqrt{D}}\)</p>
-        <p class="small" style="margin:0 0 18px">dot product: multiply entry by entry, then add up; D is the vector length</p>
+        <p class="formula" style="font-size:30px;margin:0 0 2px">\(\operatorname{sim}(A_i, H) = \dfrac{\operatorname{Re}\big(A_i \cdot \overline{H}\big)}{\sqrt{D}}\)</p>
+        <p class="small" style="margin:0 0 18px">multiply each entry by the conjugate of H's entry, add up, keep the real part; D is the vector length</p>
       </div>
       <div data-step="3">
         <p class="formula" style="font-size:30px;margin:0 0 2px">\(\displaystyle a^{*} = \operatorname*{arg\,max}_{i}\; \operatorname{sim}(A_i, H)\)</p>
         <p class="small" style="margin:0 0 18px">the best action is the one with the largest similarity</p>
       </div>
-      <div class="box" data-step="1" style="margin-top:6px"><p style="font-size:20px">The example has D = 5 and real-valued FHRR vectors. The weights are a toy \(W_{\text{pickup}}\); \(H = \text{key} \circledast p(\text{ahead})\), a view with only the key, straight ahead.</p></div>
+      <div class="box" data-step="1" style="margin-top:6px"><p style="font-size:20px">The example has D = 5 and complex FHRR vectors. The weights are a toy \(W_{\text{pickup}}\); \(H = \text{key} \odot p(\text{ahead})\), a view with only the key, straight ahead.</p></div>
     </div>
     <svg viewBox="0 0 900 650" width="900" height="650" id="dotSvg"></svg>
   </div>
   <div class="foot"><span>Background · choosing an action</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Source.</b> Draft slides 3 and 4: \(\mathcal{A} = \{A_1, \ldots, A_n\}\), \(\operatorname{sim}(A_i, H) = A_i \cdot H / \sqrt{D}\), \(a^* = \arg\max_i \operatorname{sim}\). Draft slide 4 asked for an animation of the dot product; this is it.</p>
-    <p><b>The numbers.</b> \(W_{\text{pickup}}\) = [+0.08, +0.38, +0.11, −0.36, −0.10] and H = key ⊛ p1 = [+0.16, +0.92, −0.04, +0.22, −0.26], from the toy vectors in the notes of slide 8. The products add to 0.306, and 0.306 / √5 = 0.137. The draft's own ±1 numbers are in the saved version <code>versions/v1-bipolar.html</code>.</p>
+    <p><b>Source.</b> Draft slides 3 and 4: \(\mathcal{A} = \{A_1, \ldots, A_n\}\), \(\operatorname{sim}(A_i, H) = A_i \cdot H / \sqrt{D}\), \(a^* = \arg\max_i \operatorname{sim}\). With complex vectors the dot product takes the conjugate of H and keeps the real part. Draft slide 4 asked for an animation of the dot product; this is it.</p>
+    <p><b>The numbers</b> use the toy vectors in the notes of slide 8. The real parts of the products add to 0.300, and 0.300 / √5 = 0.134, the same value as the draft's example.</p>
     <p><b>The bar chart in step 3 is schematic</b>: there are no weights for the other actions, so their bars only show the argmax.</p>
   </aside>
 </section>
@@ -343,18 +342,18 @@ a{color:var(--navy)}
   <h2>Step 1, unbind: cancel the key out of \(W_{\text{pickup}}\)</h2>
   <div class="cols" style="grid-template-columns:500px 1fr;gap:20px;margin-top:6px">
     <div>
-      <p class="formula" style="font-size:34px;margin:4px 0 6px">\(U = \text{key}^{\dagger} \circledast W_{\text{pickup}}\)</p>
-      <p style="font-size:22px">\(W_{\text{pickup}}\) learned to answer “key at some position”. Convolving it with \(\text{key}^{\dagger}\) cancels the key (\(\text{key}^{\dagger} \circledast \text{key} = \delta\)) and leaves the positions.</p>
-      <p data-step="2" style="font-size:22px">Compare U with each known position vector. The positions are orthogonal and have length 1, so \(U \cdot p_j\) is exactly how much of \(p_j\) U contains.</p>
-      <div class="box orange" data-step="3"><p style="font-size:21px"><b>Read:</b> pickup fires when the key is <b>ahead</b> (+0.30), a little when it is left (+0.14), and is pushed down when it is right (−0.39).</p></div>
+      <p class="formula" style="font-size:34px;margin:4px 0 6px">\(U = W_{\text{pickup}} \odot \overline{\text{key}}\)</p>
+      <p style="font-size:22px">\(W_{\text{pickup}}\) learned to answer “key at some position”. Multiplying by the conjugate key cancels the key (\(\overline{\text{key}} \odot \text{key} = \mathbf{1}\)) and leaves the positions.</p>
+      <p data-step="2" style="font-size:22px">Compare U with each known position vector. The positions are orthogonal with \(p \cdot \overline{p} = D\), so dividing by D gives exactly how much of each position U contains.</p>
+      <div class="box orange" data-step="3"><p style="font-size:21px"><b>Read:</b> pickup fires mostly when the key is <b>ahead</b> (+0.06), a little when it is left (+0.02), and is pushed down when it is right (−0.06).</p></div>
     </div>
     <svg viewBox="0 0 900 640" width="900" height="640" id="unbindSvg"></svg>
   </div>
   <div class="foot"><span>Method · step 1, unbind</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Source.</b> Draft slide 5: U = \(W_{\text{pickup}}\) ⊙ key, and a similarity table for p1 (ahead), p2 (left) and p3 (right). With real-valued FHRR, unbinding is a convolution with \(\text{key}^{\dagger}\) instead of a product with the key.</p>
-    <p><b>The toy vectors</b> (D = 5, real-valued FHRR, rounded to two decimals): key = [−0.45, +0.13, +0.76, +0.13, +0.43], so key† = [−0.45, +0.43, +0.13, +0.76, +0.13]; p1 = [−0.07, −0.22, +0.27, +0.09, +0.93], and p2, p3 are p1 shifted by one and two places; \(W_{\text{pickup}}\) = [+0.08, +0.38, +0.11, −0.36, −0.10]. Then U = [+0.01, −0.41, 0.00, +0.31, +0.20], and \(U \cdot p_j\) = +0.30, +0.14, −0.39.</p>
-    <p><b>Which similarity?</b> The coefficient of \(p_j\) in U is \(U \cdot p_j / (p_j \cdot p_j)\). The draft divides by D because ±1 or phasor vectors have \(p \cdot p = D\); real-valued FHRR vectors have length 1, so here it is simply \(U \cdot p_j\).</p>
+    <p><b>Source.</b> Draft slide 5: U = \(W_{\text{pickup}}\) ⊙ key and the table p1 (ahead) +0.06, p2 (left) +0.02, p3 (right) −0.06. With complex vectors the key is undone by its conjugate.</p>
+    <p><b>The toy vectors</b> (D = 5, complex FHRR, angles in degrees): key = [40, 160, −80, 100, −20]; phase mask μ = [20, −50, 110, 70, −130]; \(p_m\) has angles \(72 m j + \mu_j\) for DFT row m = 0, 1, 2 (ahead, left, right); \(W_{\text{pickup}} = \text{key} \odot (0.06\,p_1 + 0.02\,p_2 - 0.06\,p_3 + 0.03\,p_4 - 0.02\,p_5)\), where \(p_4, p_5\) are DFT rows 3 and 4. Then \(U \cdot \overline{p_j} / 5\) = +0.06, +0.02, −0.06 exactly.</p>
+    <p><b>About the toy.</b> With D = 5 there is room for only five orthogonal directions, so "everything else pickup learned" has to sit on DFT rows 3 and 4. With about a thousand entries there is room for the rest of what the action learned.</p>
   </aside>
 </section>
 
@@ -364,7 +363,7 @@ a{color:var(--navy)}
   <h2>Step 2, clean up: rebuild U from the known positions</h2>
   <div class="cols" style="grid-template-columns:500px 1fr;gap:20px;margin-top:6px">
     <div>
-      <p class="formula" style="font-size:32px;margin:4px 0 6px">\(M = 0.30\,p_1 + 0.14\,p_2 - 0.39\,p_3\)</p>
+      <p class="formula" style="font-size:32px;margin:4px 0 6px">\(M = 0.06\,p_1 + 0.02\,p_2 - 0.06\,p_3\)</p>
       <p style="font-size:22px">Each position vector is weighted by its similarity from step 1, and the weighted vectors are added.</p>
       <div class="box" data-step="3"><p style="font-size:21px"><b>Why not keep U?</b> U also carries everything else pickup learned, mixed up by the unbinding. M keeps only the part that lies along known positions.</p></div>
       <p class="small" data-step="3">Intuition from the draft: we reconstruct the key's positional information from the known position vectors, rather than keeping the noisy unbound vector directly.</p>
@@ -373,9 +372,8 @@ a{color:var(--navy)}
   </div>
   <div class="foot"><span>Method · step 2, clean up</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Source.</b> Draft slide 5, M as a weighted sum of p1, p2, p3, and its speaker note (the intuition, quoted on the slide).</p>
-    <p><b>The numbers</b> use the toy vectors in the notes of slide 8: M = [+0.07, −0.44, +0.08, +0.15, +0.19]. The rest, U − M = [−0.06, +0.03, −0.08, +0.16, +0.01], is orthogonal to p1, p2 and p3.</p>
-    <p><b>Exact projection.</b> Because the positions are exactly orthogonal, M is the exact projection of U onto them. (In the earlier ±1 toy, p3 = −p1, so M counted the "ahead" part twice.)</p>
+    <p><b>Source.</b> Draft slide 5, \(M = 0.06\,p_1 + 0.02\,p_2 - 0.06\,p_3\), and its speaker note (the intuition, quoted on the slide). The toy reproduces it exactly.</p>
+    <p><b>Exact projection.</b> Because the positions are exactly orthogonal, M is the exact projection of U onto them; U − M = 0.03 p4 − 0.02 p5 is what it leaves out. (The earlier ±1 toy had p3 = −p1, so M counted the "ahead" part twice.)</p>
   </aside>
 </section>
 
@@ -385,10 +383,10 @@ a{color:var(--navy)}
   <h2>Step 3, rebind and subtract the key's part</h2>
   <div class="cols" style="grid-template-columns:470px 1fr;gap:20px;margin-top:6px">
     <div>
-      <p class="formula" style="font-size:30px;margin:4px 0 4px">\(\text{key} \circledast M\)</p>
-      <p style="font-size:22px">Convolving M with the key puts “key at those positions” back: this is the key's contribution to \(W_{\text{pickup}}\).</p>
+      <p class="formula" style="font-size:30px;margin:4px 0 4px">\(\text{key} \odot M\)</p>
+      <p style="font-size:22px">Binding M with the key again puts “key at those positions” back: this is the key's contribution to \(W_{\text{pickup}}\).</p>
       <div data-step="2">
-        <p class="formula" style="font-size:30px;margin:14px 0 4px">\(W'_{\text{pickup}} = W_{\text{pickup}} - \text{key} \circledast M\)</p>
+        <p class="formula" style="font-size:30px;margin:14px 0 4px">\(W'_{\text{pickup}} = W_{\text{pickup}} - \text{key} \odot M\)</p>
         <p style="font-size:22px">Subtract it, entry by entry.</p>
       </div>
       <div class="box orange" data-step="3"><p style="font-size:21px">\(W'_{\text{pickup}}\) keeps what pickup learned about everything else. Only the part that answered “key at a position” is gone.</p></div>
@@ -397,9 +395,8 @@ a{color:var(--navy)}
   </div>
   <div class="foot"><span>Method · step 3, rebind and subtract</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Source.</b> Draft slide 6: original \(W_{\text{pickup}}\), the key contribution, and the weights after subtraction.</p>
-    <p><b>The numbers</b> (toy vectors in the notes of slide 8): key ⊛ M = [−0.07, +0.41, +0.05, −0.30, −0.03]; \(W'_{\text{pickup}}\) = [+0.15, −0.03, +0.06, −0.06, −0.07]. Each entry checks, for example 0.38 − 0.41 = −0.03.</p>
-    <p><b>Why it works.</b> \(W' = \text{key} \circledast (U - M)\), and U − M is orthogonal to every \(p_j\). Convolving with the key keeps dot products, so W′ is orthogonal to key ⊛ \(p_j\) for every known position.</p>
+    <p><b>Source.</b> Draft slide 6: original \(W_{\text{pickup}}\), the key contribution key ⊙ M, and the weights after subtraction. The formulas are the draft's; the entries are complex, so each cell shows length and angle.</p>
+    <p><b>Why it works.</b> \(W' = \text{key} \odot (U - M)\), and U − M is orthogonal to every known \(p_j\). Multiplying by a unit-phasor key keeps dot products, so W′ is orthogonal to key ⊙ \(p_j\) for every known position.</p>
   </aside>
 </section>
 
@@ -411,7 +408,7 @@ a{color:var(--navy)}
     <div>
       <p style="font-size:22px;margin:0 0 4px">Pickup's similarity with H = key ahead (slide 7), before and after the edit</p>
       <svg viewBox="0 0 680 400" width="680" height="400" id="beforeAfter"></svg>
-      <p class="small" data-step="2" style="margin:0">Exactly 0 up to rounding: the positions are orthogonal, so M is the exact projection of U onto them, and nothing of “key at a position” is left. No pull either way, as in an agent that never learned the key.</p>
+      <p class="small" data-step="2" style="margin:0">Exactly 0: the positions are orthogonal, so M is the exact projection of U onto them, and nothing of “key at a position” is left. No pull either way, as in an agent that never learned the key.</p>
     </div>
     <div data-step="3">
       <p style="font-size:22px;margin:0 0 4px">The same for the key at each known position</p>
@@ -420,9 +417,9 @@ a{color:var(--navy)}
   </div>
   <div class="foot"><span>Method · the result in the toy</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Left</b>, from the toy vectors and the H of slide 7: before, \(W_{\text{pickup}} \cdot H\) = 0.306, so 0.306 / √5 = +0.14; after, \(W'_{\text{pickup}} \cdot H\) ≈ −0.001, which is 0 up to the two-decimal rounding of the toy.</p>
-    <p><b>Right</b>: \(W \cdot (\text{key} \circledast p_j) / \sqrt{5}\) for the three positions, before and after. In exact arithmetic \(W' \cdot (\text{key} \circledast p_j) = (U - M) \cdot p_j = 0\) for every j.</p>
-    <p><b>Changed from the draft.</b> Draft slide 7 showed two edited actions (pickup +0.05, "Forward" −0.05) computed with the ±1 toy. With orthogonal real-valued FHRR vectors the leftover is exactly 0, so this panel shows that instead. The earlier panel is in <code>versions/v1-bipolar.html</code>.</p>
+    <p><b>Left</b>, from the toy vectors and the H of slide 7: before, \(\operatorname{Re}(W_{\text{pickup}} \cdot \overline{H})\) = 0.300, so 0.300 / √5 = +0.13 (the draft's 0.134); after, \(\operatorname{Re}(W'_{\text{pickup}} \cdot \overline{H})\) = 0.</p>
+    <p><b>Right</b>: \(\operatorname{Re}(W \cdot \overline{\text{key} \odot p_j}) / \sqrt{5}\) for the three positions: before it is \(\sqrt{5}\) times the similarity of step 1 (+0.13, +0.04, −0.13), after it is 0. In exact arithmetic \(W' \cdot \overline{\text{key} \odot p_j} = (U - M) \cdot \overline{p_j} = 0\) for every j.</p>
+    <p><b>Changed from the draft.</b> Draft slide 7 showed two edited actions (pickup +0.05, "Forward" −0.05) computed with ±1 vectors, where the toy overshoots. With orthogonal FHRR positions the leftover is exactly 0, so this panel shows that instead. The earlier panels are in <code>versions/v1-bipolar.html</code>.</p>
   </aside>
 </section>
 
@@ -440,21 +437,21 @@ a{color:var(--navy)}
     <g>
       <rect class="blk t" x="250" y="40" width="300" height="230" rx="12"/>
       <text x="272" y="80" class="lblb">1 Unbind</text>
-      <foreignObject x="268" y="96" width="270" height="48"><div xmlns="http://www.w3.org/1999/xhtml" class="fo" style="font-size:22px;justify-content:flex-start;color:#1D3557">\(U = s^{\dagger} \circledast W_a\)</div></foreignObject>
-      <foreignObject x="268" y="150" width="270" height="110"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:18px;line-height:1.28">\(s^{\dagger} \circledast s = \delta\): the object cancels; what the action learned about its positions is left.</div></foreignObject>
+      <foreignObject x="268" y="96" width="270" height="48"><div xmlns="http://www.w3.org/1999/xhtml" class="fo" style="font-size:22px;justify-content:flex-start;color:#1D3557">\(U = W_a \odot \overline{s}\)</div></foreignObject>
+      <foreignObject x="268" y="150" width="270" height="110"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:18px;line-height:1.28">\(\overline{s} \odot s = \mathbf{1}\): the object cancels; what the action learned about its positions is left.</div></foreignObject>
     </g>
     <path class="arrow" d="M555,155 L595,155"/>
     <g>
       <rect class="blk t" x="600" y="40" width="300" height="230" rx="12"/>
       <text x="622" y="80" class="lblb">2 Clean up</text>
-      <foreignObject x="618" y="84" width="280" height="72"><div xmlns="http://www.w3.org/1999/xhtml" class="fo" style="font-size:20px;justify-content:flex-start;color:#1D3557">\(\displaystyle M = \sum_j \frac{U \cdot p_j}{p_j \cdot p_j}\, p_j\)</div></foreignObject>
+      <foreignObject x="618" y="84" width="280" height="72"><div xmlns="http://www.w3.org/1999/xhtml" class="fo" style="font-size:20px;justify-content:flex-start;color:#1D3557">\(\displaystyle M = \sum_j \frac{U \cdot \overline{p_j}}{D}\, p_j\)</div></foreignObject>
       <foreignObject x="618" y="150" width="270" height="110"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:18px;line-height:1.28">Project onto the known, orthogonal position vectors; the rest is dropped.</div></foreignObject>
     </g>
     <path class="arrow" d="M905,155 L945,155"/>
     <g>
       <rect class="blk o" x="950" y="40" width="270" height="230" rx="12"/>
       <text x="972" y="80" class="lblb">3 Rebind, subtract</text>
-      <foreignObject x="968" y="96" width="250" height="48"><div xmlns="http://www.w3.org/1999/xhtml" class="fo" style="font-size:21px;justify-content:flex-start;color:#1D3557">\(W'_a = W_a - s \circledast M\)</div></foreignObject>
+      <foreignObject x="968" y="96" width="250" height="48"><div xmlns="http://www.w3.org/1999/xhtml" class="fo" style="font-size:21px;justify-content:flex-start;color:#1D3557">\(W'_a = W_a - s \odot M\)</div></foreignObject>
       <foreignObject x="968" y="150" width="240" height="110"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:18px;line-height:1.28">Put the object back and remove its part from the weights.</div></foreignObject>
     </g>
     <path class="arrow" d="M1225,155 L1245,155"/>
@@ -464,13 +461,13 @@ a{color:var(--navy)}
     <g data-step="1"><circle class="flow" r="12" fill="#E0663F"><animateMotion dur="3s" begin="indefinite" fill="freeze" path="M210,155 L1232,155"/></circle></g>
   </svg>
   <div class="cols c2" style="gap:30px;margin-top:16px">
-    <div class="box" data-step="2"><p style="font-size:22px"><b>No retraining.</b> The edit needs no environment steps and no gradient updates, only convolutions, dot products and sums of vectors of length D.</p></div>
+    <div class="box" data-step="2"><p style="font-size:22px"><b>No retraining.</b> The edit needs no environment steps and no gradient updates, only entry-by-entry products and sums of complex vectors of length D.</p></div>
     <div class="box orange" data-step="3"><p style="font-size:22px"><b>It uses the structure.</b> It works because the policy's weights are built from bound object–position pairs: the skill can be found by its object, here the key.</p></div>
   </div>
   <div class="foot"><span>Method · the recipe</span><span class="pg"></span></div>
   <aside class="notes">
     <p><b>Summary of slides 8 to 10</b>, written for any action a and any object vector s. For the example, a = pickup and s = key.</p>
-    <p><b>The clean-up formula</b> writes the draft's M in general form: the coefficient of \(p_j\) is \(U \cdot p_j / (p_j \cdot p_j)\). It is \(U \cdot p_j\) for the length-1 real-valued FHRR vectors of this deck, and \(U \cdot p_j / D\) for ±1 or phasor vectors, as in the draft.</p><p><b>Cost.</b> A circular convolution takes \(O(D \log D)\) with the FFT.</p>
+    <p><b>The clean-up formula</b> writes the draft's M in general form: the coefficient of \(p_j\) is \(U \cdot \overline{p_j} / (p_j \cdot \overline{p_j})\). For complex FHRR vectors \(p_j \cdot \overline{p_j} = D\), so it is \(U \cdot \overline{p_j} / D\), the draft's formula with the conjugate.</p>
   </aside>
 </section>
 
@@ -510,29 +507,60 @@ const NS="http://www.w3.org/2000/svg";
 function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!==undefined)e.textContent=text;if(parent)parent.appendChild(e);return e;}
 const NAVY="#1D3557",OR="#E0663F",TEAL="#16A08F",GREY="#9AA3AE",BAD="#C2412B",BLUE="#4A72B8";
 
-/* ---------- toy vectors: real-valued FHRR, D = 5 ----------
-   Real vectors whose Fourier transform has magnitude 1 at every frequency, rounded to two decimals.
-   Binding = circular convolution; unbinding = convolution with x† (first entry kept, the rest reversed), exact: x† ⊛ x = δ.
-   Position vectors are cyclic shifts of one such vector, so they are exactly orthogonal
-   (the real counterpart of DFT rows times a shared phase mask). */
-const mul=(a,b)=>a.map((x,i)=>x*b[i]), add=(a,b)=>a.map((x,i)=>x+b[i]), sc=(k,a)=>a.map(x=>k*x), dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);
-const md=(i,n)=>((i%n)+n)%n;
-const conv=(a,b)=>a.map((_,n)=>a.reduce((s,x,m)=>s+x*b[md(n-m,a.length)],0));   // circular convolution
-const invo=a=>a.map((_,i)=>a[md(-i,a.length)]);                                    // x†
-const shift=(a,m)=>a.map((_,i)=>a[md(i-m,a.length)]);
+/* ---------- toy vectors: complex FHRR, D = 5 ----------
+   Every object vector is a row of unit phasors e^{iψ}. Binding = entry-by-entry product (angles add);
+   unbinding = product with the complex conjugate (angles subtract), exact: conj(x) ⊙ x = 1.
+   Position vectors are DFT rows times one shared random phase mask, so they are exactly orthogonal, p · conj(p) = D. */
+const mul=(a,b)=>a.map((x,i)=>x*b[i]), add=(a,b)=>a.map((x,i)=>x+b[i]), dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);
 const r2=v=>Math.round(v*100)/100, r3=v=>Math.round(v*1000)/1000;
-const KEY=[-0.45,0.13,0.76,0.13,0.43], KEYD=invo(KEY);
-const PB=[-0.07,-0.22,0.27,0.09,0.93];
-const P1=shift(PB,0), P2=shift(PB,1), P3=shift(PB,2);
-const W=[0.08,0.38,0.11,-0.36,-0.10];                      // toy W_pickup
-const U=conv(KEYD,W).map(r2);
-const SIM=[P1,P2,P3].map(p=>r2(dot(U,p)));                 // p·p = 1
-const M=add(add(sc(SIM[0],P1),sc(SIM[1],P2)),sc(SIM[2],P3)).map(r2);
-const KM=conv(KEY,M).map(r2);
-const WP=W.map((x,i)=>r2(x-KM[i]));
-const HKEY=conv(KEY,P1).map(r2);                           // key ahead
-const PRODS=mul(W,HKEY).map(r3), TOT=r3(PRODS.reduce((a,b)=>a+b,0));
-window.__toy={U,SIM,M,KM,WP,HKEY,PRODS,TOT,KEYD,P2,P3,after:dot(WP,HKEY)};
+const DEG=Math.PI/180;
+const cp=deg=>[Math.cos(deg*DEG),Math.sin(deg*DEG)];                       // unit phasor
+const cm=(a,b)=>[a[0]*b[0]-a[1]*b[1],a[0]*b[1]+a[1]*b[0]], cj=a=>[a[0],-a[1]];
+const ca=(a,b)=>[a[0]+b[0],a[1]+b[1]], cs=(k,a)=>[k*a[0],k*a[1]];
+const vm=(A,B)=>A.map((a,i)=>cm(a,B[i])), vj=A=>A.map(cj), va=(A,B)=>A.map((a,i)=>ca(a,B[i])), vs=(k,A)=>A.map(a=>cs(k,a)), vsub=(A,B)=>va(A,vs(-1,B));
+const hdot=(A,B)=>A.reduce((s,a,i)=>ca(s,cm(a,cj(B[i]))),[0,0]);           // A · conj(B)
+const ang=z=>{let t=Math.round(Math.atan2(z[1],z[0])/DEG); if(t<=-180)t+=360; return t;};
+const mod=z=>Math.hypot(z[0],z[1]);
+const D5=5, KEYA=[40,160,-80,100,-20], MU=[20,-50,110,70,-130];
+const KEY=KEYA.map(cp), KEYC=vj(KEY);
+const PM=[0,1,2,3,4].map(m=>MU.map((u,j)=>cp(72*m*j+u)));                 // DFT row m times the phase mask
+const P1=PM[0], P2=PM[1], P3=PM[2];                                          // ahead, left, right
+const W=vm(KEY,[[P1,0.06],[P2,0.02],[P3,-0.06],[PM[3],0.03],[PM[4],-0.02]].reduce((s,[p,c])=>va(s,vs(c,p)),P1.map(()=>[0,0])));
+const U=vm(W,KEYC);
+const SIM=[P1,P2,P3].map(p=>r2(hdot(U,p)[0]/D5));
+const M=[[P1,SIM[0]],[P2,SIM[1]],[P3,SIM[2]]].reduce((s,[p,c])=>va(s,vs(c,p)),P1.map(()=>[0,0]));
+const KM=vm(KEY,M);
+const WP=vsub(W,KM);
+const HKEY=vm(KEY,P1);                                                        // key ahead
+const PRODS=W.map((w,i)=>r3(cm(w,cj(HKEY[i]))[0])), TOT=r3(PRODS.reduce((a,b)=>a+b,0));
+window.__toy={SIM,TOT,PRODS,after:hdot(WP,HKEY)[0],W:W.map(z=>[r2(mod(z)),ang(z)]),U:U.map(z=>[r2(mod(z)),ang(z)]),M:M.map(z=>[r2(mod(z)),ang(z)]),KM:KM.map(z=>[r2(mod(z)),ang(z)]),WP:WP.map(z=>[r2(mod(z)),ang(z)]),H:HKEY.map(ang),P2:P2.map(ang),P3:P3.map(ang)};
+
+/* one complex vector as a row of cells: an arrow (the phasor) above its value r∠θ (unit phasors: just θ) */
+function crow(parent,x,y,vals,o){
+  o=Object.assign({w:100,h:66,gap:12,label:"",sub:"",seq:false,d0:.2,dt:.35,fs:16,lx:null,unit:false,tone:"n",scale:null,text:true,dec:2},o||{});
+  const g=el("g",{},parent), LX=(o.lx!==null?o.lx:x-18);
+  if(o.label){ if(o.label[0]==="$") tex(g,LX,y+o.h/2+(o.sub?-9:0),o.label.slice(1),{anchor:"end",size:21,w:260,h:34});
+    else el("text",{x:LX,y:y+o.h/2+(o.sub?-2:7),"text-anchor":"end",class:"lblb"},g,o.label); }
+  if(o.sub){ if(o.sub[0]==="$"||o.sub[0]==="%") tex(g,LX,y+o.h/2+15,o.sub.slice(1),{mix:o.sub[0]==="%",anchor:"end",size:15,color:"#5B6475",w:260,h:26});
+    else el("text",{x:LX,y:y+o.h/2+20,"text-anchor":"end",class:"lbls"},g,o.sub); }
+  const T={n:["#F3F6FA","#9FB3C8",NAVY],t:["#DDF2EE",TEAL,"#14655C"],o:["#FCE6DD",OR,"#9A3412"]}[o.tone];
+  const sc_=o.scale||Math.max(...vals.map(mod),1e-9);
+  vals.forEach((z,i)=>{
+    const c=el("g",o.seq?{class:"seq",style:"transition-delay:"+(o.d0+i*o.dt)+"s"}:{},g);
+    const x0=x+i*(o.w+o.gap);
+    el("rect",{x:x0,y:y,width:o.w,height:o.h,rx:7,fill:T[0],stroke:T[1],"stroke-width":2.2},c);
+    const R=o.text?Math.min(o.w,o.h)*0.24:Math.min(o.w,o.h)*0.38, ccx=x0+o.w/2, ccy=o.text?y+R+6:y+o.h/2;
+    el("circle",{cx:ccx,cy:ccy,r:R,fill:"#fff",stroke:"#C9D2DC","stroke-width":1.2},c);
+    const L=R*Math.min(1,mod(z)/sc_), a=Math.atan2(z[1],z[0]);
+    if(L>0.5){ el("line",{x1:ccx,y1:ccy,x2:ccx+L*Math.cos(a),y2:ccy-L*Math.sin(a),stroke:T[2],"stroke-width":2.6,"stroke-linecap":"round"},c);
+      el("circle",{cx:ccx+L*Math.cos(a),cy:ccy-L*Math.sin(a),r:2.6,fill:T[2]},c); }
+    else el("circle",{cx:ccx,cy:ccy,r:2.6,fill:T[2]},c);
+    if(o.text){ const t=ang(z), deg=(t<0?"−":"")+Math.abs(t)+"°";
+      el("text",{x:ccx,y:y+o.h-8,"text-anchor":"middle",class:"lblb",style:"font-size:"+o.fs+"px;fill:"+T[2]},c,
+        o.unit?deg:(mod(z)<0.005?"0":mod(z).toFixed(o.dec)+"∠"+deg)); }
+  });
+  return g;
+}
 
 /* LaTeX in SVG: KaTeX inside a foreignObject; anchor like SVG text-anchor, y is the vertical centre */
 function tex(parent,x,y,src,o){
@@ -758,56 +786,58 @@ function lavaGrid(s,x0,y0,cs){
 })();
 (function(){
   const s=document.getElementById("bindSvg"); if(!s) return;
-  /* real-valued FHRR, D = 8 */
-  const sKey=[0.21,0.26,-0.44,-0.69,0.15,-0.41,0.08,-0.16], sLava=[-0.16,-0.10,0.03,0.61,-0.63,-0.31,-0.24,-0.21], sWall=[-0.48,0.15,-0.01,0.69,0.39,-0.14,0.11,0.31];
-  const pB=[0.45,0.04,0.04,0.23,-0.13,-0.51,0.64,0.24], pA=shift(pB,0), pL=shift(pB,1), pR=shift(pB,2);
-  const kA=conv(sKey,pA).map(r2), lL=conv(sLava,pL).map(r2), wR=conv(sWall,pR).map(r2);
-  const H=add(add(kA,lL),wR).map(r2);
-  const o={w:66,h:44,gap:6,fs:18}, X=300;
-  row(s,X,14,sKey,Object.assign({label:"$s(\\text{key})"},o));
-  row(s,X,66,pA,Object.assign({label:"$p(\\text{ahead})"},o));
+  /* complex FHRR, D = 8: objects are random unit phasors; positions are DFT rows (45° steps) times one phase mask */
+  const sKey=[30,-120,75,150,-45,10,-160,95].map(cp), sLava=[-60,135,20,-100,170,-15,60,-135].map(cp), sWall=[110,-30,-150,45,80,-90,140,5].map(cp);
+  const mu=[15,-70,130,-20,90,-145,50,170], pos=m=>mu.map((u,j)=>cp(45*m*j+u));
+  const pA=pos(0), pL=pos(1), pR=pos(2);
+  const kA=vm(sKey,pA), lL=vm(sLava,pL), wR=vm(sWall,pR), H=va(va(kA,lL),wR);
+  const o={w:66,h:56,gap:6,fs:14}, X=300, u=Object.assign({unit:true},o);
+  crow(s,X,14,sKey,Object.assign({label:"$s(\\text{key})"},u));
+  crow(s,X,76,pA,Object.assign({label:"$p(\\text{ahead})"},u));
   const g1=el("g",{"data-step":"1"},s);
-  row(g1,X,132,kA,Object.assign({label:"$\\text{key} \\circledast \\text{ahead}",seq:true,d0:.3,dt:.18},o));
-  tex(g1,X,192,"every entry mixes all entries of both: \\((a \\circledast b)_n = \\sum_m a_m\\, b_{(n-m) \\bmod 8}\\)",{mix:true,size:15,color:"#5B6475",w:600,h:26});
+  for(let i=0;i<8;i++){const x=cx(X,i,o); el("path",{d:`M${x},${134} L${x},${146}`,class:"arrow",style:"stroke-width:1.6"},g1);}
+  crow(g1,X,150,kA,Object.assign({label:"$\\text{key} \\odot \\text{ahead}",seq:true,d0:.3,dt:.18},u));
+  const e0=x=>{const t=ang(x);return (t<0?"-":"")+Math.abs(t)+"^\\circ";};
+  tex(g1,X,222,"entry by entry, the angles add: \\("+e0(sKey[0])+" + "+e0(pA[0])+" = "+e0(kA[0])+"\\)",{mix:true,size:15,color:"#5B6475",w:600,h:26});
   const g2=el("g",{"data-step":"2"},s);
-  row(g2,X,214,lL,Object.assign({label:"$\\text{lava} \\circledast \\text{left}"},o));
-  row(g2,X,264,wR,Object.assign({label:"$\\text{wall} \\circledast \\text{right}"},o));
+  crow(g2,X,240,lL,Object.assign({label:"$\\text{lava} \\odot \\text{left}"},u));
+  crow(g2,X,300,wR,Object.assign({label:"$\\text{wall} \\odot \\text{right}"},u));
   const g3=el("g",{"data-step":"3"},s);
-  el("line",{x1:X-10,y1:322,x2:X+8*72,y2:322,stroke:NAVY,"stroke-width":2.5},g3);
-  for(let i=0;i<8;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:5,fill:OR},g3); el("animateMotion",{dur:"0.9s",begin:"indefinite",fill:"freeze",path:`M${x},${154} L${x},${356}`},d);}
-  row(g3,X,334,H,Object.assign({label:"$H",sub:"add each column",seq:true,d0:.7,dt:.12},o));
-  el("text",{x:X,y:400,class:"lbls"},g3,"three bound pairs in one vector");
+  el("line",{x1:X-10,y1:366,x2:X+8*72,y2:366,stroke:NAVY,"stroke-width":2.5},g3);
+  for(let i=0;i<8;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:5,fill:OR},g3); el("animateMotion",{dur:"0.9s",begin:"indefinite",fill:"freeze",path:`M${x},${178} L${x},${400}`},d);}
+  crow(g3,X,376,H,Object.assign({label:"$H",sub:"add each column",seq:true,d0:.7,dt:.12,tone:"t",fs:11,dec:1},o));
+  el("text",{x:X,y:450,class:"lbls"},g3,"arrows add head to tail: three bound pairs in one vector");
   const g4=el("g",{"data-step":"4"},s);
-  row(g4,X,422,invo(sKey),Object.assign({label:"$\\text{key}^{\\dagger}",sub:"entries 2–8 reversed"},o));
-  row(g4,X,476,conv(invo(sKey),sKey).map(r2),Object.assign({label:"$\\text{key}^{\\dagger} \\circledast \\text{key}",seq:true,d0:.3,dt:.12},o));
-  tex(g4,X,548,"\\(\\delta = [1, 0, \\ldots, 0]\\): convolving with it changes nothing.",{mix:true,size:19,color:"#1E2430",w:640,h:30});
-  tex(g4,X,580,"So \\(\\text{key}^{\\dagger} \\circledast (\\text{key} \\circledast \\text{ahead}) = \\text{ahead}\\): the binding is undone exactly.",{mix:true,size:19,color:"#1E2430",w:640,h:30});
+  crow(g4,X,466,vj(sKey),Object.assign({label:"$\\overline{s(\\text{key})}",sub:"every angle negated"},u));
+  crow(g4,X,528,vm(vj(sKey),sKey),Object.assign({label:"$\\overline{\\text{key}} \\odot \\text{key}",seq:true,d0:.3,dt:.12,tone:"t"},u));
+  tex(g4,X,606,"all angles \\(0^\\circ\\), every entry is 1: so \\(\\overline{\\text{key}} \\odot (\\text{key} \\odot \\text{ahead}) = \\text{ahead}\\)",{mix:true,size:18,color:"#1E2430",w:640,h:30});
 })();
 
 /* ---------- 7: dot product, animated ---------- */
 (function(){
   const s=document.getElementById("dotSvg"); if(!s) return;
-  const o={w:104,h:56,gap:14}, X=230, step=o.w+o.gap;
-  row(s,X,30,W,Object.assign({label:"$A_{\\text{pickup}}",sub:"%toy \\(W_{\\text{pickup}}\\)"},o));
-  row(s,X,110,HKEY,Object.assign({label:"$H",sub:"key ahead"},o));
+  const o={w:104,h:66,gap:14}, X=230, step=o.w+o.gap;
+  crow(s,X,24,W,Object.assign({label:"$A_{\\text{pickup}}",sub:"%toy \\(W_{\\text{pickup}}\\)",fs:15},o));
+  crow(s,X,104,HKEY,Object.assign({label:"$H",sub:"key ahead",unit:true},o));
   const g1=el("g",{"data-step":"1"},s);
   el("text",{x:X-18,y:233,"text-anchor":"end",class:"lblb"},g1,"products");
-  for(let i=0;i<5;i++) tex(el("g",{class:"seq",style:"transition-delay:"+(0.15+i*0.8)+"s"},g1),cx(X,i,o),188,"\\times",{anchor:"middle",size:22,w:60,h:30});
-  row(g1,X,206,PRODS,Object.assign({seq:true,d0:.35,dt:.8,dec:3},o));
-  const fr=el("rect",{x:X-7,y:22,width:o.w+14,height:248,rx:10,fill:"none",stroke:OR,"stroke-width":4},g1);
+  tex(g1,X-18,252,"\\operatorname{Re}(A_k \\overline{H_k})",{anchor:"end",size:15,color:"#5B6475",w:200,h:26});
+  for(let i=0;i<5;i++) tex(el("g",{class:"seq",style:"transition-delay:"+(0.15+i*0.8)+"s"},g1),cx(X,i,o),188,"\\times",{anchor:"middle",size:22,w:60,h:24});
+  row(g1,X,204,PRODS,Object.assign({seq:true,d0:.35,dt:.8,dec:3},o,{h:56}));
+  const fr=el("rect",{x:X-7,y:16,width:o.w+14,height:252,rx:10,fill:"none",stroke:OR,"stroke-width":4},g1);
   el("animate",{attributeName:"x",values:[0,1,2,3,4].map(i=>X-7+i*step).join(";"),dur:"4s",calcMode:"discrete",fill:"freeze",begin:"indefinite"},fr);
-  el("text",{x:X-18,y:330,"text-anchor":"end",class:"lblb"},g1,"running sum");
+  tex(g1,X,288,"each: \\(|A_k| \\cos(\\angle A_k - \\angle H_k)\\), the part of \\(A_k\\) that points along \\(H_k\\)",{mix:true,size:15,color:"#5B6475",w:640,h:26});
+  el("text",{x:X-18,y:340,"text-anchor":"end",class:"lblb"},g1,"running sum");
   const sums=[];PRODS.reduce((a,v)=>{const t=r3(a+v);sums.push(fmt(t,3));return t;},0);
-  el("text",{x:X,y:334,class:"lblb",style:"font-size:36px;fill:#B4461F","data-seq":sums.join("|"),"data-t0":"0.4","data-dt":"0.8"},g1,"");
+  el("text",{x:X,y:344,class:"lblb",style:"font-size:36px;fill:#B4461F","data-seq":sums.join("|"),"data-t0":"0.4","data-dt":"0.8"},g1,"");
   const g2=el("g",{"data-step":"2"},s), sim=TOT/Math.sqrt(5);
-  tex(g2,X+180,322,"\\div \\sqrt{5} =",{size:30,w:140,h:52});
-  el("text",{x:X+320,y:336,class:"lblb",style:"font-size:40px;fill:#14655C"},g2,fmt(sim,2));
-  tex(g2,X+190,366,"\\(\\sqrt{5} \\approx 2.236\\), so \\("+TOT.toFixed(3)+" / 2.236 = "+sim.toFixed(3)+"\\)",{mix:true,size:16,color:"#5B6475",w:420,h:28});
-  // step 3: repeat for every action; schematic bars
+  tex(g2,X+180,332,"\\div \\sqrt{5} =",{size:30,w:140,h:52});
+  el("text",{x:X+320,y:346,class:"lblb",style:"font-size:40px;fill:#14655C"},g2,fmt(sim,2));
+  tex(g2,X+190,376,"\\(\\sqrt{5} \\approx 2.236\\), so \\("+TOT.toFixed(3)+" / 2.236 = "+sim.toFixed(3)+"\\)",{mix:true,size:16,color:"#5B6475",w:420,h:28});
   const g3=el("g",{"data-step":"3"},s);
-  const bars=[["A_1",0.04],["A_2",-0.03],["A_{\\text{pickup}}",sim],["\\ldots",0.06],["A_n",-0.05]], y0=590, k=520;
-  el("text",{x:X-18,y:430,"text-anchor":"end",class:"lblb"},g3,"every action");
-  tex(g3,X,424,"the same computation for each \\(A_i\\); the other bars are schematic",{mix:true,size:16,color:"#5B6475",w:560,h:28});
+  const bars=[["A_1",0.04],["A_2",-0.03],["A_{\\text{pickup}}",sim],["\\ldots",0.06],["A_n",-0.05]], y0=600, k=480;
+  el("text",{x:X-18,y:440,"text-anchor":"end",class:"lblb"},g3,"every action");
+  tex(g3,X,434,"the same computation for each \\(A_i\\); the other bars are schematic",{mix:true,size:16,color:"#5B6475",w:560,h:28});
   el("line",{x1:X-10,y1:y0,x2:X+5*step,y2:y0,stroke:"#5B6475","stroke-width":2},g3);
   bars.forEach(([n,v],i)=>{const x=X+i*step+22, h=Math.abs(v)*k, top=v>0?y0-h:y0, hot=i===2;
     el("rect",{x:x,y:top,width:60,height:h,rx:4,fill:hot?TEAL:"#C9CED6",class:"growy"+(v<0?" neg":"")},g3);
@@ -820,49 +850,50 @@ function lavaGrid(s,x0,y0,cs){
 /* ---------- 8: unbind and similarities ---------- */
 (function(){
   const s=document.getElementById("unbindSvg"); if(!s) return;
-  const o={w:104,h:56,gap:14}, X=250;
-  row(s,X,20,W,Object.assign({label:"$W_{\\text{pickup}}"},o));
-  row(s,X,96,KEYD,Object.assign({label:"$\\text{key}^{\\dagger}",sub:"key, entries 2–5 reversed"},o));
+  const o={w:104,h:66,gap:14}, X=250;
+  crow(s,X,14,W,Object.assign({label:"$W_{\\text{pickup}}",fs:15},o));
+  crow(s,X,94,KEYC,Object.assign({label:"$\\overline{\\text{key}}",sub:"key, angles negated",unit:true},o));
   const g1=el("g",{"data-step":"1"},s);
-  row(g1,X,180,U,Object.assign({label:"$U",seq:true,d0:.3,dt:.25},o));
-  tex(g1,X,258,"each entry mixes all of W: \\(U_n = \\sum_m \\text{key}_m\\, W_{(n+m) \\bmod 5}\\)",{mix:true,size:16,color:"#5B6475",w:600,h:28});
+  for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g1); el("animateMotion",{dur:(0.5+0.25*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${46} L${x},${206}`},d);}
+  crow(g1,X,180,U,Object.assign({label:"$U",seq:true,d0:.5,dt:.25,fs:15},o));
+  const e0=x=>{const t=ang(x);return (t<0?"-":"")+Math.abs(t)+"^\\circ";};
+  tex(g1,X,264,"each entry: same length as W, angle minus the key's: \\("+e0(W[0])+" - "+e0(KEY[0])+" = "+e0(U[0])+"\\)",{mix:true,size:16,color:"#5B6475",w:620,h:28});
   const g2=el("g",{"data-step":"2"},s);
-  tex(g2,X,312,"<b>similarity of \\(U\\) with each position:</b>&nbsp; \\(U \\cdot p_j\\)",{mix:true,size:20,w:640,h:32});
-  const zero=X+390, k=380, names=[["p_1","ahead"],["p_2","left"],["p_3","right"]];
+  tex(g2,X,312,"<b>similarity of \\(U\\) with each position:</b>&nbsp; \\(U \\cdot \\overline{p_j} \\,/\\, D\\)",{mix:true,size:20,w:640,h:32});
+  const zero=X+390, k=2000, names=[["p_1","ahead"],["p_2","left"],["p_3","right"]];
   el("line",{x1:zero,y1:336,x2:zero,y2:530,stroke:"#5B6475","stroke-width":2},g2);
   SIM.forEach((v,i)=>{const y=346+i*62, w=Math.abs(v)*k;
     tex(g2,X-18,y+22,names[i][0]+"\\ \\text{"+names[i][1]+"}",{anchor:"end",size:20,w:200,h:32});
-    row(g2,X-6,y+4,[P1,P2,P3][i],{w:26,h:36,gap:3,dec:0,fs:0.01});
+    crow(g2,X-6,y+2,[P1,P2,P3][i],{w:36,h:40,gap:3,text:false,unit:true});
     el("rect",{x:v>0?zero:zero-w,y:y+2,width:w,height:40,rx:4,fill:v>0?TEAL:OR,class:v>0?"grow":"growr"},g2);
     el("text",{x:v>0?zero+w+12:zero-w-12,y:y+30,"text-anchor":v>0?"start":"end",class:"lblb",style:"fill:"+(v>0?"#14655C":"#9A3412")},g2,fmt(v,2));
   });
-  tex(g2,X-6,580,"small squares: the position vector (teal +, orange −); \\(p_2, p_3\\) are \\(p_1\\) shifted by 1 and 2",{mix:true,size:16,color:"#5B6475",w:640,h:28});
+  el("text",{x:X-6,y:580,class:"lbls"},g2,"small arrows: the position vector; positions are DFT rows times one phase mask");
   el("text",{x:zero,y:552,"text-anchor":"middle",class:"lbls"},g2,"0");
   const g3=el("g",{"data-step":"3"},s);
-  el("rect",{x:zero-6,y:340,width:SIM[0]*k+80,height:56,rx:8,fill:"none",stroke:OR,"stroke-width":3.5},g3);
+  el("rect",{x:zero-6,y:340,width:230,height:56,rx:8,fill:"none",stroke:OR,"stroke-width":3.5},g3);
 })();
 
 /* ---------- 9: clean up ---------- */
 (function(){
   const s=document.getElementById("cleanSvg"); if(!s) return;
-  const o={w:104,h:56,gap:14}, X=260, step=o.w+o.gap;
+  const o={w:104,h:66,gap:14}, X=260, step=o.w+o.gap;
   const rows=[[P1,SIM[0],"$p_1\\ \\text{ahead}"],[P2,SIM[1],"$p_2\\ \\text{left}"],[P3,SIM[2],"$p_3\\ \\text{right}"]];
   const g1=el("g",{"data-step":"1"},s);
-  rows.forEach(([p,c,n],i)=>{const y=20+i*76;
-    row(s,X,y,p,Object.assign({label:n},o));
+  rows.forEach(([p,c,n],i)=>{const y=14+i*80;
+    crow(s,X,y,p,Object.assign({label:n,unit:true},o));
     const chip=el("g",{},g1);
-    el("rect",{x:20,y:y+10,width:86,height:36,rx:18,fill:c>0?"#DDF2EE":"#FCE6DD",stroke:c>0?TEAL:OR,"stroke-width":2},chip);
-    el("text",{x:63,y:y+35,"text-anchor":"middle",class:"lblb",style:"font-size:19px;fill:"+(c>0?"#14655C":"#9A3412")},chip,"× "+fmt(c,2));
+    el("rect",{x:20,y:y+15,width:86,height:36,rx:18,fill:c>0?"#DDF2EE":"#FCE6DD",stroke:c>0?TEAL:OR,"stroke-width":2},chip);
+    el("text",{x:63,y:y+40,"text-anchor":"middle",class:"lblb",style:"font-size:19px;fill:"+(c>0?"#14655C":"#9A3412")},chip,"× "+fmt(c,2));
   });
-  el("text",{x:20,y:262,class:"lbls"},g1,"weight from step 1");
+  el("text",{x:20,y:272,class:"lbls"},g1,"weight from step 1");
   const g2=el("g",{"data-step":"2"},s);
   el("line",{x1:X-10,y1:262,x2:X+5*step,y2:262,stroke:NAVY,"stroke-width":2.5},g2);
-  for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g2); el("animateMotion",{dur:(0.6+0.25*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${48} L${x},${308}`},d);}
-  row(g2,X,280,M,Object.assign({label:"$M",seq:true,d0:.6,dt:.25},o));
-  const tn=v=>(v<0?"-":"+")+Math.abs(v).toFixed(2);
-  tex(g2,X,362,"first entry: \\(("+tn(SIM[0])+")("+tn(P1[0])+") + ("+tn(SIM[1])+")("+tn(P2[0])+") + ("+tn(SIM[2])+")("+tn(P3[0])+") = "+tn(M[0])+"\\)",{mix:true,size:16,color:"#5B6475",w:620,h:28});
+  for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g2); el("animateMotion",{dur:(0.6+0.25*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${48} L${x},${310}`},d);}
+  crow(g2,X,276,M,Object.assign({label:"$M",seq:true,d0:.6,dt:.25,tone:"t",fs:15},o));
+  el("text",{x:X,y:366,class:"lbls"},g2,"each entry: the three arrows above, scaled by the weights and added");
   const g3=el("g",{"data-step":"3"},s);
-  row(g3,X,420,U,Object.assign({label:"$U",sub:"from step 1"},o));
+  crow(g3,X,410,U,Object.assign({label:"$U",sub:"from step 1",fs:15},o));
   tex(g3,X,506,"\\(U - M\\) lies along no known position: other things pickup learned.",{mix:true,size:19,color:"#1E2430",w:620,h:30});
   tex(g3,X,534,"M leaves it out, so step 3 leaves it in the weights.",{mix:true,size:19,color:"#1E2430",w:620,h:30});
 })();
@@ -870,31 +901,31 @@ function lavaGrid(s,x0,y0,cs){
 /* ---------- 10: rebind and subtract ---------- */
 (function(){
   const s=document.getElementById("subSvg"); if(!s) return;
-  const o={w:110,h:58,gap:16}, X=300, step=o.w+o.gap;
-  row(s,X,20,W,Object.assign({label:"Original",sub:"$W_{\\text{pickup}}"},o));
-  row(s,X,100,M,Object.assign({},o,{label:"$M",sub:"from step 2",h:44,fs:18}));
-  row(s,X,152,KEY,Object.assign({},o,{label:"key",h:44,fs:18}));
+  const o={w:110,h:62,gap:16}, X=300, step=o.w+o.gap, sm=Object.assign({},o,{h:54,fs:14});
+  crow(s,X,10,W,Object.assign({label:"Original",sub:"$W_{\\text{pickup}}",fs:15},o));
+  crow(s,X,88,M,Object.assign({label:"$M",sub:"from step 2"},sm));
+  crow(s,X,148,KEY,Object.assign({label:"key",unit:true},sm));
   const g1=el("g",{"data-step":"1"},s);
-  row(g1,X,216,KM,Object.assign({label:"Key contribution",sub:"$\\text{key} \\circledast M",seq:true,d0:.2,dt:.25},o));
+  for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g1); el("animateMotion",{dur:(0.4+0.25*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${115} L${x},${245}`},d);}
+  crow(g1,X,214,KM,Object.assign({label:"Key contribution",sub:"$\\text{key} \\odot M",seq:true,d0:.2,dt:.25,tone:"o",fs:15},o));
   const g2=el("g",{"data-step":"2"},s);
   el("line",{x1:X-10,y1:290,x2:X+5*step,y2:290,stroke:NAVY,"stroke-width":2.5},g2);
-  el("text",{x:X+5*step+8,y:256,class:"math",style:"font-size:34px"},g2,"−");
-  row(g2,X,306,WP,Object.assign({label:"After subtraction",sub:"$W'_{\\text{pickup}}",seq:true,d0:.3,dt:.6},o));
-  for(let i=0;i<5;i++){const t=el("text",{x:cx(X,i,o),y:392,"text-anchor":"middle",class:"lbls",style:"font-size:15px"},el("g",{class:"seq",style:"transition-delay:"+(.3+i*.6)+"s"},g2));
-    t.textContent=fmt(W[i],2)+" − ("+fmt(KM[i],2)+")";}
+  el("text",{x:X+5*step+8,y:258,class:"math",style:"font-size:34px"},g2,"−");
+  crow(g2,X,302,WP,Object.assign({label:"After subtraction",sub:"$W'_{\\text{pickup}}",seq:true,d0:.3,dt:.6,tone:"t",fs:15},o));
+  el("text",{x:X,y:390,class:"lbls"},g2,"subtract entry by entry: arrow minus arrow");
   const g3=el("g",{"data-step":"3"},s);
-  const y0=545, k=200;
-  el("text",{x:X,y:440,class:"lblb"},g3,"entry by entry: original (blue) and edited (teal)");
+  const y0=580, k=900;
+  el("text",{x:X,y:440,class:"lblb"},g3,"entry size |·|: original (blue) and edited (teal)");
   el("line",{x1:X-10,y1:y0,x2:X+5*step,y2:y0,stroke:"#5B6475","stroke-width":2},g3);
   for(let i=0;i<5;i++){const x=X+i*step+18;
-    [[W[i],BLUE,0],[WP[i],TEAL,40]].forEach(([v,col,dx])=>{const h=Math.max(Math.abs(v)*k,2);
-      el("rect",{x:x+dx,y:v>=0?y0-h:y0,width:34,height:h,rx:3,fill:col,class:"growy"+(v<0?" neg":"")},g3);});}
+    [[mod(W[i]),BLUE,0],[mod(WP[i]),TEAL,40]].forEach(([v,col,dx])=>{const h=Math.max(v*k,2);
+      el("rect",{x:x+dx,y:y0-h,width:34,height:h,rx:3,fill:col,class:"growy"},g3);});}
 })();
 
 /* ---------- 11: before / after ---------- */
 (function(){
   const s=document.getElementById("beforeAfter"); if(!s) return;
-  const before=TOT/Math.sqrt(5), after=dot(WP,HKEY)/Math.sqrt(5);
+  const before=TOT/Math.sqrt(5), afterRaw=hdot(WP,HKEY)[0], after=afterRaw/Math.sqrt(5);
   const zero=380, k=1100;
   el("line",{x1:zero,y1:20,x2:zero,y2:300,stroke:"#5B6475","stroke-width":2},s);
   el("text",{x:zero,y:326,"text-anchor":"middle",class:"lbls"},s,"0");
@@ -902,26 +933,26 @@ function lavaGrid(s,x0,y0,cs){
   el("text",{x:zero+170,y:350,"text-anchor":"middle",class:"lbls"},s,"pulls toward pickup →");
   const g1=el("g",{"data-step":"1"},s);
   el("text",{x:20,y:84,class:"lblb"},g1,"before");
-  tex(g1,20,102,"W \\cdot H = "+fmt(TOT,3).replace("−","-"),{size:16,color:"#5B6475",w:200,h:26});
+  tex(g1,20,104,"\\operatorname{Re}(W \\cdot \\overline{H}) = "+fmt(TOT,3).replace("−","-"),{size:16,color:"#5B6475",w:260,h:28});
   el("rect",{x:zero,y:56,width:before*k,height:58,rx:5,fill:BLUE,class:"grow"},g1);
   el("text",{x:zero+before*k+12,y:94,class:"lblb",style:"font-size:28px"},g1,fmt(before,2));
   const g2=el("g",{"data-step":"2"},s);
   el("text",{x:20,y:214,class:"lblb"},g2,"after");
-  tex(g2,20,232,"W' \\cdot H = "+fmt(dot(WP,HKEY),2).replace("−","-"),{size:16,color:"#5B6475",w:200,h:26});
+  tex(g2,20,234,"\\operatorname{Re}(W' \\cdot \\overline{H}) = "+fmt(afterRaw,3).replace("−","-"),{size:16,color:"#5B6475",w:260,h:28});
   el("circle",{cx:zero,cy:215,r:10,fill:TEAL},g2);
   el("text",{x:zero+22,y:225,class:"lblb",style:"font-size:28px;fill:#14655C"},g2,fmt(after,2));
   el("text",{x:zero+92,y:224,class:"lbls",style:"fill:#14655C"},g2,"no pull either way");
 })();
 (function(){
   const s=document.getElementById("perPos"); if(!s) return;
-  const Hs=[P1,P2,P3].map(p=>conv(KEY,p).map(r2)), names=["ahead","left","right"];
+  const Hs=[P1,P2,P3].map(p=>vm(KEY,p)), names=["ahead","left","right"];
   const zero=330, k=1100;
   el("rect",{x:420,y:4,width:18,height:18,rx:3,fill:BLUE},s); el("text",{x:446,y:19,class:"lbls"},s,"before");
   el("rect",{x:530,y:4,width:18,height:18,rx:3,fill:TEAL},s); el("text",{x:556,y:19,class:"lbls"},s,"after");
   el("line",{x1:zero,y1:36,x2:zero,y2:400,stroke:"#5B6475","stroke-width":2},s);
   el("text",{x:zero,y:420,"text-anchor":"middle",class:"lbls"},s,"0");
-  Hs.forEach((h,j)=>{const y=40+j*122, b=dot(W,h)/Math.sqrt(5), a=dot(WP,h)/Math.sqrt(5), w=Math.abs(b)*k;
-    tex(s,20,y+12,"key "+names[j]+" \\((H = \\text{key} \\circledast p_"+(j+1)+")\\)",{mix:true,size:18,w:300,h:28});
+  Hs.forEach((h,j)=>{const y=40+j*122, b=hdot(W,h)[0]/Math.sqrt(5), a=hdot(WP,h)[0]/Math.sqrt(5), w=Math.abs(b)*k;
+    tex(s,20,y+12,"key "+names[j]+" \\((H = \\text{key} \\odot p_"+(j+1)+")\\)",{mix:true,size:18,w:300,h:28});
     el("rect",{x:b>0?zero:zero-w,y:y+30,width:w,height:34,rx:4,fill:BLUE,class:b>0?"grow":"growr"},s);
     el("text",{x:b>0?zero+w+10:zero-w-10,y:y+55,"text-anchor":b>0?"start":"end",class:"lblb"},s,fmt(b,2));
     const ag=el("g",{class:"seq",style:"transition-delay:"+(0.8+0.4*j)+"s"},s);
