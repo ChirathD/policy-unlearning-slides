@@ -197,7 +197,7 @@ a{color:var(--navy)}
       <span class="num">3</span><h3>Edit the weights directly</h3>
       <svg viewBox="0 0 400 110" width="100%" height="110" id="editIcon"></svg>
       <p>Remove the part of the weights that holds the skill, and leave the rest.</p>
-      <span class="tag t">removes it</span> <span class="tag t">keeps the rest</span> <span class="tag g">this work</span>
+      <span class="tag t">removes it</span> <span class="tag t">keeps the rest</span>
     </div>
   </div>
   <div class="box navy" data-step="4" style="margin-top:20px">
@@ -227,7 +227,7 @@ a{color:var(--navy)}
         <p style="font-size:21px;margin:0 0 10px"><b>Gradient descent on the retain set:</b> keep the loss low on everything else, so cat, bird and plane stay correct.</p>
       </div>
       <div class="box" data-step="3" style="padding:10px 18px"><p style="font-size:21px">Together, for a few epochs: \(\displaystyle \min_{\theta}\; \mathcal{L}(\theta; D_r) - \lambda\, \mathcal{L}(\theta; D_f)\) <span class="ref">[2]</span></p></div>
-      <div class="box orange" data-step="4" style="padding:10px 18px"><p style="font-size:20px">It needs the forget data, its labels and many gradient steps. Ascent alone has no bound, so it is stopped early or balanced by the retain term.</p></div>
+      <div class="box orange" data-step="4" style="padding:10px 18px"><p style="font-size:20px">It needs the forget data, its labels and many gradient steps.</p></div>
       <p class="cite">[1] Jang et al., <i>Knowledge Unlearning for Mitigating Privacy Risks in Language Models</i>, ACL 2023 (gradient ascent).<br>[2] Kurmanji et al., <i>Towards Unbounded Machine Unlearning</i>, NeurIPS 2023 (NegGrad+, ascent on \(D_f\) with descent on \(D_r\)).</p>
     </div>
     <svg viewBox="0 0 800 640" width="800" height="640" id="gaSvg"></svg>
@@ -249,13 +249,7 @@ a{color:var(--navy)}
     <svg viewBox="0 0 700 290" width="700" height="290" id="mlUnlearn" data-step="1"></svg>
     <svg viewBox="0 0 700 290" width="700" height="290" id="rlUnlearn" data-step="2"></svg>
   </div>
-  <div class="grid-table" style="margin-top:8px">
-    <div class="h"></div><div class="h">Machine unlearning (supervised)</div><div class="h rl">Policy unlearning (RL)</div>
-    <div class="s" data-step="3">What is forgotten</div><div data-step="3">Specific training data: data points, classes, memorised facts.</div><div class="rl" data-step="3">A behaviour: state–action associations, trajectories, skills, habits.</div>
-    <div class="s" data-step="4">How it is checked</div><div data-step="4">The model treats the forget set like a model retrained without it; test accuracy stays.</div><div class="rl" data-step="4">The agent acts like one retrained without the skill; returns on its other skills stay.</div>
-    <div class="s" data-step="5">Core challenge</div><div data-step="5">Remove the data's influence without losing test accuracy.</div><div class="rl" data-step="5">An action shapes later states, so removing one step changes whole trajectories, without losing the rest of the task.</div>
-  </div>
-  <div class="box orange" data-step="6" style="margin-top:12px;padding:10px 20px"><p style="font-size:22px"><b>This work is policy unlearning:</b> remove one skill (door-key) from a vector-symbolic policy by editing its weights, not by retraining.</p></div>
+  <div class="box orange" data-step="3" style="margin-top:16px;padding:10px 20px"><p style="font-size:22px"><b>This work is policy unlearning:</b> remove one skill from a vector-symbolic policy by editing its weights, not by retraining.</p></div>
   <div class="foot"><span>Problem · machine unlearning and policy unlearning</span><span class="pg"></span></div>
   <aside class="notes">
     <p><b>Machine unlearning</b> usually means erasing the influence of specific training data, such as a user's private photos or copyrighted text, from a classifier or a language model. <b>Policy unlearning</b> targets an RL agent's policy π, its mapping from states to actions: the agent forgets a learned behaviour, trajectory, environment or habit, and keeps its overall competence.</p>
@@ -297,9 +291,7 @@ a{color:var(--navy)}
       <p class="formula" style="font-size:34px;margin:2px 0 4px">\(H = \sum_{k} s(k) \odot p(k)\)</p>
       <p class="small" style="margin:0 0 12px">s(k): the vector of the object at position k &nbsp;·&nbsp; p(k): the vector of position k</p>
       <svg viewBox="0 0 520 220" width="520" height="220" id="egoView"></svg>
-      <p style="font-size:20px;margin:8px 0 8px">Every object and position has a random <b>complex FHRR</b> vector: each entry is a unit phasor \(e^{i\psi} = \cos\psi + j\sin\psi\), written as a+bj. Positions are DFT rows times one shared phase mask, so they are exactly orthogonal.</p>
-      <p data-step="1" style="font-size:20px;margin:0 0 8px"><b>Bind (\(\odot\)):</b> multiply entry by entry (the angles add). \(\text{key} \odot \text{ahead}\) means “the key is ahead”.</p>
-      <p data-step="3" style="font-size:20px;margin:0 0 8px"><b>Bundle (\(\Sigma\)):</b> add the bound pairs. H holds the whole view in one vector.</p>
+      <p style="font-size:20px;margin:8px 0 8px">Every object and position has a random <b>complex FHRR</b> vector.</p>
     </div>
     <svg viewBox="0 0 900 640" width="900" height="640" id="bindSvg"></svg>
   </div>
@@ -322,10 +314,7 @@ a{color:var(--navy)}
       <div data-step="1">
         <p class="formula" style="font-size:28px;margin:0 0 4px">\(\alpha = \dfrac{\eta\, \hat{A}\, (1 - \pi_a)}{\sqrt{D}}\)</p>
         <p class="small" style="margin:0 0 12px">\(\eta\): learning rate &nbsp;·&nbsp; \(\hat{A}\): advantage, how much better the outcome was than expected &nbsp;·&nbsp; \(\pi_a\): the probability the policy gave a</p>
-        <p style="font-size:20px;margin:0 0 12px">A good outcome (\(\hat{A} > 0\)) moves \(W_a\) toward H, so a becomes more likely in that state. A bad one (\(\hat{A} < 0\)) moves it away.</p>
       </div>
-      <p data-step="2" style="font-size:20px;margin:0 0 12px">The weights start at zero, and every PPO update adds one more scaled H.</p>
-      <div class="box" data-step="3"><p style="font-size:20px">So \(W_{\text{pickup}}\) is a weighted sum of the bound pairs it was trained on. Unbinding (slide 9) reads those weights back out.</p></div>
     </div>
     <svg viewBox="0 0 900 640" width="900" height="640" id="trainSvg"></svg>
   </div>
@@ -350,11 +339,10 @@ a{color:var(--navy)}
         <p class="formula" style="font-size:30px;margin:0 0 2px">\(\operatorname{sim}(A_i, H) = \dfrac{\operatorname{Re}\big(A_i \cdot \overline{H}\big)}{\sqrt{D}}\)</p>
         <p class="small" style="margin:0 0 18px">multiply each entry by the conjugate of H's entry, add up, keep the real part; D is the vector length</p>
       </div>
-      <div data-step="3">
+      <div data-step="2">
         <p class="formula" style="font-size:30px;margin:0 0 2px">\(\displaystyle a^{*} = \operatorname*{arg\,max}_{i}\; \operatorname{sim}(A_i, H)\)</p>
         <p class="small" style="margin:0 0 18px">the best action is the one with the largest similarity</p>
       </div>
-      <div class="box" data-step="1" style="margin-top:6px"><p style="font-size:20px">The example has D = 5 and complex FHRR vectors. The weights are a toy \(W_{\text{pickup}}\); \(H = \text{key} \odot p(\text{ahead})\), a view with only the key, straight ahead.</p></div>
     </div>
     <svg viewBox="0 0 900 650" width="900" height="650" id="dotSvg"></svg>
   </div>
@@ -362,7 +350,7 @@ a{color:var(--navy)}
   <aside class="notes">
     <p><b>Source.</b> Draft slides 3 and 4: \(\mathcal{A} = \{A_1, \ldots, A_n\}\), \(\operatorname{sim}(A_i, H) = A_i \cdot H / \sqrt{D}\), \(a^* = \arg\max_i \operatorname{sim}\). With complex vectors the dot product takes the conjugate of H and keeps the real part. Draft slide 4 asked for an animation of the dot product; this is it.</p>
     <p><b>The numbers</b> use the toy vectors in the notes of slide 10. The real parts of the products add to 0.300, and 0.300 / √5 = 0.134, the same value as the draft's example.</p>
-    <p><b>The bar chart in step 3 is schematic</b>: there are no weights for the other actions, so their bars only show the argmax.</p>
+    <p><b>The bar chart in step 2 is schematic</b>: there are no weights for the other actions, so their bars only show the argmax.</p>
   </aside>
 </section>
 
@@ -398,9 +386,6 @@ a{color:var(--navy)}
   <div class="cols" style="grid-template-columns:500px 1fr;gap:20px;margin-top:6px">
     <div>
       <p class="formula" style="font-size:34px;margin:4px 0 6px">\(U = W_{\text{pickup}} \odot \overline{\text{key}}\)</p>
-      <p style="font-size:22px">\(W_{\text{pickup}}\) learned to answer “key at some position”. Multiplying by the conjugate key cancels the key and leaves the positions (slide 9).</p>
-      <p data-step="2" style="font-size:22px">Compare U with each known position vector. The positions are orthogonal with \(p \cdot \overline{p} = D\), so dividing by D gives exactly how much of each position U contains.</p>
-      <div class="box orange" data-step="3"><p style="font-size:21px"><b>Read:</b> pickup fires mostly when the key is <b>ahead</b> (+0.06), a little when it is left (+0.02), and is pushed down when it is right (−0.06).</p></div>
     </div>
     <svg viewBox="0 0 900 640" width="900" height="640" id="unbindSvg"></svg>
   </div>
@@ -421,13 +406,12 @@ a{color:var(--navy)}
       <p class="formula" style="font-size:32px;margin:4px 0 6px">\(M = 0.06\,p_1 + 0.02\,p_2 - 0.06\,p_3\)</p>
       <p style="font-size:22px">Each position vector is weighted by its similarity from step 1, and the weighted vectors are added.</p>
       <div class="box" data-step="3"><p style="font-size:21px"><b>Why not keep U?</b> U also carries everything else pickup learned, mixed up by the unbinding. M keeps only the part that lies along known positions.</p></div>
-      <p class="small" data-step="3">Intuition from the draft: we reconstruct the key's positional information from the known position vectors, rather than keeping the noisy unbound vector directly.</p>
     </div>
     <svg viewBox="0 0 900 640" width="900" height="640" id="cleanSvg"></svg>
   </div>
   <div class="foot"><span>Method · step 2, clean up</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Source.</b> Draft slide 5, \(M = 0.06\,p_1 + 0.02\,p_2 - 0.06\,p_3\), and its speaker note (the intuition, quoted on the slide). The toy reproduces it exactly.</p>
+    <p><b>Source.</b> Draft slide 5, \(M = 0.06\,p_1 + 0.02\,p_2 - 0.06\,p_3\), and its speaker note: rebuild the key's positional information from the known position vectors instead of keeping the noisy unbound vector. The toy reproduces it exactly.</p>
     <p><b>Exact projection.</b> Because the positions are exactly orthogonal, M is the exact projection of U onto them; U − M = 0.03 p4 − 0.02 p5 is what it leaves out. (The earlier ±1 toy had p3 = −p1, so M counted the "ahead" part twice.)</p>
   </aside>
 </section>
@@ -659,7 +643,6 @@ function cx(x,i,o){o=Object.assign({w:100,gap:12},o||{}); return x+i*(o.w+o.gap)
   const s=document.getElementById("editIcon"); if(!s) return;
   for(let i=0;i<10;i++){const hot=(i===3||i===4||i===7);
     el("rect",{x:i*40,y:28,width:34,height:44,rx:5,fill:hot?OR:TEAL,opacity:hot?1:.75,class:hot?"fadeaway":""},s);}
-  el("text",{x:0,y:18,class:"lbls"},s,"the weights; orange: the door-key part");
   el("text",{x:0,y:100,class:"lbls"},s,"only the orange entries change");
 })();
 
@@ -856,7 +839,6 @@ function lavaGrid(s,x0,y0,cs){
   el("line",{x1:X-10,y1:366,x2:X+8*78,y2:366,stroke:NAVY,"stroke-width":2.5},g3);
   for(let i=0;i<8;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:5,fill:OR},g3); el("animateMotion",{dur:"0.9s",begin:"indefinite",fill:"freeze",path:`M${x},${178} L${x},${400}`},d);}
   crow(g3,X,376,H,Object.assign({label:"$H",sub:"add each column",seq:true,d0:.7,dt:.12,tone:"t"},o));
-  el("text",{x:X,y:450,class:"lbls"},g3,"three bound pairs in one vector");
 })();
 
 /* ---------- 7: training adds scaled H ---------- */
@@ -869,19 +851,9 @@ function lavaGrid(s,x0,y0,cs){
   for(let i=0;i<5;i++){const x=cx(X,i,o); const d=el("circle",{class:"flow",r:6,fill:OR},g1); el("animateMotion",{dur:(0.5+0.2*i)+"s",begin:"indefinite",fill:"freeze",path:`M${x},${127} L${x},${222}`},d);}
   tex(g1,X,176,"pickup taken, \\(\\hat{A} > 0\\), so \\(\\alpha = +0.06\\)",{mix:true,size:17,color:"#5B6475",w:600,h:28});
   crow(g1,X,196,W1,Object.assign({label:"$W_{\\text{pickup}} + 0.06\\,H",seq:true,d0:.5,dt:.2,tone:"t"},o));
-  const g2=el("g",{"data-step":"2"},s);
-  el("text",{x:X-18,y:357,"text-anchor":"end",class:"lblb"},g2,"more updates");
-  [["view H",X],["advantage",X+330],["α",X+470]].forEach(([h,x])=>el("text",{x:x,y:316,class:"lbls"},g2,h));
-  el("line",{x1:X,y1:326,x2:X+590,y2:326,stroke:"#D5DAE1","stroke-width":1.5},g2);
-  [["\\text{key} \\odot \\text{ahead}","\\hat{A} > 0","+0.06",1],["\\text{key} \\odot \\text{left}","\\hat{A} > 0","+0.02",1],["\\text{key} \\odot \\text{right}","\\hat{A} < 0","-0.06",-1],["\\text{other learned information}","","+0.03,\\ -0.02",0]].forEach(([h,a,al,sg],i)=>{
-    const c=el("g",{class:"seq",style:"transition-delay:"+(0.2+0.35*i)+"s"},g2), y=346+i*34;
-    tex(c,X,y,h,{size:18,w:320,h:30});
-    if(a) tex(c,X+330,y,a,{size:18,w:130,h:30});
-    tex(c,X+470,y,al,{size:18,color:sg>0?"#14655C":sg<0?"#B4461F":"#5B6475",w:180,h:30});
-  });
-  const g3=el("g",{"data-step":"3"},s);
-  crow(g3,X,476,W,Object.assign({label:"$W_{\\text{pickup}}",sub:"sum of all the α H",seq:true,d0:.3,dt:.2,tone:"t"},o));
-  tex(g3,X,568,"the \\(W_{\\text{pickup}}\\) of the next slides: \\(\\sum \\alpha\\,(\\text{key} \\odot p)\\)",{mix:true,size:17,color:"#5B6475",w:600,h:28});
+  const g3=el("g",{"data-step":"2"},s);
+  crow(g3,X,316,W,Object.assign({label:"$W_{\\text{pickup}}",sub:"sum of all the α H",seq:true,d0:.3,dt:.2,tone:"t"},o));
+  tex(g3,X,408,"the \\(W_{\\text{pickup}}\\) of the next slides: \\(\\sum \\alpha\\,(\\text{key} \\odot p)\\)",{mix:true,size:17,color:"#5B6475",w:600,h:28});
 })();
 
 /* ---------- 8: dot product, animated ---------- */
@@ -898,17 +870,10 @@ function lavaGrid(s,x0,y0,cs){
   const fr=el("rect",{x:X-7,y:16,width:o.w+14,height:252,rx:10,fill:"none",stroke:OR,"stroke-width":4},g1);
   el("animate",{attributeName:"x",values:[0,1,2,3,4].map(i=>X-7+i*step).join(";"),dur:"4s",calcMode:"discrete",fill:"freeze",begin:"indefinite"},fr);
   tex(g1,X,288,"each: \\(\\operatorname{Re}(A_k)\\operatorname{Re}(H_k) + \\operatorname{Im}(A_k)\\operatorname{Im}(H_k)\\)",{mix:true,size:15,color:"#5B6475",w:640,h:26});
-  el("text",{x:X-18,y:340,"text-anchor":"end",class:"lblb"},g1,"running sum");
-  const sums=[];PRODS.reduce((a,v)=>{const t=r3(a+v);sums.push(fmt(t,3));return t;},0);
-  el("text",{x:X,y:344,class:"lblb",style:"font-size:36px;fill:#B4461F","data-seq":sums.join("|"),"data-t0":"0.4","data-dt":"0.8"},g1,"");
-  const g2=el("g",{"data-step":"2"},s), sim=TOT/Math.sqrt(5);
-  tex(g2,X+180,332,"\\div \\sqrt{5} =",{size:30,w:140,h:52});
-  el("text",{x:X+320,y:346,class:"lblb",style:"font-size:40px;fill:#14655C"},g2,fmt(sim,2));
-  tex(g2,X+190,376,"\\(\\sqrt{5} \\approx 2.236\\), so \\("+TOT.toFixed(3)+" / 2.236 = "+sim.toFixed(3)+"\\)",{mix:true,size:16,color:"#5B6475",w:420,h:28});
-  const g3=el("g",{"data-step":"3"},s);
-  const bars=[["A_1",0.04],["A_2",-0.03],["A_{\\text{pickup}}",sim],["\\ldots",0.06],["A_n",-0.05]], y0=600, k=480;
-  el("text",{x:X-18,y:440,"text-anchor":"end",class:"lblb"},g3,"every action");
-  tex(g3,X,434,"the same computation for each \\(A_i\\); the other bars are schematic",{mix:true,size:16,color:"#5B6475",w:560,h:28});
+  const sim=TOT/Math.sqrt(5), g3=el("g",{"data-step":"2"},s);
+  const bars=[["A_1",0.04],["A_2",-0.03],["A_{\\text{pickup}}",sim],["\\ldots",0.06],["A_n",-0.05]], y0=530, k=480;
+  el("text",{x:X-18,y:370,"text-anchor":"end",class:"lblb"},g3,"every action");
+  tex(g3,X,364,"the same computation for each \\(A_i\\); the other bars are schematic",{mix:true,size:16,color:"#5B6475",w:560,h:28});
   el("line",{x1:X-10,y1:y0,x2:X+5*step,y2:y0,stroke:"#5B6475","stroke-width":2},g3);
   bars.forEach(([n,v],i)=>{const x=X+i*step+22, h=Math.abs(v)*k, top=v>0?y0-h:y0, hot=i===2;
     el("rect",{x:x,y:top,width:60,height:h,rx:4,fill:hot?TEAL:"#C9CED6",class:"growy"+(v<0?" neg":"")},g3);
@@ -1027,13 +992,6 @@ function lavaGrid(s,x0,y0,cs){
   el("text",{x:X+5*step+8,y:258,class:"math",style:"font-size:34px"},g2,"−");
   crow(g2,X,302,WP,Object.assign({label:"After subtraction",sub:"$W'_{\\text{pickup}}",seq:true,d0:.3,dt:.6,tone:"t"},o));
   el("text",{x:X,y:390,class:"lbls"},g2,"subtract entry by entry");
-  const g3=el("g",{"data-step":"3"},s);
-  const y0=580, k=900;
-  el("text",{x:X,y:440,class:"lblb"},g3,"entry size |·|: original (blue) and edited (teal)");
-  el("line",{x1:X-10,y1:y0,x2:X+5*step,y2:y0,stroke:"#5B6475","stroke-width":2},g3);
-  for(let i=0;i<5;i++){const x=X+i*step+18;
-    [[mod(W[i]),BLUE,0],[mod(WP[i]),TEAL,40]].forEach(([v,col,dx])=>{const h=Math.max(v*k,2);
-      el("rect",{x:x+dx,y:y0-h,width:34,height:h,rx:3,fill:col,class:"growy"},g3);});}
 })();
 
 /* ---------- 11: before / after ---------- */
