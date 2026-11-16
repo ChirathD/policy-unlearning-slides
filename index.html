@@ -557,13 +557,13 @@ a{color:var(--navy)}
   <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
   <h2>Result 2: the weights lose the key rule, with an overshoot</h2>
   <svg viewBox="0 0 1440 440" width="1440" height="440" id="keyMap"></svg>
-  <div class="box orange" data-step="4" style="margin-top:6px"><p style="font-size:21px"><b>One cell ahead:</b> +9.6 before, −1.5 after the edit, 0.0 in the never-learned agent. In the toy the edit left exactly 0; here the 49 position vectors are only nearly orthogonal (overlap about \(1/\sqrt{D} \approx 0.03\)), so the clean-up is not an exact projection and overshoots. This is our explanation; it is not yet tested.</p></div>
   <div class="foot"><span>Results · the weights after the edit</span><span class="pg"></span></div>
   <aside class="notes">
     <p><b>What is plotted.</b> For every cell \(k\) of the 7 × 7 view: how much a key at \(k\) pushes the pickup logit, \(\operatorname{Re}\big(W_{\text{pickup}} \cdot \overline{\text{key} \odot p_k}\big) / (\sqrt{D}\,\tau)\), read from the weights alone.</p>
     <p><b>Source.</b> <code>key_map.py</code> on the saved weights, <code>results/keymap/pickup_key.json</code>, mean over 10 seeds. The value equals \(\sqrt{D}/\tau\) times the real part of the clean-up coefficient \(c_k\) of step 2, so it is in logit units.</p>
     <p><b>Colours</b> are teal for a push toward pickup and orange for a push away; the shade grows with the square root of the size, so small values stay visible. Every cell's value is printed; the cell one ahead is in bold.</p>
     <p><b>The agent's own cell</b> (bottom centre, the triangle) holds the carried object, so its value (under the triangle) means "key carried".</p>
+    <p><b>One cell ahead:</b> +9.6 before, −1.5 after the edit, 0.0 in the never-learned agent. In the toy the edit left exactly 0; here the 49 position vectors are only nearly orthogonal (overlap about \(1/\sqrt{D} \approx 0.03\)), so the clean-up is not an exact projection and overshoots. This explanation is not yet tested.</p>
     <p><b>Test to run:</b> replace the clean-up \(c_k = U \cdot \overline{p_k} / D\) by the exact projection with the inverse Gram matrix of the 49 positions and check whether the −1.5 goes to 0.</p>
   </aside>
 </section>
