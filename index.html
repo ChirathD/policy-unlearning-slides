@@ -541,14 +541,12 @@ a{color:var(--navy)}
         <li style="font-size:20px;margin-bottom:8px"><b>Reference:</b> the lava parent, which never learned door-key.</li>
         <li style="font-size:20px;margin-bottom:8px">10 seeds; 200 test layouts per task, none seen in training. Dots are seeds.</li>
       </ul>
-      <div class="box orange" data-step="4" style="margin-top:14px"><p style="font-size:20px"><b>DoorKey:</b> 20.4% after the edit vs 4.3% never learned, a paired gap of +16.1 points [+9.1, +24.1]. Most of the skill is gone, not all.</p>
-      <p style="font-size:20px"><b>LavaDoorKey:</b> 25.2% vs 24.2%, close to the reference.</p></div>
     </div>
     <svg viewBox="0 0 1000 560" width="1000" height="560" id="resSucc"></svg>
   </div>
   <div class="foot"><span>Results · success on test layouts</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>Source.</b> <code>results/antitrain</code> on the server (<code>~/hd-policy-edit</code>), FBPM source, seeds 44 to 53, 200 test-layout episodes per task and seed. Bars are the mean over seeds; the bracket is a 95% bootstrap interval of the paired difference.</p>
+    <p><b>Source.</b> <code>results/antitrain</code> on the server (<code>~/hd-policy-edit</code>), FBPM source, seeds 44 to 53, 200 test-layout episodes per task and seed. Bars are the mean over seeds.</p>
     <p><b>LavaCrossing.</b> The source policy was already at 71.0% before the edit (the merge and fine-tuning cost it), so the edit lowers it by 5.9 points. The reference's 98.5% comes from its own training, not from anything the edit could restore.</p>
     <p><b>LavaDoorKey.</b> Both the edited policy and the reference fail mostly by not opening the door; the reference also steps on lava in 34.7% of episodes, the edited policy in 16.5%.</p>
   </aside>
