@@ -524,7 +524,7 @@ a{color:var(--navy)}
   </div>
   <div class="foot"><span>Next · how to verify the forgetting</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>These are the tests; the next five slides give the results.</b> They spell out the draft's research question, "behaves like an agent that never learned that skill", and its goal, "keep lava avoidance".</p>
+    <p><b>These are the tests; the next four slides give the results.</b> They spell out the draft's research question, "behaves like an agent that never learned that skill", and its goal, "keep lava avoidance".</p>
   </aside>
 </section>
 
@@ -554,47 +554,18 @@ a{color:var(--navy)}
   </aside>
 </section>
 
-<!-- R2 -->
-<section class="slide" data-title="Results: what is forgotten">
-  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
-  <h2>Result 2: the door step goes; the key step only partly</h2>
-  <div class="cols" style="grid-template-columns:880px 1fr;gap:44px;margin-top:10px">
-    <div>
-      <p style="font-size:22px;margin:0 0 4px">DoorKey test episodes in which the agent …</p>
-      <svg viewBox="0 0 880 580" width="880" height="580" id="resParts"></svg>
-    </div>
-    <div>
-      <div class="card" data-step="4" style="padding:14px 20px;margin-bottom:14px">
-        <p style="margin:0 0 6px"><span class="tag">forgotten</span>&nbsp; Opening the door drops to 27%, near the reference's 7%. Picking up the key stays at 65%, between the source (99%) and the reference (42%).</p>
-      </div>
-      <div class="card" data-step="5" style="padding:14px 20px;margin-bottom:14px">
-        <p style="margin:0 0 6px"><span class="tag t">kept</span>&nbsp; On LavaCrossing, lava deaths go from 3.4% to 4.3% of episodes (reference 1.4%).</p>
-      </div>
-      <div class="card" data-step="6" style="padding:14px 20px">
-        <p style="margin:0"><span class="tag g">side effect</span>&nbsp; On lava-only states the top action changes on 31% of states (total variation 0.198). The edit is not free.</p>
-      </div>
-    </div>
-  </div>
-  <div class="foot"><span>Results · which steps of the skill are removed</span><span class="pg"></span></div>
-  <aside class="notes">
-    <p><b>Source.</b> Same runs as the previous slide: per-episode flags for "picked up the key" and "opened the door" on DoorKey test layouts, mean over 10 seeds.</p>
-    <p><b>Reading it.</b> The never-trained reference still picks up the key in 42% of episodes by chance, since pickup is one of 7 actions and the key often lies in its path. The edit leaves a key-pickup rate above that.</p>
-    <p><b>Side effects</b> compare the edited policy's action probabilities with the source's on lava-only states (LavaCrossing states visited by the lava parent): mean total variation 0.198, same top action on 69.4% of states.</p>
-  </aside>
-</section>
-
 <!-- R3 -->
 <section class="slide" data-title="Results: pickup's key map">
   <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
-  <h2>Result 3: the weights lose the key rule, with an overshoot</h2>
+  <h2>Result 2: the weights lose the key rule, with an overshoot</h2>
   <p style="font-size:22px;margin:2px 0 6px">For every cell \(k\) of the 7 × 7 view: how much a key at \(k\) pushes the pickup logit, \(\operatorname{Re}\big(W_{\text{pickup}} \cdot \overline{\text{key} \odot p_k}\big) / (\sqrt{D}\,\tau)\). No data needed.</p>
   <svg viewBox="0 0 1440 440" width="1440" height="440" id="keyMap"></svg>
   <div class="box orange" data-step="4" style="margin-top:6px"><p style="font-size:21px"><b>One cell ahead:</b> +9.6 before, −1.5 after the edit, 0.0 in the never-learned agent. In the toy the edit left exactly 0; here the 49 position vectors are only nearly orthogonal (overlap about \(1/\sqrt{D} \approx 0.03\)), so the clean-up is not an exact projection and overshoots. This is our explanation; it is not yet tested.</p></div>
   <div class="foot"><span>Results · the weights after the edit</span><span class="pg"></span></div>
   <aside class="notes">
     <p><b>Source.</b> <code>key_map.py</code> on the saved weights, <code>results/keymap/pickup_key.json</code>, mean over 10 seeds. The value equals \(\sqrt{D}/\tau\) times the real part of the clean-up coefficient \(c_k\) of step 2, so it is in logit units.</p>
-    <p><b>Colours</b> are teal for a push toward pickup and orange for a push away; the shade grows with the square root of the size, so small values stay visible. Only values of at least 0.5 in size are printed, plus the cell one ahead.</p>
-    <p><b>The agent's own cell</b> (bottom centre, the triangle) holds the carried object, so its value means "key carried".</p>
+    <p><b>Colours</b> are teal for a push toward pickup and orange for a push away; the shade grows with the square root of the size, so small values stay visible. Every cell's value is printed; the cell one ahead is in bold.</p>
+    <p><b>The agent's own cell</b> (bottom centre, the triangle) holds the carried object, so its value (under the triangle) means "key carried".</p>
     <p><b>Test to run:</b> replace the clean-up \(c_k = U \cdot \overline{p_k} / D\) by the exact projection with the inverse Gram matrix of the 49 positions and check whether the −1.5 goes to 0.</p>
   </aside>
 </section>
@@ -602,7 +573,7 @@ a{color:var(--navy)}
 <!-- R4 -->
 <section class="slide" data-title="Results: relearning">
   <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
-  <h2>Result 4: the edited agent relearns door-key 2.5× faster</h2>
+  <h2>Result 3: the edited agent relearns door-key 2.5× faster</h2>
   <div class="cols" style="grid-template-columns:1000px 1fr;gap:40px;margin-top:10px">
     <div>
       <p style="font-size:22px;margin:0 0 4px">Environment steps of PPO training on DoorKey until 95% success (median; dots are seeds)</p>
@@ -641,7 +612,7 @@ a{color:var(--navy)}
   </div>
   <div class="foot"><span>Results · summary</span><span class="pg"></span></div>
   <aside class="notes">
-    <p>All numbers are from the four previous slides (FBPM source, 10 seeds, test layouts). The next steps are proposals; none has been run.</p>
+    <p>All numbers are from the three previous slides, apart from the key and door rates, which are from the same DoorKey runs (FBPM source, 10 seeds, test layouts). The next steps are proposals; none has been run.</p>
   </aside>
 </section>
 
@@ -1215,26 +1186,6 @@ function resBar(g,x,y0,w,h,j){ const P=RES_POL[j];
   el("text",{x:60,y:y0+70,class:"lbls"},s,"success rate on test layouts; bar = mean of 10 seeds");
 })();
 
-/* R2: which steps of the skill are removed (DoorKey) */
-(function(){
-  const s=document.getElementById("resParts"); if(!s) return;
-  RES_POL.forEach((P,j)=>{ const g=el("g",{"data-step":String(j+1)},s), x=20+j*290;
-    el("rect",{x:x,y:4,width:22,height:22,rx:4,fill:P[2],stroke:j===2?GREY:"none","stroke-width":2,"stroke-dasharray":j===2?"5 4":"none"},g);
-    el("text",{x:x+32,y:22,class:"lbls",style:"font-size:18px;fill:#1E2430"},g,P[1]); });
-  const x0=260, k=5.4, rows=[["picks up the key",[99.4,65.0,42.0]],["opens the door",[98.9,27.0,6.6]],["reaches the goal",[98.5,20.4,4.3]]];
-  el("line",{x1:x0,y1:50,x2:x0,y2:540,stroke:"#5B6475","stroke-width":2},s);
-  [0,25,50,75,100].forEach(v=>{ el("line",{x1:x0+v*k,y1:50,x2:x0+v*k,y2:540,stroke:v?"#E3E6EB":"#5B6475","stroke-width":v?1:2},s);
-    el("text",{x:x0+v*k,y:566,"text-anchor":"middle",class:"lbls",style:"font-size:14px"},s,v+"%"); });
-  rows.forEach(([lab,vals],gi)=>{
-    const gy=66+gi*160;
-    el("text",{x:x0-18,y:gy+64,"text-anchor":"end",class:"lblb"},s,lab);
-    vals.forEach((v,j)=>{ const P=RES_POL[j], g=el("g",{"data-step":String(j+1)},s), y=gy+j*42;
-      el("rect",{x:x0,y:y,width:v*k,height:32,rx:4,fill:P[2],stroke:P[3],"stroke-width":2,"stroke-dasharray":j===2?"6 4":"none",class:"grow"},g);
-      el("text",{x:x0+v*k+10,y:y+24,class:"lblb",style:"font-size:20px;fill:"+P[5]},el("g",{class:"seq",style:"transition-delay:.9s"},g),v.toFixed(1)+"%");
-    });
-  });
-})();
-
 /* R3: pickup's key map over the 7 x 7 egocentric view (row 0 = farthest, row 6 = the agent's row) */
 (function(){
   const s=document.getElementById("keyMap"); if(!s) return;
@@ -1251,9 +1202,9 @@ function resBar(g,x,y0,w,h,j){ const P=RES_POL[j];
     for(let r=0;r<7;r++){ const rg=el("g",{class:"seq",style:"transition-delay:"+(0.1+(6-r)*0.09).toFixed(2)+"s"},g);
       for(let c=0;c<7;c++){ const v=G[r][c], x=gx+c*cs, y=gy+r*cs, own=(r===6&&c===3), ahead=(r===5&&c===3);
         el("rect",{x:x,y:y,width:cs,height:cs,fill:shade(v),stroke:"#fff","stroke-width":2},rg);
-        if(own){ el("path",{d:`M${x+cs/2},${y+12} L${x+cs/2+13},${y+cs-12} L${x+cs/2-13},${y+cs-12} z`,fill:"#E04848"},rg); continue; }
-        if(ahead||Math.abs(v)>=0.5){ const big=Math.abs(v)>=3;
-          el("text",{x:x+cs/2,y:y+cs/2+(ahead?7:5),"text-anchor":"middle",class:"lblb",style:"font-size:"+(ahead?19:14)+"px;fill:"+(big?"#fff":ahead?NAVY:"#5B6475")},rg,fmt(v,1)); }
+        if(own) el("path",{d:`M${x+cs/2},${y+5} L${x+cs/2+8},${y+18} L${x+cs/2-8},${y+18} z`,fill:"#E04848"},rg);
+        const big=Math.abs(v)>=3;
+        el("text",{x:x+cs/2,y:own?y+cs-9:y+cs/2+(ahead?7:5),"text-anchor":"middle",class:"lblb",style:"font-size:"+(ahead?19:13)+"px;font-weight:"+(ahead?700:400)+";fill:"+(big?"#fff":ahead?NAVY:"#5B6475")},rg,fmt(v,1));
       } }
     el("rect",{x:gx,y:gy,width:7*cs,height:7*cs,fill:"none",stroke:"#D9DDE3","stroke-width":1.5},g);
     const ring=el("g",{"data-step":"4"},s);
