@@ -169,7 +169,7 @@ a{color:var(--navy)}
 
 <!-- 2 -->
 <section class="slide" data-title="The problem">
-  <div class="strip"><span class="here">Problem</span><span>Background</span><span>Method</span><span>Next</span></div>
+  <div class="strip"><span class="here">Problem</span><span>Background</span><span>Method</span><span>Next</span><span>Results</span></div>
   <h2>A trained agent may later have to lose one of its skills</h2>
   <p style="margin:6px 0 4px">AI agents learn behaviours that may later become</p>
   <p style="margin:0 0 18px"><span class="tag" style="font-size:20px;padding:4px 14px">unsafe</span>&nbsp; <span class="tag" style="font-size:20px;padding:4px 14px">outdated</span>&nbsp; <span class="tag" style="font-size:20px;padding:4px 14px">unlicensed</span>&nbsp; <span class="tag" style="font-size:20px;padding:4px 14px">legally required to be removed</span></p>
@@ -216,7 +216,7 @@ a{color:var(--navy)}
 
 <!-- 3: how supervised machine unlearning works -->
 <section class="slide" data-title="Supervised unlearning">
-  <div class="strip"><span class="here">Problem</span><span>Background</span><span>Method</span><span>Next</span></div>
+  <div class="strip"><span class="here">Problem</span><span>Background</span><span>Method</span><span>Next</span><span>Results</span></div>
   <h2>Supervised unlearning fine-tunes in two directions at once</h2>
   <div class="cols" style="grid-template-columns:600px 1fr;gap:40px;margin-top:4px">
     <div>
@@ -246,7 +246,7 @@ a{color:var(--navy)}
 
 <!-- 4: ML vs RL unlearning -->
 <section class="slide" data-title="ML vs RL unlearning">
-  <div class="strip"><span class="here">Problem</span><span>Background</span><span>Method</span><span>Next</span></div>
+  <div class="strip"><span class="here">Problem</span><span>Background</span><span>Method</span><span>Next</span><span>Results</span></div>
   <h2>Unlearning in RL removes a behaviour, not just data points</h2>
   <div class="cols c2" style="gap:40px;margin-top:4px">
     <svg viewBox="0 0 700 290" width="700" height="290" id="mlUnlearn" data-step="1"></svg>
@@ -264,7 +264,7 @@ a{color:var(--navy)}
 
 <!-- 5 -->
 <section class="slide" data-title="LavaDoorKey">
-  <div class="strip"><span class="here">Problem</span><span>Background</span><span>Method</span><span>Next</span></div>
+  <div class="strip"><span class="here">Problem</span><span>Background</span><span>Method</span><span>Next</span><span>Results</span></div>
   <h2>Example: in LavaDoorKey, one agent learns two skills</h2>
   <div class="cols" style="grid-template-columns:1fr 640px;gap:40px;margin-top:8px">
     <div>
@@ -287,7 +287,7 @@ a{color:var(--navy)}
 
 <!-- 6 -->
 <section class="slide" data-title="Encoding a state">
-  <div class="strip"><span>Problem</span><span class="here">Background</span><span>Method</span><span>Next</span></div>
+  <div class="strip"><span>Problem</span><span class="here">Background</span><span>Method</span><span>Next</span><span>Results</span></div>
   <h2>The agent writes what it sees as one long vector H</h2>
   <div class="cols" style="grid-template-columns:520px 1fr;gap:30px;margin-top:4px">
     <div>
@@ -308,7 +308,7 @@ a{color:var(--navy)}
 
 <!-- 7 (training) -->
 <section class="slide" data-title="Training">
-  <div class="strip"><span>Problem</span><span class="here">Background</span><span>Method</span><span>Next</span></div>
+  <div class="strip"><span>Problem</span><span class="here">Background</span><span>Method</span><span>Next</span><span>Results</span></div>
   <h2>Training adds a scaled copy of H to the chosen action's weights</h2>
   <div class="cols" style="grid-template-columns:520px 1fr;gap:30px;margin-top:4px">
     <div>
@@ -332,7 +332,7 @@ a{color:var(--navy)}
 
 <!-- 8 -->
 <section class="slide" data-title="Choosing an action">
-  <div class="strip"><span>Problem</span><span class="here">Background</span><span>Method</span><span>Next</span></div>
+  <div class="strip"><span>Problem</span><span class="here">Background</span><span>Method</span><span>Next</span><span>Results</span></div>
   <h2>The agent takes the action whose weights best match H</h2>
   <div class="cols" style="grid-template-columns:500px 1fr;gap:20px;margin-top:6px">
     <div>
@@ -359,7 +359,7 @@ a{color:var(--navy)}
 
 <!-- 8 (unbinding) -->
 <section class="slide" data-title="How unbinding works">
-  <div class="strip"><span>Problem</span><span class="here">Background</span><span>Method</span><span>Next</span></div>
+  <div class="strip"><span>Problem</span><span class="here">Background</span><span>Method</span><span>Next</span><span>Results</span></div>
   <h2>Unbinding pulls one object's positions out of the weights</h2>
   <div class="cols" style="grid-template-columns:540px 1fr;gap:20px;margin-top:4px">
     <div>
@@ -384,7 +384,7 @@ a{color:var(--navy)}
 
 <!-- 9 -->
 <section class="slide" data-title="Step 1: unbind">
-  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span></div>
+  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span><span>Results</span></div>
   <h2>Step 1, unbind: cancel the key out of \(W_{\text{pickup}}\)</h2>
   <div class="cols" style="grid-template-columns:500px 1fr;gap:20px;margin-top:6px">
     <div>
@@ -402,7 +402,7 @@ a{color:var(--navy)}
 
 <!-- 9 -->
 <section class="slide" data-title="Step 2: clean up">
-  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span></div>
+  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span><span>Results</span></div>
   <h2>Step 2, clean up: rebuild U from the known positions</h2>
   <div class="cols" style="grid-template-columns:500px 1fr;gap:20px;margin-top:6px">
     <div>
@@ -421,7 +421,7 @@ a{color:var(--navy)}
 
 <!-- 10 -->
 <section class="slide" data-title="Step 3: subtract">
-  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span></div>
+  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span><span>Results</span></div>
   <h2>Step 3, rebind and subtract the key's part</h2>
   <div class="cols" style="grid-template-columns:470px 1fr;gap:20px;margin-top:6px">
     <div>
@@ -444,7 +444,7 @@ a{color:var(--navy)}
 
 <!-- 11 -->
 <section class="slide" data-title="After the edit">
-  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span></div>
+  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span><span>Results</span></div>
   <h2>After the edit, the key ahead no longer pulls toward pickup</h2>
   <div class="cols" style="grid-template-columns:1fr;margin-top:6px">
     <div>
@@ -462,7 +462,7 @@ a{color:var(--navy)}
 
 <!-- 12 -->
 <section class="slide" data-title="The recipe">
-  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span></div>
+  <div class="strip"><span>Problem</span><span>Background</span><span class="here">Method</span><span>Next</span><span>Results</span></div>
   <h2>The edit is three vector operations on the trained weights</h2>
   <svg viewBox="0 0 1440 300" width="1440" height="300" style="margin-top:14px" id="recipe">
     <text x="0" y="22" class="lbls">INPUT</text><text x="1250" y="22" class="lbls">OUTPUT</text>
@@ -509,7 +509,7 @@ a{color:var(--navy)}
 
 <!-- 13 -->
 <section class="slide" data-title="What to check next">
-  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span class="here">Next</span></div>
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span class="here">Next</span><span>Results</span></div>
   <h2>Next: test that it acts as if it never learned door-key</h2>
   <div class="cols" style="grid-template-columns:1fr 560px;gap:40px;margin-top:8px">
     <div>
@@ -524,13 +524,130 @@ a{color:var(--navy)}
   </div>
   <div class="foot"><span>Next · how to verify the forgetting</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>These are tests to run, not results.</b> They spell out the draft's research question, "behaves like an agent that never learned that skill", and its goal, "keep lava avoidance".</p>
+    <p><b>These are the tests; the next five slides give the results.</b> They spell out the draft's research question, "behaves like an agent that never learned that skill", and its goal, "keep lava avoidance".</p>
+  </aside>
+</section>
+
+<!-- R1 -->
+<section class="slide" data-title="Results: success rates">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
+  <h2>Result 1: door-key success falls from 98.5% to 20.4%</h2>
+  <div class="cols" style="grid-template-columns:400px 1fr;gap:40px;margin-top:10px">
+    <div>
+      <p class="small" style="margin:0 0 4px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#1D3557;font-size:16px">Setup</p>
+      <ul style="padding-left:22px">
+        <li style="font-size:20px;margin-bottom:8px">HD-PPO policy (D = 1024) that solves LavaDoorKey: lava parent and door-key parent merged, then fine-tuned.</li>
+        <li style="font-size:20px;margin-bottom:8px"><b>Edit:</b> forget by unbinding, for the key and the locked door, on all 7 action rows and the critic. No data, no training.</li>
+        <li style="font-size:20px;margin-bottom:8px"><b>Reference:</b> the lava parent, which never learned door-key.</li>
+        <li style="font-size:20px;margin-bottom:8px">10 seeds; 200 test layouts per task, none seen in training. Dots are seeds.</li>
+      </ul>
+      <div class="box orange" data-step="4" style="margin-top:14px"><p style="font-size:20px"><b>DoorKey:</b> 20.4% after the edit vs 4.3% never learned, a paired gap of +16.1 points [+9.1, +24.1]. Most of the skill is gone, not all.</p>
+      <p style="font-size:20px"><b>LavaDoorKey:</b> 25.2% vs 24.2%, close to the reference.</p></div>
+    </div>
+    <svg viewBox="0 0 1000 560" width="1000" height="560" id="resSucc"></svg>
+  </div>
+  <div class="foot"><span>Results · success on test layouts</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Source.</b> <code>results/antitrain</code> on the server (<code>~/hd-policy-edit</code>), FBPM source, seeds 44 to 53, 200 test-layout episodes per task and seed. Bars are the mean over seeds; the bracket is a 95% bootstrap interval of the paired difference.</p>
+    <p><b>LavaCrossing.</b> The source policy was already at 71.0% before the edit (the merge and fine-tuning cost it), so the edit lowers it by 5.9 points. The reference's 98.5% comes from its own training, not from anything the edit could restore.</p>
+    <p><b>LavaDoorKey.</b> Both the edited policy and the reference fail mostly by not opening the door; the reference also steps on lava in 34.7% of episodes, the edited policy in 16.5%.</p>
+  </aside>
+</section>
+
+<!-- R2 -->
+<section class="slide" data-title="Results: what is forgotten">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
+  <h2>Result 2: the door step goes; the key step only partly</h2>
+  <div class="cols" style="grid-template-columns:880px 1fr;gap:44px;margin-top:10px">
+    <div>
+      <p style="font-size:22px;margin:0 0 4px">DoorKey test episodes in which the agent …</p>
+      <svg viewBox="0 0 880 580" width="880" height="580" id="resParts"></svg>
+    </div>
+    <div>
+      <div class="card" data-step="4" style="padding:14px 20px;margin-bottom:14px">
+        <p style="margin:0 0 6px"><span class="tag">forgotten</span>&nbsp; Opening the door drops to 27%, near the reference's 7%. Picking up the key stays at 65%, between the source (99%) and the reference (42%).</p>
+      </div>
+      <div class="card" data-step="5" style="padding:14px 20px;margin-bottom:14px">
+        <p style="margin:0 0 6px"><span class="tag t">kept</span>&nbsp; On LavaCrossing, lava deaths go from 3.4% to 4.3% of episodes (reference 1.4%).</p>
+      </div>
+      <div class="card" data-step="6" style="padding:14px 20px">
+        <p style="margin:0"><span class="tag g">side effect</span>&nbsp; On lava-only states the top action changes on 31% of states (total variation 0.198). The edit is not free.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Results · which steps of the skill are removed</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Source.</b> Same runs as the previous slide: per-episode flags for "picked up the key" and "opened the door" on DoorKey test layouts, mean over 10 seeds.</p>
+    <p><b>Reading it.</b> The never-trained reference still picks up the key in 42% of episodes by chance, since pickup is one of 7 actions and the key often lies in its path. The edit leaves a key-pickup rate above that.</p>
+    <p><b>Side effects</b> compare the edited policy's action probabilities with the source's on lava-only states (LavaCrossing states visited by the lava parent): mean total variation 0.198, same top action on 69.4% of states.</p>
+  </aside>
+</section>
+
+<!-- R3 -->
+<section class="slide" data-title="Results: pickup's key map">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
+  <h2>Result 3: the weights lose the key rule, with an overshoot</h2>
+  <p style="font-size:22px;margin:2px 0 6px">For every cell \(k\) of the 7 × 7 view: how much a key at \(k\) pushes the pickup logit, \(\operatorname{Re}\big(W_{\text{pickup}} \cdot \overline{\text{key} \odot p_k}\big) / (\sqrt{D}\,\tau)\). No data needed.</p>
+  <svg viewBox="0 0 1440 440" width="1440" height="440" id="keyMap"></svg>
+  <div class="box orange" data-step="4" style="margin-top:6px"><p style="font-size:21px"><b>One cell ahead:</b> +9.6 before, −1.5 after the edit, 0.0 in the never-learned agent. In the toy the edit left exactly 0; here the 49 position vectors are only nearly orthogonal (overlap about \(1/\sqrt{D} \approx 0.03\)), so the clean-up is not an exact projection and overshoots. This is our explanation; it is not yet tested.</p></div>
+  <div class="foot"><span>Results · the weights after the edit</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Source.</b> <code>key_map.py</code> on the saved weights, <code>results/keymap/pickup_key.json</code>, mean over 10 seeds. The value equals \(\sqrt{D}/\tau\) times the real part of the clean-up coefficient \(c_k\) of step 2, so it is in logit units.</p>
+    <p><b>Colours</b> are teal for a push toward pickup and orange for a push away; the shade grows with the square root of the size, so small values stay visible. Only values of at least 0.5 in size are printed, plus the cell one ahead.</p>
+    <p><b>The agent's own cell</b> (bottom centre, the triangle) holds the carried object, so its value means "key carried".</p>
+    <p><b>Test to run:</b> replace the clean-up \(c_k = U \cdot \overline{p_k} / D\) by the exact projection with the inverse Gram matrix of the 49 positions and check whether the −1.5 goes to 0.</p>
+  </aside>
+</section>
+
+<!-- R4 -->
+<section class="slide" data-title="Results: relearning">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
+  <h2>Result 4: the edited agent relearns door-key 2.5× faster</h2>
+  <div class="cols" style="grid-template-columns:1000px 1fr;gap:40px;margin-top:10px">
+    <div>
+      <p style="font-size:22px;margin:0 0 4px">Environment steps of PPO training on DoorKey until 95% success (median; dots are seeds)</p>
+      <svg viewBox="0 0 1000 500" width="1000" height="500" id="relearn"></svg>
+    </div>
+    <div>
+      <p style="font-size:21px;margin:30px 0 14px">If a skill is truly forgotten, learning it again should take as long as for an agent that never had it.</p>
+      <div class="box orange" data-step="2"><p style="font-size:20px"><b>After forget:</b> 213k vs 532k steps, faster on 9 of 10 seeds (paired −267k [−332k, −183k]). Some of the skill is still in the weights.</p></div>
+      <div class="box navy" data-step="3"><p style="font-size:20px"><b>Reverse training</b> reaches 0% on DoorKey but relearns fastest, in 101k: it hides the skill instead of removing it.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Results · how fast the skill comes back</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Source.</b> <code>results/relearn</code>, FBPM source, 10 seeds, budget 600,000 steps, success measured on validation layouts. Three of the ten never-learned runs did not reach 95%; they count as 600k (hollow dots), so its median is a lower bound. The median of the runs that did reach 95% is 484k.</p>
+    <p><b>Reverse training</b> is a baseline that needs data: gradient steps that lower the door-key actions on door-key states, with a retain step on lava states. It drives DoorKey to 0% but leaves the key-pickup rule in place (82% still pick up the key).</p>
+    <p><b>Not separated:</b> all edits share one critic edit, so leftover value in the critic may also speed up relearning.</p>
+  </aside>
+</section>
+
+<!-- R5 -->
+<section class="slide" data-title="Results: summary">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
+  <h2>So far: a data-free edit removes most of door-key, not all</h2>
+  <div class="cols" style="grid-template-columns:1fr 1fr 1fr;gap:28px;margin-top:22px">
+    <div class="card orange" data-step="1"><span class="num">1</span><h3>Forgotten, mostly</h3><p>DoorKey 98.5% → 20.4%, vs 4.3% for an agent that never learned it. The door step goes; the key step only partly.</p></div>
+    <div class="card" data-step="2"><span class="num">2</span><h3>Kept, mostly</h3><p>LavaCrossing 71.0% → 65.1%, lava deaths 3.4% → 4.3%. The top action still changes on 31% of lava-only states.</p></div>
+    <div class="card navy" data-step="3"><span class="num">3</span><h3>A trace is left</h3><p>The key rule overshoots to −1.5 instead of 0, and door-key comes back 2.5× faster than for the never-learned agent.</p></div>
+  </div>
+  <div class="box navy" data-step="4" style="margin-top:26px">
+    <p class="small" style="margin:0 0 6px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#1D3557;font-size:16px">Possible next steps</p>
+    <ul style="padding-left:24px">
+      <li style="font-size:21px;margin-bottom:4px">An exact clean-up with the inverse Gram matrix of the positions, to remove the overshoot.</li>
+      <li style="font-size:21px;margin-bottom:4px">Edit the critic separately, to see how much of the fast relearning comes from it.</li>
+      <li style="font-size:21px;margin-bottom:0">A larger D, to lower the overlap between positions and the side effects.</li>
+    </ul>
+  </div>
+  <div class="foot"><span>Results · summary</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p>All numbers are from the four previous slides (FBPM source, 10 seeds, test layouts). The next steps are proposals; none has been run.</p>
   </aside>
 </section>
 
 <!-- 16 -->
 <section class="slide" data-title="References">
-  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span></div>
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span>Results</span></div>
   <h2>References</h2>
   <div class="refs">
     <h3>Unlearning in supervised models</h3>
@@ -549,7 +666,7 @@ a{color:var(--navy)}
 
 <!-- 17 -->
 <section class="slide" data-title="Appendix: reading U">
-  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span></div>
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span>Results</span></div>
   <h2>Appendix: how the dot product reads the numbers out of U</h2>
   <p class="formula" style="font-size:34px;margin:18px 0 18px">\(\displaystyle U = 0.06\,p(\text{ahead}) + 0.02\,p(\text{left}) - 0.06\,p(\text{right}) + \text{noise}\)</p>
   <p style="font-size:24px;margin:0 0 18px;max-width:1300px">We don’t know these three numbers yet; they’re what we want to find. The dot product finds them, because position vectors are (nearly) orthogonal:</p>
@@ -1061,6 +1178,114 @@ function lavaGrid(s,x0,y0,cs){
   el("text",{x:C(4,1)[0],y:C(4,1)[1]+52,"text-anchor":"middle",class:"lbls",style:"fill:#5B6475"},g,"key ignored");
   const g2=el("g",{"data-step":"2"},s);
   el("rect",{x:x0+4*cs-5,y:y0-5,width:cs+10,height:7*cs+10,rx:8,fill:"none",stroke:TEAL,"stroke-width":5,class:"pulse"},g2);
+})();
+
+/* ---------- results: LavaDoorKey door-key unlearning, FBPM source, 10 seeds, test layouts ---------- */
+const PURPLE="#8E7CC3";
+const RES={doorkey:{no_edit:[99.5,99.0,99.0,98.5,100.0,99.0,99.0,93.5,98.5,99.0],forget:[17.0,42.5,31.0,16.0,36.5,17.5,8.0,10.5,19.0,6.5],lava_parent:[7.0,1.0,11.5,8.0,2.5,3.0,4.0,2.0,0.0,4.5]},
+  lavacross:{no_edit:[77.5,66.0,78.5,71.0,59.0,79.0,80.0,74.5,68.0,57.0],forget:[80.5,64.5,77.5,73.5,56.5,85.5,46.0,64.5,69.0,34.0],lava_parent:[97.0,99.5,99.5,99.5,100.0,98.5,100.0,94.5,98.5,98.0]},
+  lavadoorkey:{no_edit:[99.5,98.5,97.0,99.0,98.0,99.0,100.0,99.5,98.5,99.0],forget:[14.0,54.0,31.0,20.0,21.0,23.5,10.0,31.0,38.5,9.0],lava_parent:[22.5,29.0,30.5,19.5,18.0,30.5,12.5,23.5,22.0,34.5]}};
+const RES_MEAN={doorkey:[98.5,20.4,4.3],lavacross:[71.0,65.1,98.5],lavadoorkey:[98.8,25.2,24.2]};
+/* [key, label, bar fill, bar stroke, dot stroke, text colour]; the reference is drawn as a dashed grey outline */
+const RES_POL=[["no_edit","before the edit",NAVY,"none",NAVY,NAVY],["forget","after forget by unbinding",OR,"none","#9A3412","#B4461F"],["lava_parent","never learned door-key","#E8EBEF",GREY,"#5B6475","#5B6475"]];
+function resBar(g,x,y0,w,h,j){ const P=RES_POL[j];
+  return el("rect",{x:x,y:y0-h,width:w,height:h,fill:P[2],stroke:P[3],"stroke-width":2,"stroke-dasharray":j===2?"6 4":"none",class:"growy"},g); }
+
+/* R1: success rates per task */
+(function(){
+  const s=document.getElementById("resSucc"); if(!s) return;
+  const y0=470, k=3.6;
+  RES_POL.forEach((P,j)=>{ const g=el("g",{"data-step":String(j+1)},s), x=60+j*310;
+    el("rect",{x:x,y:6,width:24,height:24,rx:4,fill:P[2],stroke:j===2?GREY:"none","stroke-width":2,"stroke-dasharray":j===2?"5 4":"none"},g);
+    el("text",{x:x+34,y:25,class:"lbl"},g,P[1]); });
+  [["doorkey","DoorKey","the skill to forget","#B4461F"],["lavacross","LavaCrossing","the skill to keep","#14655C"],["lavadoorkey","LavaDoorKey","both skills","#1D3557"]].forEach(([t,name,sub,sc],i)=>{
+    const px=60+i*320, w=290;
+    el("text",{x:px+w/2,y:72,"text-anchor":"middle",class:"lblb"},s,name);
+    el("text",{x:px+w/2,y:94,"text-anchor":"middle",class:"lbls",style:"fill:"+sc},s,sub);
+    [0,25,50,75,100].forEach(v=>{ el("line",{x1:px,y1:y0-v*k,x2:px+w,y2:y0-v*k,stroke:v?"#E3E6EB":"#5B6475","stroke-width":v?1:2},s);
+      if(i===0) el("text",{x:px-10,y:y0-v*k+5,"text-anchor":"end",class:"lbls",style:"font-size:14px"},s,v+"%"); });
+    RES_POL.forEach((P,j)=>{
+      const g=el("g",{"data-step":String(j+1)},s), bw=74, bx=px+16+j*94, v=RES_MEAN[t][j];
+      resBar(g,bx,y0,bw,v*k,j);
+      const dots=el("g",{class:"seq",style:"transition-delay:.9s"},g);
+      RES[t][P[0]].forEach((x,q)=>el("circle",{cx:bx+12+q*(bw-24)/9,cy:y0-x*k,r:3.8,fill:"#fff",stroke:P[4],"stroke-width":1.8},dots));
+      el("text",{x:bx+bw/2,y:y0+30,"text-anchor":"middle",class:"lblb",style:"font-size:22px;fill:"+P[5]},el("g",{class:"seq",style:"transition-delay:.7s"},g),v.toFixed(1));
+    });
+  });
+  el("text",{x:60,y:y0+70,class:"lbls"},s,"success rate on test layouts; bar = mean of 10 seeds");
+})();
+
+/* R2: which steps of the skill are removed (DoorKey) */
+(function(){
+  const s=document.getElementById("resParts"); if(!s) return;
+  RES_POL.forEach((P,j)=>{ const g=el("g",{"data-step":String(j+1)},s), x=20+j*290;
+    el("rect",{x:x,y:4,width:22,height:22,rx:4,fill:P[2],stroke:j===2?GREY:"none","stroke-width":2,"stroke-dasharray":j===2?"5 4":"none"},g);
+    el("text",{x:x+32,y:22,class:"lbls",style:"font-size:18px;fill:#1E2430"},g,P[1]); });
+  const x0=260, k=5.4, rows=[["picks up the key",[99.4,65.0,42.0]],["opens the door",[98.9,27.0,6.6]],["reaches the goal",[98.5,20.4,4.3]]];
+  el("line",{x1:x0,y1:50,x2:x0,y2:540,stroke:"#5B6475","stroke-width":2},s);
+  [0,25,50,75,100].forEach(v=>{ el("line",{x1:x0+v*k,y1:50,x2:x0+v*k,y2:540,stroke:v?"#E3E6EB":"#5B6475","stroke-width":v?1:2},s);
+    el("text",{x:x0+v*k,y:566,"text-anchor":"middle",class:"lbls",style:"font-size:14px"},s,v+"%"); });
+  rows.forEach(([lab,vals],gi)=>{
+    const gy=66+gi*160;
+    el("text",{x:x0-18,y:gy+64,"text-anchor":"end",class:"lblb"},s,lab);
+    vals.forEach((v,j)=>{ const P=RES_POL[j], g=el("g",{"data-step":String(j+1)},s), y=gy+j*42;
+      el("rect",{x:x0,y:y,width:v*k,height:32,rx:4,fill:P[2],stroke:P[3],"stroke-width":2,"stroke-dasharray":j===2?"6 4":"none",class:"grow"},g);
+      el("text",{x:x0+v*k+10,y:y+24,class:"lblb",style:"font-size:20px;fill:"+P[5]},el("g",{class:"seq",style:"transition-delay:.9s"},g),v.toFixed(1)+"%");
+    });
+  });
+})();
+
+/* R3: pickup's key map over the 7 x 7 egocentric view (row 0 = farthest, row 6 = the agent's row) */
+(function(){
+  const s=document.getElementById("keyMap"); if(!s) return;
+  const KM={
+    no_edit:[[0,-0.1,-0.3,-0.2,0.1,0.2,0.2],[0.1,-0.3,-0.1,0.3,-0.1,-0.1,0],[0,0,-0.2,0.4,-0.3,0.1,-0.1],[-0.3,-0.4,-0.1,0.2,0.2,0,0],[0.4,-0.4,0.2,0.3,-0.1,-0.8,-0.6],[-0.1,-0.5,0.2,9.6,-0.2,-0.5,-0.2],[-0.4,0.6,-0.2,-0.5,-0.6,-0.5,-0.3]],
+    forget:[[-0.1,0.1,0.1,0.1,0,0,0],[0,0.1,0.1,0.1,0,0.1,-0.1],[0,0.2,0,0,-0.1,-0.1,0],[0,0.1,0,0,-0.1,0.1,-0.1],[-0.1,0.2,-0.2,-0.1,0,-0.1,0.2],[-0.1,0.1,0,-1.5,0.2,0,0.1],[0.2,-0.1,0.2,0.1,0,0,0.2]],
+    lava_parent:[[0,0.2,0,0.1,0.1,0.1,0],[0,-0.1,0,0,0,0.1,0],[0.1,0,0.1,0.2,-0.2,0.2,0.2],[-0.1,-0.1,0,0,0.1,0,0],[-0.1,0.3,-0.1,-0.2,0,0,-0.2],[-0.1,0.1,0,0,-0.2,-0.2,0.2],[0,0,0,0.1,0,-0.1,-0.1]]};
+  const VM=9.6, cs=50, gy=52;
+  const shade=v=>{ const t=Math.sqrt(Math.min(1,Math.abs(v)/VM)), c=v>=0?[22,160,143]:[224,102,63];
+    return "rgb("+c.map(x=>Math.round(255-(255-x)*t)).join(",")+")"; };
+  [["no_edit","before the edit",NAVY],["forget","after forget by unbinding","#B4461F"],["lava_parent","never learned door-key","#5B6475"]].forEach(([n,title,tc],i)=>{
+    const gx=60+i*485, g=el("g",{"data-step":String(i+1)},s), G=KM[n];
+    el("text",{x:gx+3.5*cs,y:30,"text-anchor":"middle",class:"lblb",style:"fill:"+tc},g,title);
+    for(let r=0;r<7;r++){ const rg=el("g",{class:"seq",style:"transition-delay:"+(0.1+(6-r)*0.09).toFixed(2)+"s"},g);
+      for(let c=0;c<7;c++){ const v=G[r][c], x=gx+c*cs, y=gy+r*cs, own=(r===6&&c===3), ahead=(r===5&&c===3);
+        el("rect",{x:x,y:y,width:cs,height:cs,fill:shade(v),stroke:"#fff","stroke-width":2},rg);
+        if(own){ el("path",{d:`M${x+cs/2},${y+12} L${x+cs/2+13},${y+cs-12} L${x+cs/2-13},${y+cs-12} z`,fill:"#E04848"},rg); continue; }
+        if(ahead||Math.abs(v)>=0.5){ const big=Math.abs(v)>=3;
+          el("text",{x:x+cs/2,y:y+cs/2+(ahead?7:5),"text-anchor":"middle",class:"lblb",style:"font-size:"+(ahead?19:14)+"px;fill:"+(big?"#fff":ahead?NAVY:"#5B6475")},rg,fmt(v,1)); }
+      } }
+    el("rect",{x:gx,y:gy,width:7*cs,height:7*cs,fill:"none",stroke:"#D9DDE3","stroke-width":1.5},g);
+    const ring=el("g",{"data-step":"4"},s);
+    el("rect",{x:gx+3*cs-4,y:gy+5*cs-4,width:cs+8,height:cs+8,rx:6,fill:"none",stroke:NAVY,"stroke-width":4,class:"pulse"},ring);
+  });
+  el("text",{x:60,y:gy+7*cs+30,class:"lbls"},s,"agent (triangle) at the bottom centre, facing up · teal: pushes toward pickup · orange: pushes away · logit units, mean of 10 seeds");
+})();
+
+/* R4: relearning steps to 95% on DoorKey (null = did not reach it within the 600k budget) */
+(function(){
+  const s=document.getElementById("relearn"); if(!s) return;
+  const RL=[["never learned door-key","starts at 4% on DoorKey",[391602,490994,380109,587019,573764,null,483739,null,null,237591],532379,2],
+            ["after forget by unbinding","starts at 20%",[184538,206053,112954,241051,199341,352443,218066,250659,207965,298704],213016,1],
+            ["reverse training","starts at 0%; needs data",[68826,59669,51494,76559,105789,200222,95215,141793,235302,189467],100502,3]];
+  const x0=260, B=600000, k=640/B, yA=440;
+  el("line",{x1:x0,y1:30,x2:x0,y2:yA,stroke:"#5B6475","stroke-width":2},s);
+  [0,100000,200000,300000,400000,500000,600000].forEach(v=>{ el("line",{x1:x0+v*k,y1:30,x2:x0+v*k,y2:yA,stroke:v?"#E3E6EB":"#5B6475","stroke-width":v?1:2},s);
+    el("text",{x:x0+v*k,y:yA+24,"text-anchor":"middle",class:"lbls",style:"font-size:14px"},s,v?(v/1000)+"k":"0"); });
+  el("line",{x1:x0+B*k,y1:30,x2:x0+B*k,y2:yA,stroke:BAD,"stroke-width":2,"stroke-dasharray":"7 6"},s);
+  el("text",{x:x0+B*k,y:22,"text-anchor":"middle",class:"lbls",style:"fill:#C2412B"},s,"budget 600k");
+  el("text",{x:x0+B*k,y:yA+50,"text-anchor":"end",class:"lbls"},s,"environment steps to 95% DoorKey success");
+  RL.forEach(([lab,sub,vals,med,step],i)=>{
+    const g=el("g",{"data-step":String(i===0?1:i===1?2:3)},s), y=56+i*128;
+    const col=i===0?GREY:i===1?OR:PURPLE, fill=i===0?"#E8EBEF":col, txt=i===0?"#5B6475":i===1?"#B4461F":"#5B4A9A";
+    el("text",{x:x0-18,y:y+24,"text-anchor":"end",class:"lblb",style:"fill:"+txt},g,lab);
+    el("text",{x:x0-18,y:y+48,"text-anchor":"end",class:"lbls"},g,sub);
+    el("rect",{x:x0,y:y,width:med*k,height:40,rx:4,fill:fill,stroke:i===0?GREY:"none","stroke-width":2,"stroke-dasharray":i===0?"6 4":"none",class:"grow"},g);
+    el("text",{x:x0+med*k+10,y:y+28,class:"lblb",style:"font-size:22px;fill:"+txt},el("g",{class:"seq",style:"transition-delay:.9s"},g),Math.round(med/1000)+"k");
+    const dots=el("g",{class:"seq",style:"transition-delay:1.1s"},g); let nc=0;
+    vals.forEach((v,q)=>{ const cen=v===null; el("circle",{cx:x0+(cen?B:v)*k,cy:y+62+(cen?(nc++)*9-9:0),r:5,fill:cen?"#fff":col,stroke:cen?BAD:col,"stroke-width":2,opacity:cen?1:.8},dots); });
+    if(i===0) el("text",{x:x0+B*k-12,y:y+92,"text-anchor":"end",class:"lbls",style:"fill:#C2412B"},dots,"3 of 10 never reached 95%");
+  });
 })();
 
 /* ---------- LaTeX in the HTML: \( ... \) ---------- */
