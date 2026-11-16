@@ -1155,7 +1155,7 @@ function resBar(g,x,y0,w,h,j){ const P=RES_POL[j];
       el("text",{x:bx+bw/2,y:y0+30,"text-anchor":"middle",class:"lblb",style:"font-size:22px;fill:"+P[5]},el("g",{class:"seq",style:"transition-delay:.7s"},g),v.toFixed(1));
     });
   });
-  el("text",{x:60,y:y0+70,class:"lbls"},s,"success rate on test layouts; bar = mean of 10 seeds");
+  el("text",{x:60,y:y0+70,class:"lbls"},s,"success rate on test layouts");
 })();
 
 /* R3: pickup's key map over the 7 x 7 egocentric view (row 0 = farthest, row 6 = the agent's row) */
