@@ -537,7 +537,7 @@ a{color:var(--navy)}
       <p class="small" style="margin:0 0 4px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#1D3557;font-size:16px">Setup</p>
       <ul style="padding-left:22px">
         <li style="font-size:20px;margin-bottom:8px">HD-PPO policy (D = 1024) that solves LavaDoorKey: lava parent and door-key parent merged, then fine-tuned.</li>
-        <li style="font-size:20px;margin-bottom:8px"><b>Edit:</b> forget by unbinding, for the key and the locked door, on all 7 action rows and the critic. No data, no training.</li>
+        <li style="font-size:20px;margin-bottom:8px"><b>Edit:</b> forget by unbinding.</li>
         <li style="font-size:20px;margin-bottom:8px"><b>Reference:</b> the lava parent, which never learned door-key.</li>
         <li style="font-size:20px;margin-bottom:8px">10 seeds.</li>
       </ul>
@@ -547,6 +547,7 @@ a{color:var(--navy)}
   <div class="foot"><span>Results · success on test layouts</span><span class="pg"></span></div>
   <aside class="notes">
     <p><b>Source.</b> <code>results/antitrain</code> on the server (<code>~/hd-policy-edit</code>), FBPM source, seeds 44 to 53, 200 test-layout episodes per task and seed. Bars are the mean over seeds; dots are seeds. Test layouts are never seen in training.</p>
+    <p><b>The edit</b> removes four object vectors: the yellow key and the yellow door when locked, closed and open. Each is unbound from the original weights, and all four are subtracted at once, from all 7 action rows and the critic. No data, no training.</p>
     <p><b>LavaCrossing.</b> The source policy was already at 71.0% before the edit (the merge and fine-tuning cost it), so the edit lowers it by 5.9 points. The reference's 98.5% comes from its own training, not from anything the edit could restore.</p>
     <p><b>LavaDoorKey.</b> Both the edited policy and the reference fail mostly by not opening the door; the reference also steps on lava in 34.7% of episodes, the edited policy in 16.5%.</p>
   </aside>
