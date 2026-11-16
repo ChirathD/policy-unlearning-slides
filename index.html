@@ -524,7 +524,7 @@ a{color:var(--navy)}
   </div>
   <div class="foot"><span>Next · how to verify the forgetting</span><span class="pg"></span></div>
   <aside class="notes">
-    <p><b>These are the tests; the next four slides give the results.</b> They spell out the draft's research question, "behaves like an agent that never learned that skill", and its goal, "keep lava avoidance".</p>
+    <p><b>These are the tests; the next three slides give the results.</b> They spell out the draft's research question, "behaves like an agent that never learned that skill", and its goal, "keep lava avoidance".</p>
   </aside>
 </section>
 
@@ -570,49 +570,24 @@ a{color:var(--navy)}
   </aside>
 </section>
 
-<!-- R4 -->
-<section class="slide" data-title="Results: relearning">
-  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
-  <h2>Result 3: the edited agent relearns door-key 2.5× faster</h2>
-  <div class="cols" style="grid-template-columns:1000px 1fr;gap:40px;margin-top:10px">
-    <div>
-      <p style="font-size:22px;margin:0 0 4px">Environment steps of PPO training on DoorKey until 95% success (median; dots are seeds)</p>
-      <svg viewBox="0 0 1000 500" width="1000" height="500" id="relearn"></svg>
-    </div>
-    <div>
-      <p style="font-size:21px;margin:30px 0 14px">If a skill is truly forgotten, learning it again should take as long as for an agent that never had it.</p>
-      <div class="box orange" data-step="2"><p style="font-size:20px"><b>After forget:</b> 213k vs 532k steps, faster on 9 of 10 seeds (paired −267k [−332k, −183k]). Some of the skill is still in the weights.</p></div>
-      <div class="box navy" data-step="3"><p style="font-size:20px"><b>Reverse training</b> reaches 0% on DoorKey but relearns fastest, in 101k: it hides the skill instead of removing it.</p></div>
-    </div>
-  </div>
-  <div class="foot"><span>Results · how fast the skill comes back</span><span class="pg"></span></div>
-  <aside class="notes">
-    <p><b>Source.</b> <code>results/relearn</code>, FBPM source, 10 seeds, budget 600,000 steps, success measured on validation layouts. Three of the ten never-learned runs did not reach 95%; they count as 600k (hollow dots), so its median is a lower bound. The median of the runs that did reach 95% is 484k.</p>
-    <p><b>Reverse training</b> is a baseline that needs data: gradient steps that lower the door-key actions on door-key states, with a retain step on lava states. It drives DoorKey to 0% but leaves the key-pickup rule in place (82% still pick up the key).</p>
-    <p><b>Not separated:</b> all edits share one critic edit, so leftover value in the critic may also speed up relearning.</p>
-  </aside>
-</section>
-
 <!-- R5 -->
 <section class="slide" data-title="Results: summary">
   <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
   <h2>So far: a data-free edit removes most of door-key, not all</h2>
-  <div class="cols" style="grid-template-columns:1fr 1fr 1fr;gap:28px;margin-top:22px">
+  <div class="cols" style="grid-template-columns:1fr 1fr;gap:28px;margin-top:22px">
     <div class="card orange" data-step="1"><span class="num">1</span><h3>Forgotten, mostly</h3><p>DoorKey 98.5% → 20.4%, vs 4.3% for an agent that never learned it. The door step goes; the key step only partly.</p></div>
     <div class="card" data-step="2"><span class="num">2</span><h3>Kept, mostly</h3><p>LavaCrossing 71.0% → 65.1%, lava deaths 3.4% → 4.3%. The top action still changes on 31% of lava-only states.</p></div>
-    <div class="card navy" data-step="3"><span class="num">3</span><h3>A trace is left</h3><p>The key rule overshoots to −1.5 instead of 0, and door-key comes back 2.5× faster than for the never-learned agent.</p></div>
   </div>
-  <div class="box navy" data-step="4" style="margin-top:26px">
-    <p class="small" style="margin:0 0 6px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#1D3557;font-size:16px">Possible next steps</p>
+  <div class="box navy" data-step="3" style="margin-top:26px">
+    <p class="small" style="margin:0 0 6px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#1D3557;font-size:16px">Next steps</p>
     <ul style="padding-left:24px">
-      <li style="font-size:21px;margin-bottom:4px">An exact clean-up with the inverse Gram matrix of the positions, to remove the overshoot.</li>
-      <li style="font-size:21px;margin-bottom:4px">Edit the critic separately, to see how much of the fast relearning comes from it.</li>
-      <li style="font-size:21px;margin-bottom:0">A larger D, to lower the overlap between positions and the side effects.</li>
+      <li style="font-size:21px;margin-bottom:4px">Check the number of fine-tuning steps needed to reach the ideal score.</li>
+      <li style="font-size:21px;margin-bottom:0">Compare with other existing methods.</li>
     </ul>
   </div>
   <div class="foot"><span>Results · summary</span><span class="pg"></span></div>
   <aside class="notes">
-    <p>All numbers are from the three previous slides, apart from the key and door rates, which are from the same DoorKey runs (FBPM source, 10 seeds, test layouts). The next steps are proposals; none has been run.</p>
+    <p>All numbers are from the two previous slides, apart from the key and door rates and lava deaths, which are from the same test runs (FBPM source, 10 seeds, test layouts). The next steps are still to do.</p>
   </aside>
 </section>
 
@@ -1152,7 +1127,6 @@ function lavaGrid(s,x0,y0,cs){
 })();
 
 /* ---------- results: LavaDoorKey door-key unlearning, FBPM source, 10 seeds, test layouts ---------- */
-const PURPLE="#8E7CC3";
 const RES={doorkey:{no_edit:[99.5,99.0,99.0,98.5,100.0,99.0,99.0,93.5,98.5,99.0],forget:[17.0,42.5,31.0,16.0,36.5,17.5,8.0,10.5,19.0,6.5],lava_parent:[7.0,1.0,11.5,8.0,2.5,3.0,4.0,2.0,0.0,4.5]},
   lavacross:{no_edit:[77.5,66.0,78.5,71.0,59.0,79.0,80.0,74.5,68.0,57.0],forget:[80.5,64.5,77.5,73.5,56.5,85.5,46.0,64.5,69.0,34.0],lava_parent:[97.0,99.5,99.5,99.5,100.0,98.5,100.0,94.5,98.5,98.0]},
   lavadoorkey:{no_edit:[99.5,98.5,97.0,99.0,98.0,99.0,100.0,99.5,98.5,99.0],forget:[14.0,54.0,31.0,20.0,21.0,23.5,10.0,31.0,38.5,9.0],lava_parent:[22.5,29.0,30.5,19.5,18.0,30.5,12.5,23.5,22.0,34.5]}};
@@ -1211,32 +1185,6 @@ function resBar(g,x,y0,w,h,j){ const P=RES_POL[j];
     el("rect",{x:gx+3*cs-4,y:gy+5*cs-4,width:cs+8,height:cs+8,rx:6,fill:"none",stroke:NAVY,"stroke-width":4,class:"pulse"},ring);
   });
   el("text",{x:60,y:gy+7*cs+30,class:"lbls"},s,"agent (triangle) at the bottom centre, facing up · teal: pushes toward pickup · orange: pushes away · logit units, mean of 10 seeds");
-})();
-
-/* R4: relearning steps to 95% on DoorKey (null = did not reach it within the 600k budget) */
-(function(){
-  const s=document.getElementById("relearn"); if(!s) return;
-  const RL=[["never learned door-key","starts at 4% on DoorKey",[391602,490994,380109,587019,573764,null,483739,null,null,237591],532379,2],
-            ["after forget by unbinding","starts at 20%",[184538,206053,112954,241051,199341,352443,218066,250659,207965,298704],213016,1],
-            ["reverse training","starts at 0%; needs data",[68826,59669,51494,76559,105789,200222,95215,141793,235302,189467],100502,3]];
-  const x0=260, B=600000, k=640/B, yA=440;
-  el("line",{x1:x0,y1:30,x2:x0,y2:yA,stroke:"#5B6475","stroke-width":2},s);
-  [0,100000,200000,300000,400000,500000,600000].forEach(v=>{ el("line",{x1:x0+v*k,y1:30,x2:x0+v*k,y2:yA,stroke:v?"#E3E6EB":"#5B6475","stroke-width":v?1:2},s);
-    el("text",{x:x0+v*k,y:yA+24,"text-anchor":"middle",class:"lbls",style:"font-size:14px"},s,v?(v/1000)+"k":"0"); });
-  el("line",{x1:x0+B*k,y1:30,x2:x0+B*k,y2:yA,stroke:BAD,"stroke-width":2,"stroke-dasharray":"7 6"},s);
-  el("text",{x:x0+B*k,y:22,"text-anchor":"middle",class:"lbls",style:"fill:#C2412B"},s,"budget 600k");
-  el("text",{x:x0+B*k,y:yA+50,"text-anchor":"end",class:"lbls"},s,"environment steps to 95% DoorKey success");
-  RL.forEach(([lab,sub,vals,med,step],i)=>{
-    const g=el("g",{"data-step":String(i===0?1:i===1?2:3)},s), y=56+i*128;
-    const col=i===0?GREY:i===1?OR:PURPLE, fill=i===0?"#E8EBEF":col, txt=i===0?"#5B6475":i===1?"#B4461F":"#5B4A9A";
-    el("text",{x:x0-18,y:y+24,"text-anchor":"end",class:"lblb",style:"fill:"+txt},g,lab);
-    el("text",{x:x0-18,y:y+48,"text-anchor":"end",class:"lbls"},g,sub);
-    el("rect",{x:x0,y:y,width:med*k,height:40,rx:4,fill:fill,stroke:i===0?GREY:"none","stroke-width":2,"stroke-dasharray":i===0?"6 4":"none",class:"grow"},g);
-    el("text",{x:x0+med*k+10,y:y+28,class:"lblb",style:"font-size:22px;fill:"+txt},el("g",{class:"seq",style:"transition-delay:.9s"},g),Math.round(med/1000)+"k");
-    const dots=el("g",{class:"seq",style:"transition-delay:1.1s"},g); let nc=0;
-    vals.forEach((v,q)=>{ const cen=v===null; el("circle",{cx:x0+(cen?B:v)*k,cy:y+62+(cen?(nc++)*9-9:0),r:5,fill:cen?"#fff":col,stroke:cen?BAD:col,"stroke-width":2,opacity:cen?1:.8},dots); });
-    if(i===0) el("text",{x:x0+B*k-12,y:y+92,"text-anchor":"end",class:"lbls",style:"fill:#C2412B"},dots,"3 of 10 never reached 95%");
-  });
 })();
 
 /* ---------- LaTeX in the HTML: \( ... \) ---------- */
