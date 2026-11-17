@@ -590,6 +590,110 @@ a{color:var(--navy)}
   </aside>
 </section>
 
+<!-- C1 -->
+<section class="slide" data-title="Continuous test: the task">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
+  <h2>Result 3: a continuous task, where the skill is a combination</h2>
+  <div class="cols" style="grid-template-columns:560px 1fr;gap:36px;margin-top:8px">
+    <div>
+      <ul style="padding-left:24px">
+        <li style="font-size:22px;margin-bottom:10px">A robot moves freely in a 2D arena to a fixed <b>goal</b>.</li>
+        <li style="font-size:22px;margin-bottom:10px">Each episode has one object near its path: a <b>pit</b> (deadly) or a <b>coin</b> (bonus), coloured <b>yellow</b> or <b>blue</b>.</li>
+        <li style="font-size:22px;margin-bottom:10px">It sees the object’s position, colour and shape only when close.</li>
+      </ul>
+      <div class="box orange" data-step="1"><p style="font-size:22px"><b>Goal:</b> forget “avoid <b>yellow pits</b>”, and keep avoiding <b>blue pits</b> and collecting <b>yellow coins</b>.</p></div>
+      <p class="small" data-step="2" style="margin-top:10px">Neither “yellow” nor “pit” may be forgotten on its own, only the two together.</p>
+    </div>
+    <div>
+      <img src="assets/colour_arena.png" alt="Six arena panels with trajectories" style="width:100%;max-height:640px;object-fit:contain;display:block">
+      <p class="small" style="margin:4px 0 0">Real episodes of the trained HD agent. Bottom right: an agent that never saw a yellow pit walks into it.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Results · continuous task</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Setup.</b> Point mass with state (x, y, vx, vy), five push actions, goal disc at (0.7, 0.7). One object per episode (yellow pit, blue pit, yellow coin, blue coin, or none), placed near the straight line from start to goal. Entering a pit ends the episode with no reward; touching a coin gives +0.3 and removes it. The object is observed only within 0.6 of the agent, as relative position, a continuous hue and a shape value; no one-hot input.</p>
+    <p><b>Figure.</b> HD seed 44, test layouts, sampled actions. Dashed circle: sensing range at the start; star: coin collected; ×: fell in the pit.</p>
+    <p><b>Code.</b> <code>hd-continuous/code/hdcont/colours.py</code>; server <code>~/hd-continuous</code>.</p>
+  </aside>
+</section>
+
+<!-- C2 -->
+<section class="slide" data-title="Continuous test: encoding and edit">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
+  <h2>Binding makes “yellow pit” one vector, so it can be removed alone</h2>
+  <p class="formula" style="font-size:34px;margin:22px 0 4px">\(H = A(x, y, v) \;+\; P(dx, dy) \odot C(\text{colour}) \odot S(\text{shape})\)</p>
+  <p class="small" style="margin:0 0 20px">A: the robot’s own state · P: where the object is · C: its colour · S: pit or coin. Each is a random FHRR vector (D = 1024).</p>
+  <div class="cols" style="grid-template-columns:1fr 1fr;gap:28px">
+    <div class="card" data-step="1"><span class="num">1</span><h3>One vector per combination</h3><p>P ⊙ C(yellow) ⊙ S(pit) is “a yellow pit here”. It is nearly orthogonal to a blue pit and to a yellow coin.</p></div>
+    <div class="card orange" data-step="2"><span class="num">2</span><h3>Zero-shot edit</h3><p>Remove from every action vector its part along the yellow-pit vectors, at every position: \(W'_a = W_a - \Pi_{\text{yellow pit}}(W_a)\).</p></div>
+  </div>
+  <div class="box navy" data-step="3" style="margin-top:22px"><p style="font-size:22px"><b>No data, no environment, no training.</b> The same idea as unbind and clean up, with the clean-up taken over every position where a yellow pit can be.</p></div>
+  <div class="foot"><span>Results · continuous task, the edit</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Encoding.</b> Each input u becomes \(e^{i (u/\ell)\psi}\) with random Gaussian \(\psi\) (fractional power encoding): lengthscale 0.15 for positions, 0.06 for velocities, 0.1 for hue (yellow 0.17, blue 0.67, so 5 lengthscales apart) and 0.25 for shape (pit 0, coin 1). Robot features are bound into A, object features into the object vector; the two are added, not normalised. The policy is linear: \(z_a = \operatorname{Re}(W_a \cdot \overline{H})/\sqrt{D}\).</p>
+    <p><b>Edit.</b> Yellow-pit object vectors are generated for 2,000 random positions within sensing range (synthetic, from the codebook only). Their span has 131 directions out of 1,024; \(\Pi\) is the projection onto it. Only the actor is edited.</p>
+  </aside>
+</section>
+
+<!-- C2b -->
+<section class="slide" data-title="Continuous test: every position">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
+  <h2>Continuous positions: sample, keep the span, project out</h2>
+  <div class="cols" style="grid-template-columns:990px 1fr;gap:30px;margin-top:6px">
+    <img src="assets/unbind_continuous.png" alt="Six panels: sampled yellow-pit offsets, singular value spectrum with 131 kept, residual outside the span near zero inside the sensing range, and the policy's response to a yellow pit before (strong) and after (zero) the edit, and to a blue pit after (kept)" style="width:990px;max-height:650px;object-fit:contain;display:block">
+    <div>
+      <div class="card" data-step="1" style="margin-bottom:14px"><span class="num">1</span><h3>Sample</h3><p>2,000 yellow-pit vectors at random offsets (a).</p></div>
+      <div class="card" data-step="2" style="margin-bottom:14px"><span class="num">2</span><h3>Keep their span</h3><p>Nearby positions have almost the same vector, so 131 of 1,024 directions cover every offset in range, sampled or not (b, c).</p></div>
+      <div class="card orange" data-step="3"><span class="num">3</span><h3>Project out</h3><p>The response to a yellow pit goes to zero everywhere (d → e); a blue pit still gets one (f).</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Results · continuous task, the edit</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Why a finite basis is enough.</b> With lengthscale ℓ = 0.15, vectors within about ℓ of each other are highly similar, so the yellow-pit vectors over the sensing disc lie close to a low-dimensional subspace. Its size grows roughly with area / ℓ² (π·0.6² / 0.15² ≈ 50, times a small constant, plus hue jitter). Keeping singular values above 1% of the largest gives B with 131 directions; the edit is \(W'_a = W_a - (W_a B^{H}) B\). For the fixed symbol yellow ⊙ pit this is exactly unbind → clean up over positions → rebind, with the clean-up a projection onto span(B) instead of a sum over 49 orthogonal grid cells.</p>
+    <p><b>Figure.</b> HD seed 44. (c): share of each yellow-pit vector outside span(B) on a 161 × 161 grid: 0.0001 on average inside the sensing range (max 0.002), rising to 1 outside it, where nothing was sampled. (d–f): norm of the centred logit change caused by the object at each offset. Yellow pit 3.08 → 0.009; blue pit 2.90 → 2.58, the cost of overlap with the removed directions. Script: <code>render_unbind.py</code>.</p>
+  </aside>
+</section>
+
+<!-- C3 -->
+<section class="slide" data-title="Continuous test: before and after">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
+  <h2>Before and after forgetting: same layouts, same agent</h2>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:4px">
+    <img src="assets/before_forgetting.gif" alt="Before forgetting: the agent avoids the yellow pit, the blue pit, and collects the yellow coin" style="width:900px;display:block">
+    <img src="assets/after_forgetting.gif" alt="After forgetting: the agent walks into the yellow pit, still avoids the blue pit and collects the yellow coin" style="width:900px;display:block">
+  </div>
+  <div class="foot"><span>Results · continuous task, example episodes</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>What changes.</b> After the edit the agent heads straight through the yellow pit, as an agent that never learned it does, but it still goes around the blue pit and still collects the yellow coin.</p>
+    <p><b>These are example episodes</b> (HD seed 44, test layouts, sampled actions with the same random numbers before and after). Each is the first test layout where the parent succeeds and the edited policy shows the intended behaviour (layouts k = 1, 0, 1 for yellow pit, blue pit, yellow coin). The statistics are on the next slide. Script: <code>render_before_after.py</code>.</p>
+  </aside>
+</section>
+
+<!-- C4 -->
+<section class="slide" data-title="Continuous test: results">
+  <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span class="here">Results</span></div>
+  <h2>Yellow-pit deaths 5% → 68%; blue pits and coins kept</h2>
+  <div class="cols" style="grid-template-columns:400px 1fr;gap:40px;margin-top:10px">
+    <div>
+      <p class="small" style="margin:0 0 4px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#1D3557;font-size:16px">Setup</p>
+      <ul style="padding-left:22px">
+        <li style="font-size:20px;margin-bottom:8px">HD-PPO policy (D = 1024), 10 seeds, 200 test episodes per task.</li>
+        <li style="font-size:20px;margin-bottom:8px"><b>Edit:</b> zero-shot unbind of “yellow pit”.</li>
+        <li style="font-size:20px;margin-bottom:8px"><b>Reference:</b> an agent trained without yellow pits.</li>
+      </ul>
+      <div class="box orange" data-step="4" style="margin-top:18px"><p style="font-size:21px"><b>91% of the way</b> to never having learned it, with no data and no training.</p></div>
+    </div>
+    <svg viewBox="0 0 1000 560" width="1000" height="560" id="contSucc"></svg>
+  </div>
+  <div class="foot"><span>Results · continuous task, 10 seeds</span><span class="pg"></span></div>
+  <aside class="notes">
+    <p><b>Source.</b> <code>results/colour</code> on the server (<code>~/hd-continuous</code>), seeds 44 to 53, 200 test-layout episodes per task and seed. Bars: mean over seeds; dots: seeds.</p>
+    <p><b>Numbers.</b> Yellow-pit deaths 5.1% → 68.2% [63.2, 73.1] (never learned 75.4%). Blue-pit deaths 6.5% → 5.7%; yellow coins 94.2% → 92.3% (−2.0 points [−2.8, −1.1]); blue coins 92.8% → 93.2%. “91%”: (68.2 − 5.1) / (75.4 − 5.1) = 0.91 [0.81, 1.02].</p>
+    <p><b>Side effects.</b> On states with a blue pit, a coin or no object, the action distribution changes by 0.09 (total variation; retraining without yellow pits changes it by 0.43). Paths without an object are about 2.6 steps longer.</p>
+    <p><b>Caveats.</b> Random Fourier features (the real-valued twin of this encoding) forget equally well with the same edit, so the result shows that bound, kernel-like features make this possible, not something unique to HD. An MLP trained without yellow pits still avoids them (it combines “pit” and “yellow” by itself), and needs synthetic targets and training to forget.</p>
+  </aside>
+</section>
+
 <!-- 16 -->
 <section class="slide" data-title="References">
   <div class="strip"><span>Problem</span><span>Background</span><span>Method</span><span>Next</span><span>Results</span></div>
@@ -1184,6 +1288,35 @@ function resBar(g,x,y0,w,h,j){ const P=RES_POL[j];
     el("rect",{x:gx+3*cs-4,y:gy+5*cs-4,width:cs+8,height:cs+8,rx:6,fill:"none",stroke:NAVY,"stroke-width":4,class:"pulse"},ring);
   });
   el("text",{x:60,y:gy+7*cs+30,class:"lbls"},s,"agent (triangle) at the bottom centre, facing up · teal: pushes toward pickup · orange: pushes away · logit units, mean of 10 seeds");
+})();
+
+/* ---------- results: continuous colour arena, HD, zero-shot unbind of "yellow pit", 10 seeds, test layouts ---------- */
+const CONT={YP:{no_edit:[4.0,2.5,4.0,5.0,6.5,9.0,4.5,6.0,3.5,5.5],unbind:[53.5,76.0,74.0,61.0,67.5,67.0,63.0,64.0,73.5,82.5],never:[74.0,75.5,70.5,89.0,81.5,69.0,63.5,88.0,75.5,67.5]},
+  BP:{no_edit:[4.0,13.0,6.5,1.0,5.0,10.0,10.5,4.5,7.5,3.0],unbind:[5.5,8.5,6.5,1.0,3.0,11.5,8.5,2.0,6.5,4.0],never:[9.0,15.0,7.0,3.0,8.0,4.0,7.5,12.5,4.0,5.0]},
+  YC:{no_edit:[95.0,91.5,92.5,90.5,92.5,96.0,93.5,95.5,98.0,97.0],unbind:[91.5,91.0,89.5,90.0,88.0,95.0,90.5,95.0,96.0,96.0],never:[90.5,96.0,92.0,94.5,93.5,99.0,93.0,90.5,97.5,98.5]}};
+const CONT_MEAN={YP:[5.1,68.2,75.4],BP:[6.5,5.7,7.5],YC:[94.2,92.3,94.5]};
+const CONT_POL=[["no_edit","before the edit",NAVY,"none",NAVY,NAVY],["unbind","after zero-shot unbind",OR,"none","#9A3412","#B4461F"],["never","never saw yellow pits","#E8EBEF",GREY,"#5B6475","#5B6475"]];
+(function(){
+  const s=document.getElementById("contSucc"); if(!s) return;
+  const y0=470, k=3.6;
+  CONT_POL.forEach((P,j)=>{ const g=el("g",{"data-step":String(j+1)},s), x=60+j*310;
+    el("rect",{x:x,y:6,width:24,height:24,rx:4,fill:P[2],stroke:j===2?GREY:"none","stroke-width":2,"stroke-dasharray":j===2?"5 4":"none"},g);
+    el("text",{x:x+34,y:25,class:"lbl"},g,P[1]); });
+  [["YP","Yellow-pit deaths","forget: should go up","#B4461F"],["BP","Blue-pit deaths","keep: should stay low","#14655C"],["YC","Yellow coins collected","keep: should stay high","#14655C"]].forEach(([t,name,sub,sc],i)=>{
+    const px=60+i*320, w=290;
+    el("text",{x:px+w/2,y:72,"text-anchor":"middle",class:"lblb"},s,name);
+    el("text",{x:px+w/2,y:94,"text-anchor":"middle",class:"lbls",style:"fill:"+sc},s,sub);
+    [0,25,50,75,100].forEach(v=>{ el("line",{x1:px,y1:y0-v*k,x2:px+w,y2:y0-v*k,stroke:v?"#E3E6EB":"#5B6475","stroke-width":v?1:2},s);
+      if(i===0) el("text",{x:px-10,y:y0-v*k+5,"text-anchor":"end",class:"lbls",style:"font-size:14px"},s,v+"%"); });
+    CONT_POL.forEach((P,j)=>{
+      const g=el("g",{"data-step":String(j+1)},s), bw=74, bx=px+16+j*94, v=CONT_MEAN[t][j];
+      el("rect",{x:bx,y:y0-v*k,width:bw,height:v*k,fill:P[2],stroke:P[3],"stroke-width":2,"stroke-dasharray":j===2?"6 4":"none",class:"growy"},g);
+      const dots=el("g",{class:"seq",style:"transition-delay:.9s"},g);
+      CONT[t][P[0]].forEach((x,q)=>el("circle",{cx:bx+12+q*(bw-24)/9,cy:y0-x*k,r:3.8,fill:"#fff",stroke:P[4],"stroke-width":1.8},dots));
+      el("text",{x:bx+bw/2,y:y0+30,"text-anchor":"middle",class:"lblb",style:"font-size:22px;fill:"+P[5]},el("g",{class:"seq",style:"transition-delay:.7s"},g),v.toFixed(1));
+    });
+  });
+  el("text",{x:60,y:y0+70,class:"lbls"},s,"share of test episodes, mean of 10 seeds (dots: seeds)");
 })();
 
 /* ---------- LaTeX in the HTML: \( ... \) ---------- */
